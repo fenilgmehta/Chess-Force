@@ -68,13 +68,17 @@ def preprocess_pgn(pgn_file_path: Union[str, Path], output_path: Union[str, Path
 
     INPUT_PGN_NAME: str = Path(pgn_file_path).name[:-4]
 
-    engine_sf = step_01_engine.CustomEngine(src_path=None, hash_size_mb=8192, depth=15, analyse_time=0.2)
+    engine_sf = step_01_engine.CustomEngine(src_path=None, mate_score_max=8000, mate_score_difference=50, hash_size_mb=8192, depth=15, analyse_time=0.2)
 
     res_pd = pd.DataFrame(data=None, index=None, columns=COLUMNS)
     # Used this with "KingBase2019-A80-A99.pgn"
+
+    # NOTE: change 2: use the following lines only for the first time csv generation
     default_board = chess.Board()
     for i in default_board.legal_moves:
         default_board.push(i)
+        # NOTE: change 01: replace None with call to evaluate function if required
+        # NOTE: None -> engine_sf.evaluate_board(default_board)
         res_pd.loc[len(res_pd)] = [default_board.fen(), None]
         default_board.pop()
 
@@ -105,7 +109,10 @@ def preprocess_pgn(pgn_file_path: Union[str, Path], output_path: Union[str, Path
                 continue
 
             try:
-                res_pd.loc[len(res_pd)] = [j.fen(), engine_sf.evaluate(j)]
+                # NOTE: change 01: replace None with call to evaluate function if required
+                # NOTE: None -> engine_sf.evaluate_board(j)
+                res_pd.loc[len(res_pd)] = [j.fen(), None]
+
                 # for k in generate_boards(j):
                 #     res_pd.loc[len(res_pd)] = [k.fen(), None]
             except Exception as e:
@@ -132,8 +139,10 @@ def preprocess_pgn(pgn_file_path: Union[str, Path], output_path: Union[str, Path
         file_count += 1
         cs.savepoint(resume_file_name, f"{game_count},{file_count}")
 
+    print(f"DEBUG: execution successfully complete for '{pgn_file_path}'", file=sys.stderr)
 
-def preprocess_gen_score(csv_file_path: Union[str, Path], resume_file_name):
+
+def preprocess_csv_score(csv_file_path: Union[str, Path], resume_file_name):
     global engine_sf
     engine_sf = step_01_engine.CustomEngine(src_path=None, hash_size_mb=8192, depth=15, analyse_time=0.2)
 
@@ -155,7 +164,7 @@ def preprocess_gen_score(csv_file_path: Union[str, Path], resume_file_name):
             # data.loc[j][1] = engine_sf.evaluate(chess.Board(data.loc[j][0]))
             if not chess.Board(data.loc[j][0]).is_valid():
                 print(f"\rERROR: board state not valid at line count = {line_count}")
-            data.at[j, 'cp_score'] = engine_sf.evaluate(chess.Board(data.loc[j][0]))
+            data.at[j, 'cp_score'] = engine_sf.evaluate_board(chess.Board(data.loc[j][0]))
             line_count += 1
             print(f"\r\t{line_count}", end="", file=sys.stderr)
         print(f"\r", end="", file=sys.stderr)
