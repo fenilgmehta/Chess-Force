@@ -1,6 +1,8 @@
 import multiprocessing
 import os
+import random
 import sys
+import time
 from pathlib import Path
 from typing import Union
 
@@ -10,7 +12,8 @@ import numpy as np
 
 class CustomEngine:
     def __init__(self, src_path: Union[str, Path] = None,
-                 mate_score_max: int = 8500,
+                 cp_score_max: int = 8000,
+                 mate_score_max: int = 10000,
                  mate_score_difference: int = 50,
                  cpu_cores: int = multiprocessing.cpu_count(),
                  hash_size_mb: int = 4096,
@@ -21,6 +24,7 @@ class CustomEngine:
         self.MAX_DEPTH = depth
         self.MAX_ANALYSE_TIME = analyse_time  # time is in seconds
 
+        self.CP_SCORE_MAX = cp_score_max
         # MAX CP score witnessed = +7311
         self.MATE_SCORE_MAX = mate_score_max  # max score any board can get after check mate
         self.MATE_SCORE_DIFFERENCE = mate_score_difference  # minimum difference between CP value for boards with check mate possible in "n" and "n-1" moves
@@ -33,8 +37,10 @@ class CustomEngine:
             self.MAX_DEPTH = 1
         if self.MAX_ANALYSE_TIME <= 0:
             self.MAX_ANALYSE_TIME = 0.1
+        if (self.CP_SCORE_MAX is None) or (self.CP_SCORE_MAX <= 0):
+            self.CP_SCORE_MAX = 8000
         if (self.MATE_SCORE_MAX is None) or (self.MATE_SCORE_MAX <= 0):
-            self.MATE_SCORE_MAX = 8500
+            self.MATE_SCORE_MAX = 10000
         if (self.MATE_SCORE_DIFFERENCE is None) or (self.MATE_SCORE_DIFFERENCE <= 0):
             self.MATE_SCORE_DIFFERENCE = 50
 
@@ -84,7 +90,8 @@ class CustomEngine:
         self.engine_obj.configure({"Hash": hash_size})
         return
 
-    def evaluate_board(self, board: chess.Board):
+    # TODO: verify this function once
+    def evaluate_board(self, board: chess.Board) -> int:
         # https://python-chess.readthedocs.io/en/v0.25.0/engine.html#analysing-and-evaluating-a-position
         score1 = self.engine_obj.analyse(
             board=board,
@@ -104,7 +111,10 @@ class CustomEngine:
             # (1) +ve integer value if black mates white
             # (2) -ve integer value if white mates black
 
-        return score1.white()
+        int_score = int(str(score1.white()))
+        if int_score > 0:
+            return min(int_score, self.CP_SCORE_MAX)
+        return max(int_score, -self.CP_SCORE_MAX)
 
     def evaluate_fen(self, board_fen: str):
         return self.evaluate_board(chess.Board(board_fen))
@@ -121,25 +131,51 @@ class CustomEngine:
 
 ##################################################################################################
 if __name__ == "__main__":
-    engine_sf = CustomEngine()
+    engine_sf = None
+
+    try:
+        del engine_sf
+    except:
+        pass
+    engine_sf = CustomEngine(src_path=None,
+                             cp_score_max=8000,
+                             mate_score_max=10000,
+                             mate_score_difference=50,
+                             cpu_cores=1,
+                             hash_size_mb=16,
+                             depth=20,
+                             analyse_time=2)
 
     # board = chess.Board("r1bqkbnr/p1pp1ppp/1pn5/4p3/2B1P3/5Q2/PPPP1PPP/RNB1K1NR w KQkq - 2 4")
+    BOARD_STR = ['rnb1k2r/1pppq1pp/4pn2/5p2/1pPP4/1Q2PN2/PP3PPP/RN2KB1R w KQkq - 2 8',
+                 'r4N1k/5npp/3qp3/3p4/Pp3n2/1P2R3/3N1PPP/R4QK1 b - - 0 25',
+                 '2r2r1k/pb4p1/3p1q1p/1Pn1p2P/8/3B1N2/PPQ2PP1/1K1RR3 w - - 0 19',
+                 '8/8/4q1k1/4bp1p/7P/5QP1/6NK/8 b - - 5 69',
+                 'r1b2rk1/1pp3pp/2np1b2/p3p2q/2PP1p2/PP2PNP1/1BQ2PBP/3R1RK1 w - - 0 16',
+                 '5r1k/ppnqr1bp/2ppp1p1/8/2PP4/1P1Q1NP1/PB2RP1P/4R1K1 b - - 7 20',
+                 'r1b2rk1/pp2qnpp/2p1p3/3pNp2/2PP4/3BP3/PPQ2PPP/R4RK1 w - - 1 14',
+                 '8/8/8/5K2/5P2/1p4k1/1P6/8 w - - 1 76',
+                 'r1bq1r1k/1pp3bp/p2n2p1/2NPpp2/8/1Q2B1P1/PP2PPBP/2RR2K1 b - - 3 16',
+                 'r2q1rk1/pppn1bb1/3p1npp/4pp2/2PP3P/1PN1PN2/PB1Q1PP1/R3KB1R w KQ - 7 12']
+
+    # ------------------------------------
+
+    random.shuffle(BOARD_STR)
+    start = time.time()
+    for i in BOARD_STR: print(engine_sf.evaluate_fen(i))
+    end = time.time()
+    print(f"running time = {end - start}")
+    print(f"board count = {len(BOARD_STR)}")
+
+    # ------------------------------------
+
     board = chess.Board()
-    import time
 
     start = time.time()
-    print(engine_sf.evaluate_board(board))
-    print(engine_sf.evaluate_board(board))
-    print(engine_sf.evaluate_board(board))
-    print(engine_sf.evaluate_board(board))
-    print(engine_sf.evaluate_board(board))
-    print(engine_sf.evaluate_board(board))
-    print(engine_sf.evaluate_board(board))
-    print(engine_sf.evaluate_board(board))
-    print(engine_sf.evaluate_board(board))
-    print(engine_sf.evaluate_board(board))
+    for i in range(10): print(engine_sf.evaluate_board(board))
     end = time.time()
-    print(end - start)
+    print(f"running time = {end - start}")
+    print(f"board count = {10}")
 
 # default_param = {
 #     "Write Debug Log": "false",
@@ -155,22 +191,3 @@ if __name__ == "__main__":
 #     "Slow Mover": 80,
 #     "UCI_Chess960": "false",
 # }
-
-#
-# from stockfish import Stockfish
-#
-# stockfish = Stockfish(str(DEFAULT_ENGINE_PATH), depth=21, param={"Hash": MAX_HASH_TABLE_SIZE, "Threads": MAX_THREADS_TO_USE})
-# stockfish.set_fen_position(chess.Board().fen())
-#
-# stockfish.stockfish.stdin.write(f"go depth {stockfish.depth}\n")
-# stockfish.stockfish.stdin.flush()
-# while True:
-#     text = stockfish.stockfish.stdout.readline().strip()
-#     print(text)
-#     # split_text = text.split(" ")
-#     # if split_text[0] == "bestmove":
-#     #     if split_text[1] == "(none)":
-#     #         return None
-#     #     self.info = last_text
-#     #     return split_text[1]
-#     # last_text = text
