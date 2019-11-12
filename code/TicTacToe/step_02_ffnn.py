@@ -26,15 +26,15 @@ def print_model_stats(y_true, y_prediction):
 class FFNN_tf:
     def __init__(self):
         self.model = tf.keras.Sequential()
-        self.model.add(layers.Dense(20, activation='tanh'))
-        self.model.add(layers.Dense(256, activation='tanh'))
-        self.model.add(layers.Dense(256, activation='tanh'))
-        self.model.add(layers.Dense(256, activation='tanh'))
-        self.model.add(layers.Dense(256, activation='tanh'))
+        self.model.add(layers.Dense(20, activation='relu'))
+        self.model.add(layers.Dense(256, activation='relu'))
+        self.model.add(layers.Dense(256, activation='relu'))
+        self.model.add(layers.Dense(256, activation='relu'))
+        self.model.add(layers.Dense(256, activation='relu'))
         self.model.add(layers.Dense(1, activation='tanh'))
         self.model.compile(optimizer=tf.keras.optimizers.Adam(0.001),
-                           loss='categorical_crossentropy',
-                           metrics=['accuracy'])
+                           loss='mse',
+                           metrics=['mse'])
 
         # loss = 'categorical_crossentropy',
         # metrics = ['accuracy']
