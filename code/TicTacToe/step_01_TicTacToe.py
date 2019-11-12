@@ -234,9 +234,9 @@ class TicTacToe:
             print(f"DEBUG: get_best_move(...), turn = {turn}")
 
         if turn == 1:
-            return self.__min_max(1, -1)[1:]
+            return self.__min_max(1, -1)[1:3]
         if turn == -1:
-            return self.__min_max(-1, 1)[1:]
+            return self.__min_max(-1, 1)[1:3]
 
     def encode(self):
         """
