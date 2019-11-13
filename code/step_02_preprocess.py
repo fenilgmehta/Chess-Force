@@ -4,6 +4,8 @@ from typing import Union, Iterable, List, TextIO
 
 import chess.pgn
 import pandas as pd
+from minimalcluster import MasterNode
+from shell import Shell
 
 import common_services as cs
 import step_01_engine
@@ -11,13 +13,12 @@ import step_01_engine
 engine_sf = None
 MINI_BATCH_SIZE: int = 1000
 BATCH_SIZE: int = 10000
-COLUMNS = ["fen_board", "cp_score"]
 
 
 class PreprocessPGN:
     def __init__(self, pgn_file_path: Union[str, Path]):
         if not pgn_file_path.endswith(".pgn"):
-            raise Exception("ERROR: This is not pgn file")
+            raise Exception(f"ERROR: This is not pgn file: {pgn_file_path}")
         self.pgn_file_path: str = str(pgn_file_path)
 
         self.pgn_text_io: TextIO = self.__load_pgn()
@@ -73,7 +74,7 @@ class PreprocessPGN:
         return game_count
 
     def preprocess_pgn_simple(self, output_path: Union[str, Path]):
-        global engine_sf, BATCH_SIZE, COLUMNS
+        global engine_sf, BATCH_SIZE
 
         # Generate the output path if it does not exists and don't raise Exception if output_path already present.
         # if not Path(output_path).exists():
@@ -84,7 +85,7 @@ class PreprocessPGN:
         # res_pd         : pd.DataFrame with fen notation of chess.Board and CP score of the board
         # engine_sf      : CustomEngine object to generate the CP score of the board
         INPUT_PGN_NAME: str = Path(self.pgn_file_path).name[:-4]
-        res_pd = pd.DataFrame(data=[BATCH_SIZE * [None, None]], index=None, columns=COLUMNS)
+        res_pd = pd.DataFrame(data=[BATCH_SIZE * [None, None]], index=None, columns=cs.COLUMNS)
         # engine_sf = step_01_engine.CustomEngine(src_path=None, mate_score_max=10000, mate_score_difference=50, hash_size_mb=8192, depth=15, analyse_time=0.2)
 
         file_count = 1
@@ -104,7 +105,7 @@ class PreprocessPGN:
                 res_pd.to_csv(output_file, index=False)
                 print(f"DEBUG: boards successfully written to file: {output_file}", file=sys.stderr)
                 file_count += 1
-                res_pd = pd.DataFrame(data=[BATCH_SIZE * [None, None]], index=None, columns=COLUMNS)
+                res_pd = pd.DataFrame(data=[BATCH_SIZE * [None, None]], index=None, columns=cs.COLUMNS)
 
         if len(res_pd) > 0:
             output_file = Path(output_path) / f"{INPUT_PGN_NAME}_{file_count:06}.csv"
@@ -112,8 +113,8 @@ class PreprocessPGN:
             print(f"DEBUG: boards successfully written to file: {output_file}", file=sys.stderr)
         print(f"DEBUG: processing finished :)")
 
-    def preprocess_pgn(self, output_path: Union[str, Path], resume_file_name):
-        global engine_sf, MINI_BATCH_SIZE, BATCH_SIZE, COLUMNS
+    def preprocess_pgn(self, output_path: Union[str, Path], resume_file_name=None, debug_flag=0):
+        global engine_sf, MINI_BATCH_SIZE, BATCH_SIZE
 
         # Generate the output path if it does not exists and don't raise Exception if output_path already present.
         # if not Path(output_path).exists():
@@ -124,7 +125,9 @@ class PreprocessPGN:
         # res_pd         : pd.DataFrame with fen notation of chess.Board and CP score of the board
         # engine_sf      : CustomEngine object to generate the CP score of the board
         INPUT_PGN_NAME: str = Path(self.pgn_file_path).name[:-4]
-        res_pd = pd.DataFrame(data=None, index=None, columns=COLUMNS)
+        if resume_file_name is None:
+            resume_file_name = f"resume_{INPUT_PGN_NAME}.txt"
+        res_pd = pd.DataFrame(data=None, index=None, columns=cs.COLUMNS)
         # engine_sf = step_01_engine.CustomEngine(src_path=None, mate_score_max=10000, mate_score_difference=50, hash_size_mb=8192, depth=15, analyse_time=0.2)
 
         # Used this with "KingBase2019-A80-A99.pgn"
@@ -144,15 +147,18 @@ class PreprocessPGN:
         print(resume_game_count, file_count)
         if game_count < resume_game_count and (Path(output_path) / f"{INPUT_PGN_NAME}_{file_count:06}.csv").exists():
             res_pd = pd.read_csv(Path(output_path) / f"{INPUT_PGN_NAME}_{file_count:06}.csv")
-            print(f"INFO: loading partially saved file, lines = {len(res_pd)}", file=sys.stderr)
+            if debug_flag >= 1:
+                print(f"INFO: loading partially saved file, lines = {len(res_pd)}", file=sys.stderr)
 
         for i in self.iterate_pgn(self.pgn_text_io):
             if game_count < resume_game_count:
-                print(f"DEBUG: skip {game_count}", file=sys.stderr)
+                if debug_flag >= 2:
+                    print(f"DEBUG: skip {game_count}", file=sys.stderr)
                 game_count += 1
                 continue
 
-            print(f"DEBUG: processing game_count = {game_count} ({len(res_pd)})", file=sys.stderr)
+            if debug_flag >= 3:
+                print(f"DEBUG: processing game_count = {game_count} ({len(res_pd)})", file=sys.stderr)
             board_count = 1
             for j in self.iterate_game(i):
                 print(f"\r\t{board_count}", end="", file=sys.stderr)
@@ -179,17 +185,19 @@ class PreprocessPGN:
             if len(res_pd) > BATCH_SIZE or len(res_pd) > MINI_BATCH_SIZE * (max(0, len(res_pd) - 1) // MINI_BATCH_SIZE + 1):
                 output_file = Path(output_path) / f"{INPUT_PGN_NAME}_{file_count:06}.csv"
                 res_pd.to_csv(output_file, index=False)
-                print(f"DEBUG: boards successfully written to file: {output_file}", file=sys.stderr)
+                if debug_flag >= 1:
+                    print(f"DEBUG: boards successfully written to file: {output_file}", file=sys.stderr)
                 if len(res_pd) > BATCH_SIZE:
                     file_count += 1
                     cs.append_secondlast_line(resume_file_name, f"# {len(res_pd)} {game_count} {file_count}")
-                    res_pd = pd.DataFrame(data=None, index=None, columns=COLUMNS)
+                    res_pd = pd.DataFrame(data=None, index=None, columns=cs.COLUMNS)
                 cs.savepoint(resume_file_name, f"{game_count},{file_count}")
 
         if len(res_pd) > 0:
             output_file = Path(output_path) / f"{INPUT_PGN_NAME}_{file_count:06}.csv"
             res_pd.to_csv(output_file, index=False)
-            print(f"\nDEBUG: boards successfully written to file: {output_file}", file=sys.stderr)
+            if debug_flag >= 1:
+                print(f"\nDEBUG: boards successfully written to file: {output_file}", file=sys.stderr)
             file_count += 1
             cs.savepoint(resume_file_name, f"{game_count},{file_count}")
 
@@ -285,10 +293,41 @@ def preprocess_csv_score(csv_file_path: Union[str, Path], resume_file_name):
         print(f"DEBUG: successfully processed {i}", file=sys.stderr)
 
 
+def start_basic_processing(kingbase_dir: str):
+    your_host = '0.0.0.0'  # or use '0.0.0.0' if you have high enough privilege
+    your_port = 60006  # the port to be used by the master node
+    your_authkey = 'a1'  # this is the password clients use to connect to the master(i.e. the current node)
+    your_chunksize = 1
+    sh = Shell(has_input=False, record_output=True, record_errors=True, strip_empty=True)
+    #################################
+
+    print()
+    cs.print_ip_port_auth(your_port=your_port, your_authkey=your_authkey)
+
+    master = MasterNode(HOST=your_host, PORT=your_port, AUTHKEY=your_authkey, chunksize=your_chunksize)
+    master.start_master_server(if_join_as_worker=False)
+    master.load_envir("""from step_02_preprocess import *""" +
+                      """\ndef fun1(arg1):"""
+                      """\n    pgn_obj = PreprocessPGN(pgn_file_path=arg1)""" +
+                      """\n    pgn_obj.preprocess_pgn(output_path="data_out_pgn")"""
+                      """\ndef fun2(arg2):"""
+                      """\n    pgn_obj = PreprocessPGN(pgn_file_path=arg2)""" +
+                      """\n    pgn_obj.preprocess_pgn(output_path="/home/student/Desktop/Fenil/Final Year Project/KingBase2019-pgn/data_out_pgn/", debug_flag=1)"""
+                      , from_file=False)
+    master.register_target_function("fun2")  # CHANGE this as per requirement
+    master.load_args([str(Path(kingbase_dir) / i) for i in sh.run(f"ls '{kingbase_dir}'").output(raw=False)])
+    result = master.execute()
+
+    import joblib
+    joblib.dump(result, "pgn_game_processing.obj")
+
+
 if __name__ == "__main__":
-    pgn_obj = PreprocessPGN(pgn_file_path="KingBase2019-A80-A99.pgn")
-    print(pgn_obj.get_pgn_game_count())
-    pgn_obj.preprocess_pgn(output_path="./game_limited boards/", resume_file_name="./game_limited boards/z_game_num_limited_str_game.txt")
+    start_basic_processing(kingbase_dir="/home/student/Desktop/Fenil/Final Year Project/KingBase2019-pgn/")
+
+    # pgn_obj = PreprocessPGN(pgn_file_path="KingBase2019-A80-A99.pgn")
+    # print(pgn_obj.get_pgn_game_count())
+    # pgn_obj.preprocess_pgn(output_path="./game_limited boards/", resume_file_name="./game_limited boards/z_game_num_limited_str_game.txt")
 
     # preprocess_pgn(pgn_file_path="KingBase2019-A80-A99.pgn", output_path="./game_all possible boards/", "./game_all possible boards/z_game_num.txt")
     # preprocess_gen_score(csv_file_path="./game_limited boards/", resume_file_name="./game_limited boards/z_game_num_limited_cp_score.txt")
