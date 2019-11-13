@@ -1,4 +1,3 @@
-import os
 import pickle
 from pathlib import Path
 from typing import Union
@@ -6,6 +5,7 @@ from typing import Union
 import numpy as np
 import pandas as pd
 import tensorflow as tf
+import joblib
 from sklearn.neural_network import MLPRegressor
 from tensorflow.keras import layers
 
@@ -15,6 +15,7 @@ import TicTacToe.step_01_TicTacToe as step_01
 # https://www.ritchieng.com/machine-learning-evaluate-linear-regression-model/
 def print_model_stats(y_true, y_prediction):
     from sklearn.metrics import mean_absolute_error, mean_squared_error
+    print("\n\nModel stats")
 
     # calculate MAE, MSE, RMSE
     print(f"Mean absolute error    = {mean_absolute_error(y_true, y_pred)}")
@@ -35,10 +36,8 @@ class FFNN_tf:
         self.model.compile(optimizer=tf.keras.optimizers.Adam(0.001),
                            loss='mse',
                            metrics=['mse'])
-
         # loss = 'categorical_crossentropy',
         # metrics = ['accuracy']
-
         # loss = 'mse',
         # metrics = ['mae']
 
@@ -87,15 +86,17 @@ class FFNN_sklearn:
 
     # https://www.thoughtco.com/using-pickle-to-save-objects-2813661
     def save_model(self, model_path: Union[str, Path] = 'model_ffnn_sklearn.obj'):
-        filehandler_sk = open(str(model_path), 'wb')  # file handler to save and load object
-        pickle.dump(self.model, filehandler_sk)  # save object
+        # filehandler_sk = open(str(model_path), 'wb')  # file handler to save and load object
+        # pickle.dump(self.model, filehandler_sk)  # save object
+        joblib.dump(self.model, str(model_path))
 
     def load_model(self, model_path: Union[str, Path] = "model_ffnn_sklearn.obj"):
         if not Path(model_path).exists():
             raise Exception(f"ERROR: Model FileNotFound: {model_path}")
 
-        filehandler_sk = open(str(model_path), 'rb')  # file handler to save and load object
-        self.model = pickle.load(filehandler_sk)  # load object
+        # filehandler_sk = open(str(model_path), 'rb')  # file handler to save and load object
+        # self.model = pickle.load(filehandler_sk)  # load object
+        self.model = joblib.load(str(model_path))
 
     def train_model(self, x_input, y_output):
         self.model.fit(x_input, y_output)
@@ -113,6 +114,7 @@ def read_and_process_dataset():
     dataset = pd.read_csv("TicTacToe_dataset.csv")
     dataset_processed = pd.DataFrame(data=len(dataset) * [20 * [None]])
     for i in range(len(dataset)):
+        # COLUMN_NAMES = ["board", "score"]
         dataset_processed.loc[i][:-1] = [int(j) for j in dataset.loc[i][step_01.COLUMN_NAMES[0]].split(" ")]
         dataset_processed.loc[i][19] = dataset.loc[i][step_01.COLUMN_NAMES[1]]
     dataset_processed[19] /= 18
@@ -120,14 +122,15 @@ def read_and_process_dataset():
 
 
 if __name__ == "__main__":
-    os.chdir("TicTacToe")
-
+    # os.chdir("TicTacToe")
+    
     # dataset_processed = read_and_process_dataset()
     # dataset_processed.to_csv("TicTacToe_dataset_processed.csv", index=False)
     dataset_processed = pd.read_csv("TicTacToe_dataset_processed.csv", dtype=np.float)
     x_input, y_output = dataset_processed.iloc[:, :-1].values, dataset_processed.iloc[:, 19].values
 
     #####################################################################
+    # TensorFlow model
     ffnn_tf = FFNN_tf()
     ffnn_tf.train_model(x_input, y_output, 400, 4096)
     ffnn_tf.predict(board=dataset_processed.iloc[1][:-1].values)
@@ -137,6 +140,7 @@ if __name__ == "__main__":
     ffnn_tf = pickle.load(filehandler_tf)  # load object
 
     #####################################################################
+    # sklearn model
     ffnn_sk = FFNN_sklearn(hidden_layer_sizes=(256, 256, 256, 256,),
                            activation="relu",  # relu, tanh, logistic,
                            solver="adam",
@@ -149,4 +153,10 @@ if __name__ == "__main__":
                            verbose=True)
     ffnn_sk.train_model(x_input, y_output)
     y_pred = ffnn_sk.predict(x_input)
+    ffnn_sk.save_model("model_ffnn_sklearn.obj")
     print_model_stats(y_output, y_pred)
+
+    dataset_processed = dataset_processed.astype(dtype=int)
+    dataset_processed['19'] = y_pred
+    print(dataset_processed.head())
+    dataset_processed.to_csv("TicTacToe_dataset_predicted.csv", index=False)
