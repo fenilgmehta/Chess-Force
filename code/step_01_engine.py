@@ -16,9 +16,9 @@ class CustomEngine:
                  mate_score_max: int = 10000,
                  mate_score_difference: int = 50,
                  cpu_cores: int = multiprocessing.cpu_count(),
-                 hash_size_mb: int = 4096,
-                 depth: int = 15,
-                 analyse_time: float = 0.2) -> None:
+                 hash_size_mb: int = 16,
+                 depth: int = 20,
+                 analyse_time: float = 1.0) -> None:
         self.MAX_THREADS_TO_USE = cpu_cores
         self.MAX_HASH_TABLE_SIZE = hash_size_mb  # size is in MB
         self.MAX_DEPTH = depth
@@ -84,6 +84,7 @@ class CustomEngine:
         return engine_obj
 
     def __update_settings(self, cpu_cores: int, hash_size: int):
+        # https://python-chess.readthedocs.io/en/latest/engine.html#options
         # Even after changing the settings this statement will always print the same thing
         # print("", engine_sf.options["Hash"], "\n", engine_sf.options["Threads"])
         self.engine_obj.configure({"Threads": cpu_cores})
@@ -92,7 +93,7 @@ class CustomEngine:
 
     # TODO: verify this function once
     def evaluate_board(self, board: chess.Board) -> int:
-        # https://python-chess.readthedocs.io/en/v0.25.0/engine.html#analysing-and-evaluating-a-position
+        # https://python-chess.readthedocs.io/en/latest/engine.html#analysing-and-evaluating-a-position
         score1 = self.engine_obj.analyse(
             board=board,
             limit=chess.engine.Limit(time=self.MAX_ANALYSE_TIME, depth=self.MAX_DEPTH),
@@ -144,7 +145,7 @@ if __name__ == "__main__":
                              cpu_cores=1,
                              hash_size_mb=16,
                              depth=20,
-                             analyse_time=2)
+                             analyse_time=1.0)
 
     # board = chess.Board("r1bqkbnr/p1pp1ppp/1pn5/4p3/2B1P3/5Q2/PPPP1PPP/RNB1K1NR w KQkq - 2 4")
     BOARD_STR = ['rnb1k2r/1pppq1pp/4pn2/5p2/1pPP4/1Q2PN2/PP3PPP/RN2KB1R w KQkq - 2 8',
