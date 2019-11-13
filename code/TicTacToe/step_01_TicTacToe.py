@@ -6,7 +6,7 @@ import pandas as pd
 
 
 class TicTacToe:
-    SHAPE = ['x', 'o']
+    SHAPE: List = [None, 'x', 'o']
 
     def __init__(self, size_n: int = 3, winner_len: int = 3, max_depth: int = None, debug: int = 0):
         #  1 => x
@@ -246,28 +246,30 @@ class TicTacToe:
 
         :return:
         """
-        result = [self.turn]
+        result = [int(self.turn >= 0)]
         result.extend(list(self.board.values.ravel() == 1))
         result.extend(list(self.board.values.ravel() == -1))
-        return np.array(result).reshape(1, -1)
+        result_new = list(map(float, result))
+        return np.array(result_new).reshape(1, -1)
 
     def __str__(self):
         hyphen_len = math.ceil(math.log10(self.SIZE_SQUARE)) + 2
-        line = "+"
-        for i in range(self.SIZE):
-            line += (hyphen_len * "-") + "+"
+        # line = "+"
+        # for i in range(self.SIZE):
+        #     line += (hyphen_len * "-") + "+"
+        line = str.join(hyphen_len * '-', (self.SIZE + 1) * ['+', ])
 
-        result = "     "
-        for i in range(self.SIZE):
-            result += f"{i:{hyphen_len - 1}}  "
+        result = "     " + str.join("  ", map(lambda i: f"{i:{hyphen_len - 1}}", range(self.SIZE)))
+        # for i in range(self.SIZE):
+        #     result += f"{i:{hyphen_len - 1}}  "
         result += "\n    " + line
         for i in range(self.SIZE):
             result += f"\n{i:3} |"
             for j in range(self.SIZE):
                 if self.board.iloc[i][j] == 0:
-                    result += f"{'':{hyphen_len - 1}} |"
+                    result += f"{'':{hyphen_len}}|"
                 else:
-                    result += f"{self.board.iloc[i][j] :{hyphen_len - 1}} |"
+                    result += f" {self.SHAPE[self.board.iloc[i][j]] :{hyphen_len - 2}} |"
             result += f"\n    {line}"
 
         return result
@@ -287,23 +289,28 @@ def encode_for_model(encoded_str: str):
 
 
 def user_play(tic_tac_toe_obj: TicTacToe):
+    print("Please enter your move coordinates:")
     while True:
+        print("    ", end="")
+
         try:
             arr = [int(i) for i in input().split(" ")]
-        except:
+        except ValueError:
             print(f"WARNING: avoid adding extra spaces")
             continue
+
         if len(arr) != 2:
-            print("WARNING: please give two space separated inputs only")
+            print("WARNING: please give two inputs only")
             continue
+
         i_temp, j_temp = arr
         if tic_tac_toe_obj.is_legal_move(i_temp, j_temp):
             tic_tac_toe_obj.push(i_temp, j_temp)
             return
-        print(f"WARNING: please give legal moves")
+        print(f"WARNING: please enter a legal move")
 
 
-COLUMN_NAMES = ["board", "score"]
+COLUMN_NAMES: List[str] = ["board", "score"]
 
 if __name__ == "__main__":
     t = TicTacToe(size_n=3, winner_len=3, max_depth=None, debug=2)
