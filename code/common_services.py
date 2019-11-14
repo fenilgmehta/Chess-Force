@@ -4,6 +4,7 @@ import subprocess
 import sys
 from pathlib import Path
 from typing import List, Union
+from shell import Shell
 
 COLUMNS = ["fen_board", "cp_score"]
 
@@ -48,6 +49,16 @@ def readpoint(resume_file_name, variable_length) -> Union[List[int], int]:
     return result[:variable_length]
 
 
+def read_last_line(resume_file_name) -> str:
+    if not Path(resume_file_name).exists():
+        print(f"DEBUG: file does not exists: '{resume_file_name}'"
+              f"\n\treturning default value, i.e. array of 1's of size {variable_length}", file=sys.stderr)
+        return ''
+
+    sh = Shell(has_input=False, record_output=True, record_errors=True, strip_empty=True)
+
+    return sh.run(f"tail -n 1 '{resume_file_name}'").output(raw=True).strip('\n').strip()
+
 ###########################################################################################################
 
 def print_ip_port_auth(file_to_write: Union[str, Path] = 'step_02_preprocess_server_ip.txt', your_port: int = None, your_authkey: str = None) -> None:
@@ -67,8 +78,11 @@ def print_ip_port_auth(file_to_write: Union[str, Path] = 'step_02_preprocess_ser
     os.system(f"echo '{IPAddr},{your_port},{your_authkey}' > '{str(file_to_write)}'")
 
 
-def read_ip_port_auth(file_to_read) -> List[str]:
-    file1 = open(file_to_read, "r")
+def read_ip_port_auth(file_to_read: Union[str, Path] = 'step_02_preprocess_server_ip.txt') -> List[str]:
+    if not Path(file_to_read).exists():
+        raise FileNotFoundError(file_to_read)
+
+    file1 = open(str(file_to_read), "r")
     return file1.readline().strip('\n').strip().split(",")
 
 ###########################################################################################################
