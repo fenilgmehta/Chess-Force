@@ -143,6 +143,12 @@ class PreprocessPGN:
         game_count = 1
         # file_count = 1
         # (last game written + 1), (next file number to be written)
+        last_line_content = cs.read_last_line(resume_file_name)
+        if last_line_content == '-done-':
+        	print(f"DEBUG: PGN file already processed completely: '{self.pgn_file_path}'"
+        		  f"\n\treturning", file=sys.stderr)
+        	return
+
         resume_game_count, file_count = cs.readpoint(resume_file_name, 2)
         print(resume_game_count, file_count)
         if game_count < resume_game_count and (Path(output_path) / f"{INPUT_PGN_NAME}_{file_count:06}.csv").exists():
@@ -200,6 +206,8 @@ class PreprocessPGN:
                 print(f"\nDEBUG: boards successfully written to file: {output_file}", file=sys.stderr)
             file_count += 1
             cs.savepoint(resume_file_name, f"{game_count},{file_count}")
+
+        cs.savepoint(resume_file_name, f"-done-")
 
         print(f"DEBUG: execution successfully complete for '{self.pgn_file_path}'", file=sys.stderr)
 
@@ -309,7 +317,7 @@ def start_basic_processing(kingbase_dir: str):
     master.load_envir("""from step_02_preprocess import *""" +
                       """\ndef fun1(arg1):"""
                       """\n    pgn_obj = PreprocessPGN(pgn_file_path=arg1)""" +
-                      """\n    pgn_obj.preprocess_pgn(output_path="data_out_pgn")"""
+                      """\n    return pgn_obj.get_pgn_game_count()"""
                       """\ndef fun2(arg2):"""
                       """\n    pgn_obj = PreprocessPGN(pgn_file_path=arg2)""" +
                       """\n    pgn_obj.preprocess_pgn(output_path="/home/student/Desktop/Fenil/Final Year Project/KingBase2019-pgn/data_out_pgn/", debug_flag=1)"""
