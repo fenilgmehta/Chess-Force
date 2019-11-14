@@ -75,7 +75,9 @@ for i in input_files:
         continue
     # while len(master.list_workers()) == 0:
     #     time.sleep(0.5)
-    print(f"\n\nConnected workers:\n{master.list_workers()}\n\n")  # this print the list of connected Worker nodes
+    print(f"\n\nConnected workers count = {len(master.list_workers())}")
+    print(f"Connected workers:\n{master.list_workers()}\n\n")  # this print the list of connected Worker nodes
+
     print(f"WORKING ON: {input_file_name} -> {output_file_name}")
     data_in = list(set(pd.read_csv(input_file_path)[cs.COLUMNS[0]]))  # cs.COLUMNS[0] == 'fen_board'
 
