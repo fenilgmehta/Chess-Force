@@ -1,3 +1,4 @@
-python-chess>=0.28.3
-pandas>=0.24.0
-numpy>=1.16.2
+python-chess==0.28.3
+numpy==1.16.2
+pandas==0.24.0
+joblib
