@@ -1,8 +1,13 @@
+import copy
+import itertools
+import multiprocessing
 import sys
 from pathlib import Path
-from typing import Union, Iterable, List, TextIO
+from typing import Union, Iterable, List, TextIO, Tuple
 
 import chess.pgn
+import joblib
+import numpy as np
 import pandas as pd
 from minimalcluster import MasterNode
 from shell import Shell
@@ -15,6 +20,7 @@ MINI_BATCH_SIZE: int = 1000
 BATCH_SIZE: int = 10000
 
 
+#########################################################################################################################
 class PreprocessPGN:
     def __init__(self, pgn_file_path: Union[str, Path]):
         if not pgn_file_path.endswith(".pgn"):
@@ -58,8 +64,12 @@ class PreprocessPGN:
         legal_move = nth_board.legal_moves
         for move in legal_move:
             nth_board.push(move)
-            yield nth_board
+            yield copy.deepcopy(nth_board)
             nth_board.pop()
+
+    @staticmethod
+    def generate_boards_list(nth_board: chess.Board) -> List[chess.Board]:
+        return list(PreprocessPGN.generate_boards(nth_board))
 
     def reload_pgn(self):
         self.pgn_text_io: TextIO = self.__load_pgn()
@@ -145,9 +155,9 @@ class PreprocessPGN:
         # (last game written + 1), (next file number to be written)
         last_line_content = cs.read_last_line(resume_file_name)
         if last_line_content == '-done-':
-        	print(f"DEBUG: PGN file already processed completely: '{self.pgn_file_path}'"
-        		  f"\n\treturning", file=sys.stderr)
-        	return
+            print(f"DEBUG: PGN file already processed completely: '{self.pgn_file_path}'"
+                  f"\n\treturning", file=sys.stderr)
+            return
 
         resume_game_count, file_count = cs.readpoint(resume_file_name, 2)
         print(resume_game_count, file_count)
@@ -212,62 +222,133 @@ class PreprocessPGN:
         print(f"DEBUG: execution successfully complete for '{self.pgn_file_path}'", file=sys.stderr)
 
 
-def is_check(board: chess.Board, side: chess.Color):
-    king = board.king(side)
-    return king is not None and board.is_attacked_by(not side, king)
+#########################################################################################################################
+class BoardEncoder:
+    @staticmethod
+    def is_check(board: chess.Board, side: chess.Color):
+        king = board.king(side)
+        return king is not None and board.is_attacked_by(not side, king)
 
+    @staticmethod
+    def is_checkmate(board: chess.Board, side: chess.Color):
+        return board.is_checkmate() and board.turn == side
 
-# TODO
-# noinspection PyUnresolvedReferences
-def encode_board_777(board: chess.Board) -> str:
-    if not board.is_valid():
-        print(f"ERROR: invalid board state :(", file=sys.stderr)
-        raise Exception("Invalid board state")
+    @staticmethod
+    def encode_board_1_778(board_1: chess.Board) -> np.ndarray:
+        if not board_1.is_valid():
+            print(f"ERROR: invalid board state :(", file=sys.stderr)
+            raise Exception("Invalid board state")
 
-    board_mat_list: List[List[str]] = [i.split(" ") for i in board.__str__().split("\n")]
-    board_mat_df: pd.DataFrame = pd.DataFrame(board_mat_list)
+        board_mat_list: List[List[str]] = [i.split(" ") for i in board_1.__str__().split("\n")]
+        board_mat_df: pd.DataFrame = pd.DataFrame(board_mat_list)
 
-    # The following array has 9 bits of manually extracted information
-    a = [
-        board.turn,  # True => white's turn, False => black's turn
-        board.has_kingside_castling_rights(chess.WHITE),  # True => Castling rights present, False => no rights
-        board.has_queenside_castling_rights(chess.WHITE),  # ---------------------||---------------------
-        board.has_kingside_castling_rights(chess.BLACK),  # ---------------------||---------------------
-        board.has_queenside_castling_rights(chess.BLACK),  # ---------------------||---------------------
-        is_check(board, chess.WHITE),  # True => White King has a Check, False => no check to White King
-        is_check(board, chess.BLACK),  # True => Black King has a Check, False => no check to Black King
-        bool((board.occupied_co[chess.WHITE] & board.queens) != 0),  # True => White Queen alive,      False => White Queen out
-        bool((board.occupied_co[chess.BLACK] & board.queens) != 0)  # True => Black Queen alive,      False => Black Queen out
-    ]
+        # The following array has 10 bits of manually extracted features/attributes/information
+        result_nparray: np.array = np.array([
+            board_1.turn,  # True => white's turn, False => black's turn
+            board_1.is_checkmate(),  # V.V.V Important feature/attribute/information  # ADDED 20191207T1137
+            board_1.has_kingside_castling_rights(chess.WHITE),  # True => Castling rights present, False => no rights
+            board_1.has_queenside_castling_rights(chess.WHITE),  # --------------------||---------------------
+            board_1.has_kingside_castling_rights(chess.BLACK),  # ---------------------||---------------------
+            board_1.has_queenside_castling_rights(chess.BLACK),  # --------------------||---------------------
+            BoardEncoder.is_check(board_1, chess.WHITE),  # True => White King has a Check, False => no check to White King
+            BoardEncoder.is_check(board_1, chess.BLACK),  # True => Black King has a Check, False => no check to Black King
+            (sum((board_mat_df.values == 'Q').ravel()) != 0),  # True => White Queen alive, False => White Queen out works if there are more than on Queen
+            (sum((board_mat_df.values == 'q').ravel()) != 0),  # True => Black Queen alive, False => Black Queen out works if there are more than on Queen
+        ])
 
-    # WHITE side = 64*6 bits = 384 bits
-    (board_mat_df == 'K').values.ravel()
-    (board_mat_df == 'Q').values.ravel()
-    (board_mat_df == 'B').values.ravel()
-    (board_mat_df == 'N').values.ravel()
-    (board_mat_df == 'R').values.ravel()
-    (board_mat_df == 'P').values.ravel()
+        # The following two lines check if Queen is alive or not. However, am not sure if it will work when there are more than one Queens
+        # bool((board.occupied_co[chess.WHITE] & board.queens) != 0),
+        # bool((board.occupied_co[chess.BLACK] & board.queens) != 0),
 
-    # BLACK side = 64*6 bits = 384 bits
-    (board_mat_df == 'k').values.ravel()
-    (board_mat_df == 'q').values.ravel()
-    (board_mat_df == 'b').values.ravel()
-    (board_mat_df == 'n').values.ravel()
-    (board_mat_df == 'r').values.ravel()
-    (board_mat_df == 'p').values.ravel()
+        # WHITE side = 64*6 bits = 384 bits
+        result_nparray = np.append(result_nparray, (board_mat_df.values == 'K').ravel())
+        result_nparray = np.append(result_nparray, (board_mat_df.values == 'Q').ravel())
+        result_nparray = np.append(result_nparray, (board_mat_df.values == 'B').ravel())
+        result_nparray = np.append(result_nparray, (board_mat_df.values == 'N').ravel())
+        result_nparray = np.append(result_nparray, (board_mat_df.values == 'R').ravel())
+        result_nparray = np.append(result_nparray, (board_mat_df.values == 'P').ravel())
 
-    board.has_kingside_castling_rights(chess.WHITE)
-    board.has_queenside_castling_rights(chess.WHITE)
-    board.has_kingside_castling_rights(chess.BLACK)
-    board.has_queenside_castling_rights(chess.BLACK)
-    board.__str__()
-    board.is_check()
-    return ""
+        # BLACK side = 64*6 bits = 384 bits
+        result_nparray = np.append(result_nparray, (board_mat_df.values == 'k').ravel())
+        result_nparray = np.append(result_nparray, (board_mat_df.values == 'q').ravel())
+        result_nparray = np.append(result_nparray, (board_mat_df.values == 'b').ravel())
+        result_nparray = np.append(result_nparray, (board_mat_df.values == 'n').ravel())
+        result_nparray = np.append(result_nparray, (board_mat_df.values == 'r').ravel())
+        result_nparray = np.append(result_nparray, (board_mat_df.values == 'p').ravel())
+
+        return result_nparray.astype(dtype=np.float64)
+
+    @staticmethod
+    def encode_board_n_778(board_n: Union[List[chess.Board], Tuple[chess.Board]]) -> np.ndarray:
+        """
+        Convert list of tuple of chess boards to 778 floating point 0's and 1's
+
+        NOTE: this computation is performed in parallel processes
+
+        :param board_n:
+        :return: np.ndarray
+        """
+        return BoardEncoder.encode_board_n_778_fen(
+            [
+                board_i.fen() for board_i in board_n
+            ]
+        )
+
+    @staticmethod
+    def encode_board_1_778_fen(board_1_fen: str) -> np.ndarray:
+        return BoardEncoder.encode_board_1_778(chess.Board(board_1_fen))
+
+    @staticmethod
+    def encode_board_n_778_fen(board_n_fen: Union[List[str], Tuple[str]]) -> np.ndarray:
+        """
+        Convert list of tuple of chess boards from fen notation to 778 floating point 0's and 1's
+
+        NOTE: this computation is performed in parallel processes
+
+        :param board_n_fen:
+        :return: np.ndarray
+        """
+        with multiprocessing.Pool() as pool:
+            return np.array(
+                pool.map(func=BoardEncoder.encode_board_1_778_fen, iterable=board_n_fen)
+            )
+        # return BoardEncoder.encode_board_1_778_fen(board_n_fen)
 
 
 #########################################################################################################################
+def generate_all_boards(depth_d: int):
+    board_b = chess.Board()
+    output_list = [[board_b, ], ]
+    for i in range(depth_d):
+        output_list.append(list())
+        print(f"DEBUG: working on {i + 1}")
+        with multiprocessing.Pool() as pool:
+            temp_result = pool.map(func=PreprocessPGN.generate_boards_list, iterable=[j for j in output_list[-2]])
+        output_list[-1] = list(set([k for j in temp_result for k in j]))
+        print(f'DEBUG: work done, len(depth={i + 1}) = {len(output_list[-1])}')
+        print(flush=True)
+    return output_list
 
 
+def boards_list_to_csv(file_name, temp_res, temp_i):
+    res_pd = pd.DataFrame(data=zip([i.fen() for i in temp_res], itertools.repeat(0)),
+                          index=None,
+                          columns=cs.COLUMNS)
+    res_pd.to_csv(f"{file_name}_{temp_i:06}.csv", index=False)
+
+
+def generate_all_boards_to_csv(file_name: str, depth_d: int):
+    res = generate_all_boards(depth_d)
+    with multiprocessing.Pool() as pool:
+        pool.starmap(boards_list_to_csv, [(file_name, res[i], i) for i in range(1, len(res))])
+    return res
+
+
+# with cs.ExecutionTime():
+#     generate_all_boards_to_csv('boards', 5)
+
+
+#########################################################################################################################
 def preprocess_csv_score(csv_file_path: Union[str, Path], resume_file_name):
     global engine_sf
     engine_sf = step_01_engine.CustomEngine(src_path=None, hash_size_mb=8192, depth=15, analyse_time=0.2)
@@ -312,7 +393,7 @@ def start_basic_processing(kingbase_dir: str):
     print()
     cs.print_ip_port_auth(your_port=your_port, your_authkey=your_authkey)
 
-    master = MasterNode(HOST=your_host, PORT=your_port, AUTHKEY=your_authkey, chunksize=your_chunksize)
+    master = MasterNode(HOST=your_host, PORT=your_port, AUTHKEY=your_authkey, chunk_size=your_chunksize)
     master.start_master_server(if_join_as_worker=False)
     master.load_envir("""from step_02_preprocess import *""" +
                       """\ndef fun1(arg1):"""
@@ -320,16 +401,16 @@ def start_basic_processing(kingbase_dir: str):
                       """\n    return pgn_obj.get_pgn_game_count()"""
                       """\ndef fun2(arg2):"""
                       """\n    pgn_obj = PreprocessPGN(pgn_file_path=arg2)""" +
-                      """\n    pgn_obj.preprocess_pgn(output_path="/home/student/Desktop/Fenil/Final Year Project/KingBase2019-pgn/data_out_pgn/", debug_flag=1)"""
-                      , from_file=False)
+                      """\n    pgn_obj.preprocess_pgn(output_path="/home/student/Desktop/Fenil/Final Year Project/KingBase2019-pgn/data_out_pgn/", debug_flag=1)""",
+                      from_file=False)
     master.register_target_function("fun2")  # CHANGE this as per requirement
     master.load_args([str(Path(kingbase_dir) / i) for i in sh.run(f"ls '{kingbase_dir}'").output(raw=False)])
     result = master.execute()
 
-    import joblib
     joblib.dump(result, "pgn_game_processing.obj")
 
 
+#########################################################################################################################
 if __name__ == "__main__":
     start_basic_processing(kingbase_dir="/home/student/Desktop/Fenil/Final Year Project/KingBase2019-pgn/")
 
