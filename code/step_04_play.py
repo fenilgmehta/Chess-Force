@@ -1,4 +1,4 @@
-import collections
+import collections.abc
 import copy
 import operator
 import os
@@ -11,7 +11,7 @@ import chess
 import numpy as np
 
 # import step_01_engine as step_01
-# import step_02_preprocess as step_02
+import step_02_preprocess as step_02
 import step_03a_ffnn as step_03
 
 
@@ -19,8 +19,8 @@ import step_03a_ffnn as step_03
 # This is for prediction
 class ChessPredict:
     def __init__(self, function_to_predict_1_board, function_to_predict_n_board, to_maximize=True):
-        assert isinstance(function_to_predict_1_board, collections.Callable), '`function_to_predict_single` must be callable'
-        assert isinstance(function_to_predict_n_board, collections.Callable), '`function_to_predict_parallel` must be callable'
+        assert isinstance(function_to_predict_1_board, collections.abc.Callable), '`function_to_predict_1_board` must be callable'
+        assert isinstance(function_to_predict_n_board, collections.abc.Callable), '`function_to_predict_n_board` must be callable'
 
         self.function_to_predict_1 = function_to_predict_1_board
         self.function_to_predict_n = function_to_predict_n_board
@@ -34,11 +34,20 @@ class ChessPredict:
             self.__compare = operator.lt
 
     # NOTE: don't use this as it will be slow
-    def predict_score_1(self, board: chess.Board) -> float:
+    def predict_score_1(self, board: chess.Board) -> np.float:
+        """
+        Returns the centi-pawn score for `board` it is given as the parameter.
+
+        :return: np.float
+        """
         return self.function_to_predict_1(board)
 
     # NOTE: don't use this as it will be slow
-    def predict_best_move_1(self, board: chess.Board) -> Tuple[chess.Move, float]:
+    def predict_best_move_1(self, board: chess.Board) -> Tuple[chess.Move, np.float]:
+        """
+
+        :return: Tuple[chess.Move, np.float]
+        """
         best_move = None
         best_score = self.__initial_score
         for i in board.legal_moves:
@@ -46,14 +55,26 @@ class ChessPredict:
             possible_best_score = self.predict_score_1(board)
             if self.__compare(possible_best_score, best_score):
                 best_score = possible_best_score
-                best_move = i
+                best_move = copy.deepcopy(i)
             board.pop()
         return best_move, best_score
 
     def predict_score_n(self, boards: Union[List, Tuple, np.array]) -> np.array:
+        """
+        Returns centi-pawn score for all the boards passed to it.
+
+        :return: np.array
+        """
         return self.function_to_predict_n(boards)
 
-    def predict_best_move_n(self, board: Union[List, Tuple, np.array]) -> Tuple[chess.Move, float]:
+    def predict_best_move_n(self, board: chess.Board) -> Tuple[chess.Move, np.float]:
+        """
+        Generate all possible boards at next level from `board`.
+        Predict score of all boards.
+
+        :param board:
+        :return: Tuple[chess.Move, np.float]
+        """
         board_moves_list: List[chess.Move] = list(board.legal_moves)
         board_states_list: List[chess.Board] = []
         for i in board_moves_list:
@@ -72,20 +93,40 @@ class ChessPredict:
 
         return best_move, best_score
 
+    def get_next_move(self, board: chess.Board):
+        return self.predict_best_move_n(board)[0]
+
 
 #########################################################################################################################
 # This if for CLI game interface
+
 class ChessPlayCLI:
-    def __init__(self, player1_name: str = "Player 1", player2_name: str = "Player 2", chess_predict_obj: ChessPredict = None, cpu_to_play_first: bool = True):
+    def __init__(self,
+                 player1_name: str = "Player 1",
+                 player2_name: str = "Player 2",
+                 player1_chess_predict: ChessPredict = None,
+                 player2_chess_predict: ChessPredict = None,
+                 cpu_to_play_first: bool = True):
         self.player1_name = player1_name
         self.player2_name = player2_name
-        self.chess_predict = chess_predict_obj
+        self.player1_chess_predict = player1_chess_predict
+        self.player2_chess_predict = player2_chess_predict
         self.cpu_to_play_first = cpu_to_play_first
 
-    def __cpu_obj_playable(self, is_player1: bool):
-        return (self.chess_predict is not None) and self.cpu_to_play_first == is_player1
+    def __cpu_obj_playable(self, pi_chess_predict, is_player1: bool):
+        return (pi_chess_predict is not None) and self.cpu_to_play_first == is_player1
 
-    def __get_user_input(self, board_play: chess.Board, is_player1: bool) -> chess.Move:
+    @staticmethod
+    def __pretty_board(board: chess.Board) -> str:
+        res_out = board.__str__()
+        res_out = res_out.split("\n")
+        for i in range(len(res_out)):
+            res_out[i] = f"[{8 - i}] " + res_out[i]
+        res_out.insert(0, f"   [a|b|c|d|e|f|g|h]")
+        res_out.insert(0, f"\n\nBoard state number = {board.fullmove_number}")
+        return "\n".join(res_out)
+
+    def user_play(self, board_play: chess.Board, is_player1: bool) -> chess.Move:
         player_name = self.player2_name
         player_color = "BLACK"
         player_example = "g7g5"
@@ -103,35 +144,37 @@ class ChessPlayCLI:
                 mov = input("[ValueError] Please enter a valid and legal UCI move: ")
         return chess.Move.from_uci(mov)
 
-    @staticmethod
-    def __pretty_board(board: chess.Board):
-        res_out = board.__str__()
-        res_out = res_out.split("\n")
-        for i in range(len(res_out)):
-            res_out[i] = f"[{8 - i}] " + res_out[i]
-        res_out.insert(0, f"   [a|b|c|d|e|f|g|h]")
-        return "\n".join(res_out)
-
     def play(self):
         print()
         board_play = chess.Board()
         current_player1_turn = True
-        m_sel = None
         print(ChessPlayCLI.__pretty_board(board_play), end="\n\n")
-
-        while not (board_play.is_checkmate() or board_play.is_stalemate() or board_play.is_insufficient_material()):
+        # board_play.is_repetition()
+        # board_play.can_claim_threefold_repetition()
+        # board_play.is_fivefold_repetition()
+        while not (board_play.is_checkmate() or board_play.is_stalemate() or board_play.is_insufficient_material() or board_play.can_claim_threefold_repetition()):
             print(f"DEBUG: board_play.fen() = {board_play.fen()}")
-            print(f"DEBUG: Legal moves = {list(map(str, list(chess.Board().legal_moves)))}")
-            if self.__cpu_obj_playable(is_player1=current_player1_turn):
-                m_sel, move_score = self.chess_predict.predict_best_move_n(board=board_play)
-                print(f"DEBUG: AI's move = {m_sel}")
-                print(f"DEBUG: AI's move_score = {move_score}")
-                # pass  # TODO
+            print(f"DEBUG: Legal moves = {list(map(str, list(board_play.legal_moves)))}")
+            if current_player1_turn:
+                # player 1 plays
+                if self.player1_chess_predict is None:
+                    move_selected = self.user_play(board_play=board_play, is_player1=current_player1_turn)
+                else:
+                    move_selected, move_score = self.player1_chess_predict.predict_best_move_n(board=board_play)
+                    print(f"DEBUG: [{self.player1_name}] AI's move = {move_selected}")
+                    print(f"DEBUG: [{self.player1_name}] AI's move_score = {move_score}")
             else:
-                m_sel = self.__get_user_input(board_play=board_play, is_player1=current_player1_turn)
-            board_play.push(m_sel)
+                # player 2 plays
+                if self.player2_chess_predict is None:
+                    move_selected = self.user_play(board_play=board_play, is_player1=current_player1_turn)
+                else:
+                    move_selected, move_score = self.player2_chess_predict.predict_best_move_n(board=board_play)
+                    print(f"DEBUG: [{self.player2_name}] AI's move = {move_selected}")
+                    print(f"DEBUG: [{self.player2_name}] AI's move_score = {move_score}")
+            board_play.push(move_selected)
             print("\n" + ChessPlayCLI.__pretty_board(board_play), end="\n\n")
             current_player1_turn ^= True
+
         print("\n\n")
         if board_play.is_stalemate():
             print(f"RESULTS: draw, as its a stalemate")
@@ -141,8 +184,11 @@ class ChessPlayCLI:
             print(f"RESULTS: {self.player1_name} wins")
         elif board_play.is_insufficient_material():
             print(f"RESULTS: draw, as both players have insufficient winning material")
+        elif board_play.can_claim_threefold_repetition():
+            print(f"RESULTS: draw, due to three fold repetition")
         else:
-            print(f"RESULTS: unknown, board_play.fen() = {board_play.fen()}")
+            print(f"RESULTS: draw/unknown, board_play.fen() = {board_play.fen()}")
+        return
 
 
 #########################################################################################################################
@@ -377,10 +423,12 @@ if __name__ == "__main__":
 
     # a = ChessPlay()
     # a.PlayGame()
-    ffnn_keras = step_03.FFNNKeras(generate_model_image=False)
-    ffnn_keras.c_load_model("ffnn_keras_v001.h5")
-    chess_predict = ChessPredict(ffnn_keras.c_predict_board_1, ffnn_keras.c_predict_board_n, to_maximize=True)
+    ffnn_keras = step_03.FFNNKeras(step_03.KerasModels.model_001, step_02.BoardEncoder.Encode778)
+    ffnn_keras.c_load_weights("ffnn_keras_v004_000010_weights.h5")
+    chess_predict_1 = ChessPredict(ffnn_keras.c_predict_board_1, ffnn_keras.c_predict_board_n, to_maximize=True)
+    chess_predict_2 = ChessPredict(ffnn_keras.c_predict_board_1, ffnn_keras.c_predict_board_n, to_maximize=True)
     ChessPlayCLI(player1_name="A",
                  player2_name="B",
-                 chess_predict_obj=chess_predict,
+                 player1_chess_predict=chess_predict_1,
+                 player2_chess_predict=chess_predict_2,
                  cpu_to_play_first=True).play()
