@@ -233,86 +233,109 @@ class BoardEncoder:
     def is_checkmate(board: chess.Board, side: chess.Color):
         return board.is_checkmate() and board.turn == side
 
-    @staticmethod
-    def encode_board_1_778(board_1: chess.Board) -> np.ndarray:
-        if not board_1.is_valid():
-            print(f"ERROR: invalid board state :(", file=sys.stderr)
-            raise Exception("Invalid board state")
+    class Encode778:
 
-        board_mat_list: List[List[str]] = [i.split(" ") for i in board_1.__str__().split("\n")]
-        board_mat_df: pd.DataFrame = pd.DataFrame(board_mat_list)
+        @staticmethod
+        def encode_board_1(board_1: chess.Board) -> np.ndarray:
+            if not board_1.is_valid():
+                print(f"ERROR: invalid board state :(", file=sys.stderr)
+                raise Exception("Invalid board state")
 
-        # The following array has 10 bits of manually extracted features/attributes/information
-        result_nparray: np.array = np.array([
-            board_1.turn,  # True => white's turn, False => black's turn
-            board_1.is_checkmate(),  # V.V.V Important feature/attribute/information  # ADDED 20191207T1137
-            board_1.has_kingside_castling_rights(chess.WHITE),  # True => Castling rights present, False => no rights
-            board_1.has_queenside_castling_rights(chess.WHITE),  # --------------------||---------------------
-            board_1.has_kingside_castling_rights(chess.BLACK),  # ---------------------||---------------------
-            board_1.has_queenside_castling_rights(chess.BLACK),  # --------------------||---------------------
-            BoardEncoder.is_check(board_1, chess.WHITE),  # True => White King has a Check, False => no check to White King
-            BoardEncoder.is_check(board_1, chess.BLACK),  # True => Black King has a Check, False => no check to Black King
-            (sum((board_mat_df.values == 'Q').ravel()) != 0),  # True => White Queen alive, False => White Queen out works if there are more than on Queen
-            (sum((board_mat_df.values == 'q').ravel()) != 0),  # True => Black Queen alive, False => Black Queen out works if there are more than on Queen
-        ])
+            board_mat_list: List[List[str]] = [i.split(" ") for i in board_1.__str__().split("\n")]
+            board_mat_df: pd.DataFrame = pd.DataFrame(board_mat_list)
 
-        # The following two lines check if Queen is alive or not. However, am not sure if it will work when there are more than one Queens
-        # bool((board.occupied_co[chess.WHITE] & board.queens) != 0),
-        # bool((board.occupied_co[chess.BLACK] & board.queens) != 0),
+            # The following array has 10 bits of manually extracted features/attributes/information
+            result_nparray: np.array = np.array([
+                board_1.turn,  # True => white's turn, False => black's turn
+                board_1.is_checkmate(),  # V.V.V Important feature/attribute/information  # ADDED 20191207T1137
+                board_1.has_kingside_castling_rights(chess.WHITE),  # True => Castling rights present, False => no rights
+                board_1.has_queenside_castling_rights(chess.WHITE),  # --------------------||---------------------
+                board_1.has_kingside_castling_rights(chess.BLACK),  # ---------------------||---------------------
+                board_1.has_queenside_castling_rights(chess.BLACK),  # --------------------||---------------------
+                BoardEncoder.is_check(board_1, chess.WHITE),  # True => White King has a Check, False => no check to White King
+                BoardEncoder.is_check(board_1, chess.BLACK),  # True => Black King has a Check, False => no check to Black King
+                (sum((board_mat_df.values == 'Q').ravel()) != 0),  # True => White Queen alive, False => White Queen out works if there are more than on Queen
+                (sum((board_mat_df.values == 'q').ravel()) != 0),  # True => Black Queen alive, False => Black Queen out works if there are more than on Queen
+            ])
 
-        # WHITE side = 64*6 bits = 384 bits
-        result_nparray = np.append(result_nparray, (board_mat_df.values == 'K').ravel())
-        result_nparray = np.append(result_nparray, (board_mat_df.values == 'Q').ravel())
-        result_nparray = np.append(result_nparray, (board_mat_df.values == 'B').ravel())
-        result_nparray = np.append(result_nparray, (board_mat_df.values == 'N').ravel())
-        result_nparray = np.append(result_nparray, (board_mat_df.values == 'R').ravel())
-        result_nparray = np.append(result_nparray, (board_mat_df.values == 'P').ravel())
+            # The following two lines check if Queen is alive or not. However, am not sure if it will work when there are more than one Queens
+            # bool((board.occupied_co[chess.WHITE] & board.queens) != 0),
+            # bool((board.occupied_co[chess.BLACK] & board.queens) != 0),
 
-        # BLACK side = 64*6 bits = 384 bits
-        result_nparray = np.append(result_nparray, (board_mat_df.values == 'k').ravel())
-        result_nparray = np.append(result_nparray, (board_mat_df.values == 'q').ravel())
-        result_nparray = np.append(result_nparray, (board_mat_df.values == 'b').ravel())
-        result_nparray = np.append(result_nparray, (board_mat_df.values == 'n').ravel())
-        result_nparray = np.append(result_nparray, (board_mat_df.values == 'r').ravel())
-        result_nparray = np.append(result_nparray, (board_mat_df.values == 'p').ravel())
+            # WHITE side = 64*6 bits = 384 bits
+            result_nparray = np.append(result_nparray, (board_mat_df.values == 'K').ravel())
+            result_nparray = np.append(result_nparray, (board_mat_df.values == 'Q').ravel())
+            result_nparray = np.append(result_nparray, (board_mat_df.values == 'B').ravel())
+            result_nparray = np.append(result_nparray, (board_mat_df.values == 'N').ravel())
+            result_nparray = np.append(result_nparray, (board_mat_df.values == 'R').ravel())
+            result_nparray = np.append(result_nparray, (board_mat_df.values == 'P').ravel())
 
-        return result_nparray.astype(dtype=np.float64)
+            # BLACK side = 64*6 bits = 384 bits
+            result_nparray = np.append(result_nparray, (board_mat_df.values == 'k').ravel())
+            result_nparray = np.append(result_nparray, (board_mat_df.values == 'q').ravel())
+            result_nparray = np.append(result_nparray, (board_mat_df.values == 'b').ravel())
+            result_nparray = np.append(result_nparray, (board_mat_df.values == 'n').ravel())
+            result_nparray = np.append(result_nparray, (board_mat_df.values == 'r').ravel())
+            result_nparray = np.append(result_nparray, (board_mat_df.values == 'p').ravel())
 
-    @staticmethod
-    def encode_board_n_778(board_n: Union[List[chess.Board], Tuple[chess.Board]]) -> np.ndarray:
-        """
-        Convert list of tuple of chess boards to 778 floating point 0's and 1's
+            return result_nparray.astype(dtype=np.float32)
 
-        NOTE: this computation is performed in parallel processes
+        @staticmethod
+        def encode_board_1_fen(board_1_fen: str) -> np.ndarray:
+            return BoardEncoder.Encode778.encode_board_1(chess.Board(board_1_fen))
 
-        :param board_n:
-        :return: np.ndarray
-        """
-        return BoardEncoder.encode_board_n_778_fen(
-            [
-                board_i.fen() for board_i in board_n
-            ]
-        )
+        @staticmethod
+        def encode_board_n_fen(board_n_fen: Union[List[str], Tuple[str]]) -> np.ndarray:
+            """
+            Convert list of tuple of chess boards from fen notation to 778 floating point 0's and 1's
 
-    @staticmethod
-    def encode_board_1_778_fen(board_1_fen: str) -> np.ndarray:
-        return BoardEncoder.encode_board_1_778(chess.Board(board_1_fen))
+            NOTE: this computation is performed in parallel processes
 
-    @staticmethod
-    def encode_board_n_778_fen(board_n_fen: Union[List[str], Tuple[str]]) -> np.ndarray:
-        """
-        Convert list of tuple of chess boards from fen notation to 778 floating point 0's and 1's
+            :param board_n_fen:
+            :return: np.ndarray
+            """
+            with multiprocessing.Pool() as pool:
+                return np.array(
+                    pool.map(func=BoardEncoder.Encode778.encode_board_1_fen, iterable=board_n_fen)
+                )
+            # return BoardEncoder.encode_board_1_778_fen(board_n_fen)
 
-        NOTE: this computation is performed in parallel processes
+        @staticmethod
+        def encode_board_n(board_n: Union[List[chess.Board], Tuple[chess.Board]]) -> np.ndarray:
+            """
+            Convert list of tuple of chess boards to 778 floating point 0's and 1's
 
-        :param board_n_fen:
-        :return: np.ndarray
-        """
-        with multiprocessing.Pool() as pool:
-            return np.array(
-                pool.map(func=BoardEncoder.encode_board_1_778_fen, iterable=board_n_fen)
+            NOTE: this computation is performed in parallel processes
+
+            :param board_n:
+            :return: np.ndarray
+            """
+            return BoardEncoder.Encode778.encode_board_n_fen(
+                [
+                    board_i.fen() for board_i in board_n
+                ]
             )
-        # return BoardEncoder.encode_board_1_778_fen(board_n_fen)
+
+
+class ScoreNormalizer:
+    @staticmethod
+    def normalize_001(data_df: np.ndarray):
+        """
+        All cp_scores between [0, 10] are scaled down to [0, 1]
+
+        All cp_scores above 10 are scaled down to 1
+
+        NOTE: Results are not good
+
+        :param data_df:
+        :return: Normalized `np.ndarray`
+        """
+        data_df = copy.deepcopy(data_df)
+        data_df *= 10000
+        data_df[data_df >= 10] = 10
+        data_df[data_df <= -10] = -10
+        data_df /= 10
+        return data_df
 
 
 #########################################################################################################################
@@ -324,7 +347,7 @@ def generate_all_boards(depth_d: int):
         print(f"DEBUG: working on {i + 1}")
         with multiprocessing.Pool() as pool:
             temp_result = pool.map(func=PreprocessPGN.generate_boards_list, iterable=[j for j in output_list[-2]])
-        output_list[-1] = list(set([k for j in temp_result for k in j]))
+        output_list[-1] = [k for j in temp_result for k in j]
         print(f'DEBUG: work done, len(depth={i + 1}) = {len(output_list[-1])}')
         print(flush=True)
     return output_list
