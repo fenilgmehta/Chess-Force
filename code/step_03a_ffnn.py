@@ -1,4 +1,6 @@
 import multiprocessing
+import os
+import warnings
 from pathlib import Path
 from typing import Union, Tuple, List
 
@@ -6,83 +8,237 @@ import chess
 import numpy as np
 import pandas as pd
 import torch
-import torch.nn as nn
+import torch.nn
 # import tensorflow
 from tensorflow.python import keras
 from tensorflow.python.client import device_lib
+import argparse
 
 import common_services as cs
 import step_02_preprocess as step_02
 
 
 #########################################################################################################################
+
+dtype = torch.cuda.FloatTensor  # Uncomment this to run on GPU
+
+parser = argparse.ArgumentParser(description='FFNN')
+
+parser.add_argument('--pre', metavar='PRETRAINED', default=None, type=str,
+                    help='path to the pretrained model')
+
+parser.add_argument('--gpu', metavar='GPU', type=str, default="2",
+                    help='GPU id to use.')
+
+parser.add_argument('--task', default="SFANet_bnt2_", metavar='TASK', type=str,
+                    help='task id to use.')
+
+
 # Feed Forward Neural Network
-class FFNNTorch(nn.Module):
-    def __init__(self):
+class FFNNTorch(torch.nn.Module):
+    def __init__(self, model_generator, board_encoder, learning_rate, use_gpu=True):
         super().__init__()
 
-        # Inputs = 778
-        # Outputs = 1
-
-        # Build a feed-forward network
-        self.model = nn.Sequential(nn.Linear(778, 512),  # Layer 1
-                                   nn.ReLU(),
-                                   nn.Linear(512, 512),  # Layer 2
-                                   nn.ReLU(),
-                                   nn.Linear(512, 512),  # Layer 3
-                                   nn.ReLU(),
-                                   nn.Linear(512, 512),  # Layer 4
-                                   nn.ReLU(),
-                                   nn.Linear(512, 1),  # Output layer
-                                   nn.Sigmoid())
-
-        # Define the loss
-        self.criterion = nn.NLLLoss()
-        # Optimizers require the parameters to optimize and a learning rate
-        self.optimizer = torch.optim.SGD(self.model.parameters(), lr=0.003)
+        self.model_generator = model_generator
+        self.board_encoder = board_encoder
+        self.learning_rate = learning_rate
+        self.use_gpu = use_gpu
 
         # We will use ``torch.device`` objects to move tensors in and out of GPU
-        if torch.cuda.is_available():
-            self.device = torch.device("cuda")  # a CUDA device object
+        if use_gpu and torch.cuda.is_available():
+            self.device = torch.device("cuda", 0)  # a CUDA device object
+        else:
+            self.device = torch.device("cpu", 0)  # a CPU device object
+
+        self.model: torch.nn.Sequential = model_generator(self.device)
+
+        # global parser
+        # self.arg = parser.parse_args()
+        # self.arg.lr = 0.001
+        # self.arg.batch_size = 64
+        # self.arg.momentum = 0.95
+        # self.arg.decay = 5e-3
+        # self.arg.start_epoch = 1
+        # self.arg.epochs = 400
+        # self.arg.workers = 1
+        # self.arg.seed = time.time()
+        # self.arg.print_freq = 4
+
+        # Define the loss
+        self.criterion = torch.nn.MSELoss(reduction='mean').to(self.device)  # alternative reduction='mean' /
+
+        # Optimizers require the parameters to optimize and a learning rate
+        self.optimizer = torch.optim.SGD(self.model.parameters(), lr=learning_rate)
+        # self.optimizer = torch.optim.Adam(self.model.parameters(), lr=learning_rate)
 
         return
 
-    # TODO
     def c_save_model(self, model_path: Union[str, Path]):
+        # with h5py.File(model_path, 'w') as h5f:
+        #     for k, v in self.model.state_dict().items():
+        #         h5f.create_dataset(k, data=v.cpu().numpy())
+        torch.save(self.model.module.state_dict(), model_path)
         return
 
-    # TODO
     def c_load_model(self, model_path: Union[str, Path]):
+        # with h5py.File(model_path, 'r') as h5f:
+        #     for k, v in self.model.state_dict().items():
+        #         param = torch.from_numpy(np.asarray(h5f[k]))
+        #         v.copy_(param)
+        self.model.load_state_dict(torch.load(model_path, map_location=self.device))
+        self.model.to(device=self.device)
+        self.model.eval()
         return
 
-    def c_train_model(self, x_input, y_output, epochs, batch_size):
-        for epoch in range(500):
+    def c_save_checkpoint(self, checkpoint_path: Union[str, Path], epoch, loss):
+        # def c_save_checkpoint(state, is_best, task_id, filename='checkpoint.pth.tar'):
+        #     torch.save(state, task_id + filename)
+        #     if is_best:
+        #         shutil.copyfile(task_id + filename, task_id + 'model_best.pth.tar')
+
+        torch.save({
+            'epoch': epoch,
+            'model_state_dict': self.model.state_dict(),
+            'optimizer_state_dict': self.optimizer.state_dict(),
+            'loss': loss,
+        }, checkpoint_path)
+
+    def c_load_checkpoint(self, checkpoint_path: str, strict=True):
+        # def c_load_checkpoint(self, checkpoint_path: str):
+        #     if checkpoint_path:
+        #         if os.path.isfile(checkpoint_path):
+        #             print("=> loading checkpoint '{}'".format(checkpoint_path))
+        #             checkpoint = torch.load(checkpoint_path)
+        #             self.args.start_epoch = checkpoint['epoch']
+        #             best_prec1 = checkpoint['best_prec1']
+        #             self.model.load_state_dict(checkpoint['state_dict'])
+        #             self.optimizer.load_state_dict(checkpoint['optimizer'])
+        #             print("=> loaded checkpoint '{}' (epoch {})".format(checkpoint_path, checkpoint['epoch']))
+        #         else:
+        #             print("=> no checkpoint found at '{}'".format(checkpoint_path))
+        checkpoint = torch.load(checkpoint_path)
+        self.model.load_state_dict(checkpoint['model_state_dict'], strict=strict)
+        self.model.to(device=self.device)
+        self.optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+        epoch = checkpoint['epoch']
+        loss = checkpoint['loss']
+        return epoch, loss,
+
+    def c_train_model(self, x_input, y_output, epochs, batch_size, validation_split):
+        x_input = torch.from_numpy(x_input).to(device=self.device).float()
+        y_output = torch.from_numpy(y_output).to(device=self.device).float()
+        for epoch in range(epochs):
             # Forward pass: Compute predicted y by passing x to the model
-            pred_y = self.model(x_input)
+            y_pred = self.model(x_input)
 
             # Compute and print loss
-            loss = self.criterion(pred_y, y_output)
+            print(type(y_pred), type(y_output))
+            loss = self.criterion(y_pred, y_output)
+            print(type)
+            # print('epoch {}, loss {}'.format(epoch, loss.data[0]))
+            print('epoch {}, loss {}'.format(epoch, loss.item()))
 
+            # Before the backward pass, use the optimizer object to zero all of the
+            # gradients for the Tensors it will update (which are the learnable weights
+            # of the model)
             # Zero gradients, perform a backward pass, and update the weights.
             self.optimizer.zero_grad()
-            loss.backward()
-            self.optimizer.step()
-            print('epoch {}, loss {}'.format(epoch, loss.data[0]))
 
+            # Backward pass: compute gradient of the loss with respect to model parameters
+            # loss.backward()
+            loss.mean().backward()
+
+            # Calling the step function on an Optimizer makes an update to its parameters
+            self.optimizer.step()
+
+        return
+
+    # TODO: implement this
+    def c_evaluate_model(self, x_input_test, y_output_test):
+        y_output_test = torch.from_numpy(y_output_test).to(device=self.device).float()
+        y_predicted = self.c_predict(x_input_test)
+        loss = self.criterion(y_predicted, y_output_test)
+        print(f"Loss = {loss}")
         return
 
     def c_predict(self, encoded_board: np.ndarray) -> torch.Tensor:
         # Pass the input tensor through each of our operations
-        encoded_board = torch.from_numpy(encoded_board)
+        encoded_board = torch.from_numpy(encoded_board).to(device=self.device)
         return self.model(encoded_board)
         # return self.model.predict(encoded_board)
 
-    def predict_board(self, board: chess.Board) -> torch.Tensor:
-        return self.c_predict(step_02.BoardEncoder.encode_board_1_778(board))
+    def c_predict_board_1(self, board_1: chess.Board) -> torch.Tensor:
+        return self.c_predict(
+            self.board_encoder.encode_board_1(
+                board_1
+            ).reshape(1, -1)
+        )[0]
 
-    def predict_fen(self, board_fen: str) -> np.float32:
-        pass
-        # return self.c_predict(step_02.BoardEncoder.encode_board_1_778(chess.Board(board_fen)))
+    def c_predict_board_n(self, board_n: Union[List[chess.Board], Tuple[chess.Board]]) -> torch.Tensor:
+        return self.c_predict(
+            self.board_encoder.encode_board_n(
+                board_n
+            )
+        )
+
+    def c_predict_fen_1(self, board_1_fen: str) -> torch.Tensor:
+        return self.c_predict(
+            self.board_encoder.encode_board_1_fen(
+                board_1_fen
+            ).reshape(1, -1)
+        )[0]
+
+    def c_predict_fen_n(self, board_n_fen: Union[List[str], Tuple[str]]) -> torch.Tensor:
+        return self.c_predict(
+            self.board_encoder.encode_board_n(
+                [chess.Board(i) for i in board_n_fen]
+            )
+        )
+
+
+class TorchModels:
+    @staticmethod
+    def model_001(device):
+        """
+        Inputs = 778
+
+        Outputs = 1
+
+        :param device:
+        :return:
+        """
+
+        model_layers = [
+            torch.nn.Linear(778, 512),  # Input layer
+            torch.nn.ReLU(),
+            torch.nn.Dropout(p=0.2),
+
+            torch.nn.Linear(512, 512),  # Layer 1
+            torch.nn.ReLU(),
+            torch.nn.Dropout(p=0.2),
+
+            torch.nn.Linear(512, 512),  # Layer 2
+            torch.nn.ReLU(),
+            torch.nn.Dropout(p=0.2),
+
+            torch.nn.Linear(512, 512),  # Layer 3
+            torch.nn.ReLU(),
+
+            torch.nn.Linear(512, 1),  # Layer 4 and Output layer
+            torch.nn.Sigmoid()
+        ]
+
+        # Build a feed-forward network
+        model = torch.nn.Sequential(*model_layers).to(device=device)
+
+        return model
+
+    # @staticmethod
+    # def model_002(device):
+    #     model =
+    #     model = model.to(device)
+    #     criterion = [torch.nn.MSELoss(reduction='mean').to(device)]
+    #     optimizer = torch.optim.Adam(model.parameters(), args.lr, weight_decay=args.decay)
 
 
 #########################################################################################################################
