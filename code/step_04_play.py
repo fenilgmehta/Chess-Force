@@ -145,30 +145,58 @@ class ChessPredict:
 # This if for CLI game interface
 
 class ChessPlayCLI:
+    piece_to_cli = {
+        'k': '\u2654',
+        'q': '\u2655',
+        'r': '\u2656',
+        'b': '\u2657',
+        'n': '\u2658',
+        'p': '\u2659',
+        'K': '\u265A',
+        'Q': '\u265B',
+        'R': '\u265C',
+        'B': '\u265D',
+        'N': '\u265E',
+        'P': '\u265F',
+    }
+
     def __init__(self,
                  player1_name: str = "Player 1",
                  player2_name: str = "Player 2",
                  player1_chess_predict: ChessPredict = None,
                  player2_chess_predict: ChessPredict = None,
-                 cpu_to_play_first: bool = True):
+                 clear_screen: bool = False,
+                 delay: float = 0.0):
         self.player1_name = player1_name
         self.player2_name = player2_name
         self.player1_chess_predict = player1_chess_predict
         self.player2_chess_predict = player2_chess_predict
-        self.cpu_to_play_first = cpu_to_play_first
-
-    def __cpu_obj_playable(self, pi_chess_predict, is_player1: bool):
-        return (pi_chess_predict is not None) and self.cpu_to_play_first == is_player1
+        self.clear_screen = clear_screen
 
     @staticmethod
-    def __pretty_board(board: chess.Board) -> str:
-        res_out = board.__str__()
-        res_out = res_out.split("\n")
+    def __pretty_board(board: chess.Board, clear_screen) -> str:
+        color_decoration = 'blue'
+        color_white = 'white'
+        color_black = 'cyan'
+        res_out: str = board.__str__()
+        res_out: List = res_out.split("\n")
         for i in range(len(res_out)):
-            res_out[i] = f"[{8 - i}] " + res_out[i]
-        res_out.insert(0, f"   [a|b|c|d|e|f|g|h]")
-        res_out.insert(0, f"\n\nBoard state number = {board.fullmove_number}")
-        return "\n".join(res_out)
+            res_out[i]: List = res_out[i].split(' ')  # list(res_out[i])
+            for j in range(len(res_out[i])):
+                ch = res_out[i][j]
+                if ch in ChessPlayCLI.piece_to_cli:
+                    ch_is_upper = ch.isupper()
+                    ch = ChessPlayCLI.piece_to_cli[res_out[i][j]]
+                    ch = colored(ch, color_white if ch_is_upper else color_black)
+                res_out[i][j] = ch
+            res_out[i] = " ".join(res_out[i])
+        for i in range(len(res_out)):
+            res_out[i] = colored(f"[{8 - i}] ", color_decoration) + res_out[i]
+        res_out.insert(0, colored(f"   [a|b|c|d|e|f|g|h]", color_decoration))
+        res_out.insert(0, f"\nBoard state number = {board.fullmove_number}\n")
+        flush_str = "\033c" if clear_screen else ''
+        res_out = flush_str + "\n".join(res_out) + "\n"
+        return res_out
 
     def user_play(self, board_play: chess.Board, is_player1: bool) -> chess.Move:
         player_name = self.player2_name
