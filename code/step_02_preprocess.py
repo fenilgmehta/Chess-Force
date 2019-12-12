@@ -56,7 +56,7 @@ class PreprocessPGN:
         board = nth_game.board()
         for move in nth_game.mainline_moves():
             board.push(move)
-            yield board
+            yield copy.deepcopy(board)
         return
 
     @staticmethod
@@ -83,7 +83,7 @@ class PreprocessPGN:
         self.reload_pgn()
         return game_count
 
-    def preprocess_pgn_simple(self, output_path: Union[str, Path]):
+    def pgn_to_csv_simple(self, output_path: Union[str, Path]):
         global engine_sf, BATCH_SIZE
 
         # Generate the output path if it does not exists and don't raise Exception if output_path already present.
@@ -123,7 +123,7 @@ class PreprocessPGN:
             print(f"DEBUG: boards successfully written to file: {output_file}", file=sys.stderr)
         print(f"DEBUG: processing finished :)")
 
-    def preprocess_pgn(self, output_path: Union[str, Path], resume_file_name=None, debug_flag=0):
+    def pgn_to_csv(self, output_path: Union[str, Path], resume_file_name=None, debug_flag=0):
         global engine_sf, MINI_BATCH_SIZE, BATCH_SIZE
 
         # Generate the output path if it does not exists and don't raise Exception if output_path already present.
@@ -225,12 +225,12 @@ class PreprocessPGN:
 #########################################################################################################################
 class BoardEncoder:
     @staticmethod
-    def is_check(board: chess.Board, side: chess.Color):
+    def is_check(board: chess.Board, side: chess.Color) -> bool:
         king = board.king(side)
         return king is not None and board.is_attacked_by(not side, king)
 
     @staticmethod
-    def is_checkmate(board: chess.Board, side: chess.Color):
+    def is_checkmate(board: chess.Board, side: chess.Color) -> bool:
         return board.is_checkmate() and board.turn == side
 
     class Encode778:
@@ -319,7 +319,7 @@ class BoardEncoder:
 
 class ScoreNormalizer:
     @staticmethod
-    def normalize_001(data_df: np.ndarray):
+    def normalize_001(data_np: np.ndarray) -> np.ndarray:
         """
         All cp_scores between [0, 10] are scaled down to [0, 1]
 
@@ -327,15 +327,56 @@ class ScoreNormalizer:
 
         NOTE: Results are not good
 
-        :param data_df:
+        :param data_np:
         :return: Normalized `np.ndarray`
         """
-        data_df = copy.deepcopy(data_df)
-        data_df *= 10000
-        data_df[data_df >= 10] = 10
-        data_df[data_df <= -10] = -10
-        data_df /= 10
-        return data_df
+        data_np = copy.deepcopy(data_np)
+        data_np *= 10000
+        data_np[data_np >= 10] = 10
+        data_np[data_np <= -10] = -10
+        data_np /= 10
+        return data_np
+
+    @staticmethod
+    def normalize_002(data_np: np.ndarray) -> np.ndarray:
+        """
+        All cp_scores between [0, 50] are scaled down to [0, 0.2]
+
+        All cp_scores above 10 are scaled down to 1
+
+        NOTE: Results are not good
+
+        :param data_np:
+        :return: Normalized `np.ndarray`
+        """
+        data_np = copy.deepcopy(data_np)
+        data_np *= 10000
+
+        # [0.0, 0.2]
+        data_np[np.logical_and(0 <= data_np, data_np <= 50)] /= (50/0.2)
+
+        # [0.2, 0.4]
+        data_np[np.logical_and(50 <= data_np, data_np <= 2000)] = (data_np[np.logical_and(50 <= data_np, data_np <= 2000)] - 50) / 1950 * 0.2 + 0.2
+
+        # [0.4, 0.8]
+        data_np[np.logical_and(2000 <= data_np, data_np <= 6000)] = (data_np[np.logical_and(2000 <= data_np, data_np <= 6000)] - 2000) / 4000 * 0.4 + 0.4
+
+        # [0.8, 1.0]
+        data_np[6000 <= data_np] = (data_np[6000 <= data_np] - 6000) / 4000 * 0.2 + 0.8
+
+        # [-0.2, 0.0]
+        data_np[np.logical_and(-50 <= data_np, data_np < 0)] /= (50/0.2)
+
+        # [-0.4, -0.2]
+        data_np[np.logical_and(-2000 <= data_np, data_np <= -50)] = (data_np[np.logical_and(-2000 <= data_np, data_np <= -50)] + 50) / 1950 * 0.2 - 0.2
+
+        # [-0.8, -0.4]
+        data_np[np.logical_and(-6000 <= data_np, data_np <= -2000)] = (data_np[np.logical_and(-6000 <= data_np, data_np <= -2000)] + 2000) / 4000 * 0.4 - 0.4
+
+        # [-1.0, -0.8]
+        data_np[data_np <= -6000] = (data_np[data_np <= -6000] + 6000) / 4000 * 0.2 - 0.8
+
+        return data_np
 
 
 #########################################################################################################################
@@ -353,11 +394,11 @@ def generate_all_boards(depth_d: int):
     return output_list
 
 
-def boards_list_to_csv(file_name, temp_res, temp_i):
-    res_pd = pd.DataFrame(data=zip([i.fen() for i in temp_res], itertools.repeat(0)),
+def boards_list_to_csv(file_name, boards_list, boards_list_depth):
+    res_pd = pd.DataFrame(data=zip([i.fen() for i in boards_list], itertools.repeat(0)),
                           index=None,
                           columns=cs.COLUMNS)
-    res_pd.to_csv(f"{file_name}_{temp_i:06}.csv", index=False)
+    res_pd.to_csv(f"{file_name}_{boards_list_depth:06}.csv", index=False)
 
 
 def generate_all_boards_to_csv(file_name: str, depth_d: int):
@@ -372,7 +413,7 @@ def generate_all_boards_to_csv(file_name: str, depth_d: int):
 
 
 #########################################################################################################################
-def preprocess_csv_score(csv_file_path: Union[str, Path], resume_file_name):
+def csv_score_generation(csv_file_path: Union[str, Path], resume_file_name):
     global engine_sf
     engine_sf = step_01_engine.CustomEngine(src_path=None, hash_size_mb=8192, depth=15, analyse_time=0.2)
 
@@ -405,7 +446,7 @@ def preprocess_csv_score(csv_file_path: Union[str, Path], resume_file_name):
         print(f"DEBUG: successfully processed {i}", file=sys.stderr)
 
 
-def start_basic_processing(kingbase_dir: str):
+def pgn_to_csv_parallel(kingbase_dir: str):
     your_host = '0.0.0.0'  # or use '0.0.0.0' if you have high enough privilege
     your_port = 60006  # the port to be used by the master node
     your_authkey = 'a1'  # this is the password clients use to connect to the master(i.e. the current node)
@@ -424,7 +465,7 @@ def start_basic_processing(kingbase_dir: str):
                       """\n    return pgn_obj.get_pgn_game_count()"""
                       """\ndef fun2(arg2):"""
                       """\n    pgn_obj = PreprocessPGN(pgn_file_path=arg2)""" +
-                      """\n    pgn_obj.preprocess_pgn(output_path="/home/student/Desktop/Fenil/Final Year Project/KingBase2019-pgn/data_out_pgn/", debug_flag=1)""",
+                      """\n    pgn_obj.pgn_to_csv(output_path="/home/student/Desktop/Fenil/Final Year Project/KingBase2019-pgn/data_out_pgn/", debug_flag=1)""",
                       from_file=False)
     master.register_target_function("fun2")  # CHANGE this as per requirement
     master.load_args([str(Path(kingbase_dir) / i) for i in sh.run(f"ls '{kingbase_dir}'").output(raw=False)])
@@ -435,12 +476,9 @@ def start_basic_processing(kingbase_dir: str):
 
 #########################################################################################################################
 if __name__ == "__main__":
-    start_basic_processing(kingbase_dir="/home/student/Desktop/Fenil/Final Year Project/KingBase2019-pgn/")
+    pgn_to_csv_parallel(kingbase_dir="/home/student/Desktop/Fenil/Final Year Project/KingBase2019-pgn/")
 
     # pgn_obj = PreprocessPGN(pgn_file_path="KingBase2019-A80-A99.pgn")
     # print(pgn_obj.get_pgn_game_count())
-    # pgn_obj.preprocess_pgn(output_path="./game_limited boards/", resume_file_name="./game_limited boards/z_game_num_limited_str_game.txt")
+    # pgn_obj.pgn_to_csv(output_path="./game_limited boards/")
 
-    # preprocess_pgn(pgn_file_path="KingBase2019-A80-A99.pgn", output_path="./game_all possible boards/", "./game_all possible boards/z_game_num.txt")
-    # preprocess_gen_score(csv_file_path="./game_limited boards/", resume_file_name="./game_limited boards/z_game_num_limited_cp_score.txt")
-    # chess.Board().fen()
