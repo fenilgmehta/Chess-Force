@@ -20,7 +20,8 @@ import step_03a_ffnn as step_03
 class ChessPredict:
     def __init__(self,
                  function_to_predict_1_board=None, function_to_predict_n_board=None, to_maximize=True,
-                 predict_move_1=None):
+                 predict_move_1=None,
+                 analyse_board=None):
         if function_to_predict_1_board is not None:
             assert isinstance(function_to_predict_1_board, collections.abc.Callable), '`function_to_predict_1_board` must be callable'
         if function_to_predict_n_board is not None:
@@ -32,6 +33,7 @@ class ChessPredict:
         self.function_to_predict_1 = function_to_predict_1_board
         self.function_to_predict_n = function_to_predict_n_board
         self.predict_move_1 = predict_move_1
+        self.analyse_board = analyse_board
         self.to_maximize = to_maximize
 
         self.__initial_score = float(((-1) ** to_maximize) * (2 ** 30))
@@ -125,19 +127,13 @@ class ChessPredict:
             return self.predict_best_move_v1(board)
         raise NotImplementedError("Neither of the prediction methods are given to ChessPredict: predict_score_1, predict_score_n, predict_move_1")
 
-    def get_next_move_v1(self, board: chess.Board):
-        return self.predict_best_move_v1(board)[0]
-
-    def get_next_move_v2(self, board: chess.Board):
-        return self.predict_best_move_v2(board)[0]
-
-    def get_next_move_v3(self, board: chess.Board):
+    def get_next_move(self, board: chess.Board):
         if self.predict_move_1 is not None:
             return self.predict_move_1(board)
         if self.predict_score_n is not None:
-            return self.get_next_move_v2(board)
+            return self.predict_best_move_v2(board)[0]
         if self.predict_score_1 is not None:
-            return self.get_next_move_v1(board)
+            return self.predict_best_move_v1(board)[0]
         raise NotImplementedError("Neither of the prediction methods are given to ChessPredict: predict_score_1, predict_score_n, predict_move_1")
 
 
