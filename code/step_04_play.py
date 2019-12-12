@@ -511,31 +511,33 @@ class ChessPlayCLI:
 #########################################################################################################################
 
 if __name__ == "__main__":
-    # play_chess()
-
-    # a = ChessPlay()
-    # a.PlayGame()
     ffnn_keras = step_03.FFNNKeras(step_03.KerasModels.model_001, step_02.BoardEncoder.Encode778)
     ffnn_keras.c_load_weights("ffnn_keras_v004_000010_weights.h5")
+
     ffnn_keras2 = step_03.FFNNKeras(step_03.KerasModels.model_004, step_02.BoardEncoder.Encode778)
     ffnn_keras2.c_load_weights("ffnn_keras_v005_000010_weights.h5")
-    engine_sf = step_01.CustomEngine(src_path=None,
-                                     cp_score_max=8000,
-                                     mate_score_max=10000,
-                                     mate_score_difference=50,
-                                     cpu_cores=1,
-                                     hash_size_mb=16,
-                                     depth=20,
-                                     analyse_time=0.1)
+
+    engine_sf = step_01.CustomEngine(src_path=None, cp_score_max=8000, mate_score_max=10000,
+                                     mate_score_difference=50, cpu_cores=1, hash_size_mb=16,
+                                     depth=20, analyse_time=0.1)
+
+    engine_sf_analyse = step_01.CustomEngine(src_path=None, cp_score_max=8000, mate_score_max=10000,
+                                             mate_score_difference=50, cpu_cores=1, hash_size_mb=16,
+                                             depth=20, analyse_time=0.5)
+
     chess_predict_1 = ChessPredict(ffnn_keras2.c_predict_board_1, ffnn_keras2.c_predict_board_n, to_maximize=True)
     chess_predict_2 = ChessPredict(ffnn_keras.c_predict_board_1, ffnn_keras.c_predict_board_n, to_maximize=False)
+
     chess_predict_3 = ChessPredict(predict_move_1=engine_sf.predict_move)
+    chess_predict_4_analyse = ChessPredict(analyse_board=engine_sf_analyse.evaluate_normalized_board)
 
     ChessPlayCLI(player1_name="Player 1",
                  player2_name="Player 2",
                  player1_chess_predict=chess_predict_1,
                  player2_chess_predict=chess_predict_2,
+                 game_analyzer=chess_predict_4_analyse,
                  clear_screen=False,
-                 delay=0.2).play()
+                 delay=1.0).play()
 
     engine_sf.finish()
+    engine_sf_analyse.finish()
