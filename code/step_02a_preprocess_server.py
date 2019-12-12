@@ -27,8 +27,8 @@ def ring_beep():
 
 # IMPORTANT SETTINGS
 # input_file = 'Chess_preprocessed_data_KingBase2019-A00-A39_000001.csv'
-INPUT_FOLDER = "../../../data_in_combined"
-OUTPUT_FOLDER = "../../../data_out_combined"
+INPUT_FOLDER = "/home/student/.workc/D00-D99_in"  # "../../../data_in_combined"
+OUTPUT_FOLDER = "/home/student/.workc/D00-D99_out"  # "../../../data_out_combined"
 
 your_host = '0.0.0.0'  # or use '0.0.0.0' if you have high enough privilege
 your_port = 60005  # the port to be used by the master node
@@ -97,7 +97,7 @@ for i in sorted(input_files, reverse=False):
     print(f"DEBUG: Input len = {len(data_in)}")
 
     with cs.ExecutionTime():
-        master.load_envir("step_02b_client_environment.py", from_file=True)
+        master.load_envir("step_02c_client_environment.py", from_file=True)
         master.register_target_function("fun_board_eval_obj")
         # data_in_new = [(tuple(data_in[i: i + your_chunksize]), CLIENT_SIDE_WORKERS_PROCESSES,) for i in range(0, len(data_in), your_chunksize)]
         master.load_args(data_in)
