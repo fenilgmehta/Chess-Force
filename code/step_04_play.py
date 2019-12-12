@@ -41,21 +41,37 @@ class ChessPredict:
         else:
             self.__compare = operator.lt
 
-    # NOTE: don't use this as it will be slow
     def predict_score_1(self, board: chess.Board) -> np.float:
         """
         Returns the centi-pawn score for `board` it is given as the parameter.
+
+        Note: may be performance can be impacted as model/engine is called repeatedly for each board state evaluation
 
         :return: np.float
         """
         return self.function_to_predict_1(board)
 
-    # NOTE: don't use this as it will be slow
-    def predict_best_move_1(self, board: chess.Board) -> Tuple[chess.Move, np.float]:
+    def predict_score_n(self, boards: Union[List, Tuple, np.array]) -> np.array:
         """
+        Returns centi-pawn score for all the boards passed to it.
+
+        :return: np.array
+        """
+        return self.function_to_predict_n(boards)
+
+    def predict_best_move_v1(self, board: chess.Board) -> Tuple[chess.Move, np.float]:
+        """
+        Generate all possible boards at next level from `board`.
+        Predict score of all boards.
+
+        Uses: predict_score_1
+
+        Note: may be performance can be impacted as model/engine is called repeatedly for each board state evaluation
 
         :return: Tuple[chess.Move, np.float]
         """
+        if self.function_to_predict_1 is None:
+            raise NotImplementedError
         best_move = None
         best_score = self.__initial_score
         for i in board.legal_moves:
@@ -67,18 +83,12 @@ class ChessPredict:
             board.pop()
         return best_move, best_score
 
-    def predict_score_n(self, boards: Union[List, Tuple, np.array]) -> np.array:
-        """
-        Returns centi-pawn score for all the boards passed to it.
-
-        :return: np.array
-        """
-        return self.function_to_predict_n(boards)
-
-    def predict_best_move_n(self, board: chess.Board) -> Tuple[chess.Move, np.float]:
+    def predict_best_move_v2(self, board: chess.Board) -> Tuple[chess.Move, np.float]:
         """
         Generate all possible boards at next level from `board`.
         Predict score of all boards.
+
+        Uses: predict_score_n
 
         :param board:
         :return: Tuple[chess.Move, np.float]
