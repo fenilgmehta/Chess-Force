@@ -161,12 +161,17 @@ class ChessPlayCLI:
                  player2_name: str = "Player 2",
                  player1_chess_predict: ChessPredict = None,
                  player2_chess_predict: ChessPredict = None,
+                 game_analyzer: ChessPredict = None,
                  clear_screen: bool = False,
                  delay: float = 0.0):
+        '''
+        Note: `game_analyzer` should implement the method `analyse_board`
+        '''
         self.player1_name = player1_name
         self.player2_name = player2_name
         self.player1_chess_predict = player1_chess_predict
         self.player2_chess_predict = player2_chess_predict
+        self.game_analyzer = game_analyzer
         self.clear_screen = clear_screen
         if not isinstance(delay, (int, float,)):
             delay = 0.0
@@ -192,7 +197,7 @@ class ChessPlayCLI:
         for i in range(len(res_out)):
             res_out[i] = colored(f"[{8 - i}] ", color_decoration) + res_out[i]
         res_out.insert(0, colored(f"   [a|b|c|d|e|f|g|h]", color_decoration))
-        res_out.insert(0, f"\nBoard state number = {board.fullmove_number}\n")
+        res_out.insert(0, colored(f"\n### Board state number = {board.fullmove_number}\n", 'red', attrs=['bold', 'reverse']))
         flush_str = "\033c" if clear_screen else ''
         res_out = flush_str + "\n".join(res_out) + "\n"
         return res_out
@@ -248,6 +253,8 @@ class ChessPlayCLI:
                     print(f"DEBUG: [{self.player2_name}] AI's move = {move_selected}")
                     print(f"DEBUG: [{self.player2_name}] AI's move_score = {move_score}")
             board_play.push(move_selected)
+            if self.game_analyzer is not None:
+                print(f"\nGame analysis = {self.game_analyzer.analyse_board(board_play)}")
             current_player1_turn ^= True
             time.sleep(self.delay)
 
@@ -264,6 +271,12 @@ class ChessPlayCLI:
             print(f"RESULTS: draw, due to three fold repetition")
         else:
             print(f"RESULTS: draw/unknown, board_play.fen() = {board_play.fen()}")
+        game_moves = []
+        while board_play != chess.Board():
+            game_moves.insert(0, str(board_play.pop()))
+        print("\n\nGame moves list:")
+        print(game_moves)
+        print()
         return
 
 
