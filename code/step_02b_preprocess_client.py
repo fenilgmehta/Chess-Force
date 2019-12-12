@@ -13,7 +13,8 @@ your_port: int = int(your_port)
 # your_port: int = 60005
 # your_authkey: str = 'a1'
 print(f"Master node IP, Port, AuthKey = '{your_host}', '{your_port}', '{your_authkey}'")
-N_processors_to_use = multiprocessing.cpu_count()
+# N_processors_to_use = multiprocessing.cpu_count()
+N_processors_to_use = 1024  # UPDATED: 20191209T2203
 
 while True:
     try:
