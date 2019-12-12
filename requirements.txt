@@ -3,8 +3,9 @@ PySimpleGUI==4.7.1
 shell
 minimalcluster
 joblib==0.14.0
-numpy==1.17.2
+numpy
 pandas==0.25.3
 scikit-learn==0.21.3
 tensorflow
 tensorflow-gpu
+termcolor
