@@ -172,6 +172,9 @@ class ChessPlayCLI:
         self.player1_chess_predict = player1_chess_predict
         self.player2_chess_predict = player2_chess_predict
         self.clear_screen = clear_screen
+        if not isinstance(delay, (int, float,)):
+            delay = 0.0
+        self.delay = delay
 
     @staticmethod
     def __pretty_board(board: chess.Board, clear_screen) -> str:
@@ -246,6 +249,7 @@ class ChessPlayCLI:
             board_play.push(move_selected)
             print("\n" + ChessPlayCLI.__pretty_board(board_play), end="\n\n")
             current_player1_turn ^= True
+            time.sleep(self.delay)
 
         print("\n\n")
         if board_play.is_stalemate():
