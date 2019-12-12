@@ -1,16 +1,16 @@
 import collections.abc
 import copy
 import operator
-import os
-import sys
-from typing import Tuple, List, Union
+import time
+from typing import Tuple, List, Union, Any
 
-import PySimpleGUI as sg
 import chess
 # import chess.pgn
 import numpy as np
+from termcolor import colored
 
-# import step_01_engine as step_01
+import common_services as cs
+import step_01_engine as step_01
 import step_02_preprocess as step_02
 import step_03a_ffnn as step_03
 
@@ -18,12 +18,20 @@ import step_03a_ffnn as step_03
 #########################################################################################################################
 # This is for prediction
 class ChessPredict:
-    def __init__(self, function_to_predict_1_board, function_to_predict_n_board, to_maximize=True):
-        assert isinstance(function_to_predict_1_board, collections.abc.Callable), '`function_to_predict_1_board` must be callable'
-        assert isinstance(function_to_predict_n_board, collections.abc.Callable), '`function_to_predict_n_board` must be callable'
+    def __init__(self,
+                 function_to_predict_1_board=None, function_to_predict_n_board=None, to_maximize=True,
+                 predict_move_1=None):
+        if function_to_predict_1_board is not None:
+            assert isinstance(function_to_predict_1_board, collections.abc.Callable), '`function_to_predict_1_board` must be callable'
+        if function_to_predict_n_board is not None:
+            assert isinstance(function_to_predict_n_board, collections.abc.Callable), '`function_to_predict_n_board` must be callable'
+        assert isinstance(to_maximize, bool), '`predict_move_1` must be bool'
+        if predict_move_1 is not None:
+            assert isinstance(predict_move_1, collections.abc.Callable), '`predict_move_1` must be callable'
 
         self.function_to_predict_1 = function_to_predict_1_board
         self.function_to_predict_n = function_to_predict_n_board
+        self.predict_move_1 = predict_move_1
         self.to_maximize = to_maximize
 
         self.__initial_score = float(((-1) ** to_maximize) * (2 ** 30))
@@ -93,8 +101,8 @@ class ChessPredict:
 
         return best_move, best_score
 
-    def get_next_move(self, board: chess.Board):
-        return self.predict_best_move_n(board)[0]
+    def predict_best_move_v3(self, board: chess.Board) -> Tuple[chess.Move, Any]:
+        return self.predict_move_1(board), None
 
 
 #########################################################################################################################
