@@ -223,19 +223,23 @@ class ChessPlayCLI:
         print()
         board_play = chess.Board()
         current_player1_turn = True
-        print(ChessPlayCLI.__pretty_board(board_play), end="\n\n")
         # board_play.is_repetition()
         # board_play.can_claim_threefold_repetition()
         # board_play.is_fivefold_repetition()
         while not (board_play.is_checkmate() or board_play.is_stalemate() or board_play.is_insufficient_material() or board_play.can_claim_threefold_repetition()):
+            print(ChessPlayCLI.__pretty_board(board_play, self.clear_screen))
+            print()
             print(f"DEBUG: board_play.fen() = {board_play.fen()}")
             print(f"DEBUG: Legal moves = {list(map(str, list(board_play.legal_moves)))}")
+            if board_play.is_check():
+                print(colored(text="INFO: it is a check.", attrs=['bold', 'reverse']))
             if current_player1_turn:
                 # player 1 plays
                 if self.player1_chess_predict is None:
                     move_selected = self.user_play(board_play=board_play, is_player1=current_player1_turn)
                 else:
-                    move_selected, move_score = self.player1_chess_predict.predict_best_move_n(board=board_play)
+                    with cs.ExecutionTime():
+                        move_selected, move_score = self.player1_chess_predict.predict_best_move(board=board_play)
                     print(f"DEBUG: [{self.player1_name}] AI's move = {move_selected}")
                     print(f"DEBUG: [{self.player1_name}] AI's move_score = {move_score}")
             else:
@@ -243,15 +247,15 @@ class ChessPlayCLI:
                 if self.player2_chess_predict is None:
                     move_selected = self.user_play(board_play=board_play, is_player1=current_player1_turn)
                 else:
-                    move_selected, move_score = self.player2_chess_predict.predict_best_move_n(board=board_play)
+                    with cs.ExecutionTime():
+                        move_selected, move_score = self.player2_chess_predict.predict_best_move(board=board_play)
                     print(f"DEBUG: [{self.player2_name}] AI's move = {move_selected}")
                     print(f"DEBUG: [{self.player2_name}] AI's move_score = {move_score}")
             board_play.push(move_selected)
-            print("\n" + ChessPlayCLI.__pretty_board(board_play), end="\n\n")
             current_player1_turn ^= True
             time.sleep(self.delay)
 
-        print("\n\n")
+        print("\n\n" + ChessPlayCLI.__pretty_board(board_play, self.clear_screen), end="\n\n")
         if board_play.is_stalemate():
             print(f"RESULTS: draw, as its a stalemate")
         elif board_play.is_checkmate() and board_play.turn == chess.WHITE:
