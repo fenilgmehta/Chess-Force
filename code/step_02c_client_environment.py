@@ -16,7 +16,7 @@ import step_01_engine
 STOCK_FISH = {'src_path': None, 'cpu_cores': 1, 'hash_size_mb': 16, 'depth': 20, 'analyse_time': 1.0}
 
 random_obj = random.Random(f"{os.getpid()}_{time.time()}")
-time.sleep(random_obj.random() * 5)
+time.sleep(random_obj.random() * 15)  # NOTE: use 5 if less clients are connected and chunk size is small
 
 #########################################################################################################################
 engine_sf = step_01_engine.CustomEngine(src_path=STOCK_FISH['src_path'],
