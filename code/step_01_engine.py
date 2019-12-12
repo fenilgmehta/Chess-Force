@@ -118,7 +118,7 @@ class CustomEngine:
             return min(int_score, self.CP_SCORE_MAX)
         return max(int_score, -self.CP_SCORE_MAX)
 
-    def evaluate_fen(self, board_fen: str):
+    def evaluate_fen(self, board_fen: str) -> int:
         return self.evaluate_board(chess.Board(board_fen))
 
     def evaluate_normalized_board(self, board: chess.Board):
@@ -126,6 +126,13 @@ class CustomEngine:
 
     def evaluate_normalized_fen(self, board_fen: str):
         return self.evaluate_board(chess.Board(board_fen)) / self.MATE_SCORE_MAX
+
+    def predict_move(self, board_1, time_1=None, depth_1=None) -> chess.Move:
+        if time_1 is None:
+            time_1 = self.MAX_ANALYSE_TIME
+        if depth_1 is None:
+            depth_1 = self.MAX_DEPTH
+        return self.engine_obj.play(board=board_1, limit=chess.engine.Limit(time=time_1, depth=depth_1)).move
 
     def finish(self):
         self.engine_obj.close()
