@@ -332,44 +332,49 @@ class FFNNKeras:
         print(f"Evaluated: Loss = {loss:5.3f}")
         print(f"Evaluated: MAE = {mae:5.3f}")
 
-    def c_predict(self, encoded_board: np.ndarray) -> np.ndarray:
+    def c_predict(self, encoded_board: np.ndarray, verbose=0) -> np.ndarray:
         """
         Takes a 2D np.ndarray where each row is a chess board made up of the
         floating point numbers using methods of class `self.board_encoder`
         :param encoded_board:
+        :param verbose:
         :return: np.ndarray - 1D
         """
         return self.model.predict(
             encoded_board,
-            verbose=1, workers=multiprocessing.cpu_count(), use_multiprocessing=True
+            verbose=verbose, workers=multiprocessing.cpu_count(), use_multiprocessing=True
         ).ravel()
 
-    def c_predict_board_1(self, board_1: chess.Board) -> np.float32:
+    def c_predict_board_1(self, board_1: chess.Board, verbose=0) -> np.float32:
         return self.c_predict(
             self.board_encoder.encode_board_1(
                 board_1
-            ).reshape(1, -1)
+            ).reshape(1, -1),
+            verbose
         )[0]
 
-    def c_predict_board_n(self, board_n: Union[List[chess.Board], Tuple[chess.Board]]) -> np.ndarray:
+    def c_predict_board_n(self, board_n: Union[List[chess.Board], Tuple[chess.Board]], verbose=0) -> np.ndarray:
         return self.c_predict(
             self.board_encoder.encode_board_n(
                 board_n
-            )
+            ),
+            verbose
         )
 
-    def c_predict_fen_1(self, board_1_fen: str) -> np.float32:
+    def c_predict_fen_1(self, board_1_fen: str, verbose=0) -> np.float32:
         return self.c_predict(
             self.board_encoder.encode_board_1_fen(
                 board_1_fen
-            ).reshape(1, -1)
+            ).reshape(1, -1),
+            verbose
         )[0]
 
-    def c_predict_fen_n(self, board_n_fen: Union[List[str], Tuple[str]]) -> np.ndarray:
+    def c_predict_fen_n(self, board_n_fen: Union[List[str], Tuple[str]], verbose=0) -> np.ndarray:
         return self.c_predict(
             self.board_encoder.encode_board_n(
                 [chess.Board(i) for i in board_n_fen]
-            )
+            ),
+            verbose
         )
 
 
