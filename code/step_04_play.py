@@ -93,6 +93,8 @@ class ChessPredict:
         :param board:
         :return: Tuple[chess.Move, np.float]
         """
+        if self.function_to_predict_n is None:
+            raise NotImplementedError
         board_moves_list: List[chess.Move] = list(board.legal_moves)
         board_states_list: List[chess.Board] = []
         for i in board_moves_list:
@@ -113,6 +115,30 @@ class ChessPredict:
 
     def predict_best_move_v3(self, board: chess.Board) -> Tuple[chess.Move, Any]:
         return self.predict_move_1(board), None
+
+    def predict_best_move(self, board: chess.Board) -> Tuple[chess.Move, Any]:
+        if self.predict_move_1 is not None:
+            return self.predict_best_move_v3(board)
+        if self.predict_score_n is not None:
+            return self.predict_best_move_v2(board)
+        if self.predict_score_1 is not None:
+            return self.predict_best_move_v1(board)
+        raise NotImplementedError("Neither of the prediction methods are given to ChessPredict: predict_score_1, predict_score_n, predict_move_1")
+
+    def get_next_move_v1(self, board: chess.Board):
+        return self.predict_best_move_v1(board)[0]
+
+    def get_next_move_v2(self, board: chess.Board):
+        return self.predict_best_move_v2(board)[0]
+
+    def get_next_move_v3(self, board: chess.Board):
+        if self.predict_move_1 is not None:
+            return self.predict_move_1(board)
+        if self.predict_score_n is not None:
+            return self.get_next_move_v2(board)
+        if self.predict_score_1 is not None:
+            return self.get_next_move_v1(board)
+        raise NotImplementedError("Neither of the prediction methods are given to ChessPredict: predict_score_1, predict_score_n, predict_move_1")
 
 
 #########################################################################################################################
