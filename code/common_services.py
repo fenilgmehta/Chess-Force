@@ -113,7 +113,7 @@ def readpoint(resume_file_name, variable_length) -> Union[List[int], int]:
 def read_last_line(resume_file_name) -> str:
     if not Path(resume_file_name).exists():
         print(f"DEBUG: file does not exists: '{resume_file_name}'"
-              f"\n\treturning default value, i.e. array of 1's of size {variable_length}", file=sys.stderr)
+              f"\n\treturning default value, i.e. '' = empty string", file=sys.stderr)
         return ''
 
     sh = Shell(has_input=False, record_output=True, record_errors=True, strip_empty=True)
