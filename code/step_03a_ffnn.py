@@ -1,9 +1,11 @@
 import glob
 import multiprocessing
 import os
+import sys
 import warnings
 from pathlib import Path
-from typing import Union, Tuple, List
+from typing import Union, Tuple, List, Callable, TypeVar, Type
+from tqdm import tqdm
 
 # WARNING/ERROR: numpy FutureWarning
 # SOLUTION: https://github.com/tensorflow/tensorflow/issues/30427
@@ -34,6 +36,51 @@ from tensorflow.python.client import device_lib
 
 import common_services as cs
 import step_02_preprocess as step_02
+
+
+class ModelVersion:
+    def __init__(self,
+                 prefix: str,
+                 model_generator: int,
+                 board_encoder: int,
+                 score_normalizer: int,
+                 epochs: int,
+                 weight_or_model: str,
+                 version: int,
+                 file_extension="h5"):
+        self.prefix = prefix
+        self.model_generator = model_generator
+        self.board_encoder = board_encoder
+        self.score_normalizer = score_normalizer
+        self.epochs = epochs
+        self.weight_or_model = weight_or_model
+        self.version = version
+        self.file_extension = file_extension
+
+    def __str__(self):
+        return ModelVersion.model_name(self.prefix,
+                                       self.model_generator, self.board_encoder, self.score_normalizer, self.epochs,
+                                       self.weight_or_model, self.version, self.file_extension)
+
+    @staticmethod
+    def create_obj(file_name: str):
+        name, extension = file_name.split('.')
+        arr = name.split('-')
+        if len(arr) != 9: raise Exception("Invalid ModelVersion str name")
+        return ModelVersion(*arr)
+
+    @staticmethod
+    def model_name(prefix: str, model_generator, board_encoder, score_normalizer, epochs, weight_or_model, version: int, file_extension="h5"):
+        # return f"{prefix}-v{version:03}-mg{model_generator:03}-be{board_encoder:03}-"
+        return "-".join([
+            f"{prefix}",
+            f"mg{model_generator:03d}",
+            f"be{board_encoder:05d}",
+            f"sn{score_normalizer:03d}",
+            f"ep{epochs:05d}",
+            f"{weight_or_model}"
+            f"v{version:03d}",
+        ]) + f".{file_extension}"
 
 
 #########################################################################################################################
