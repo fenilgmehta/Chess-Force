@@ -541,37 +541,55 @@ get_available_gpus()
 device_lib.list_local_devices()
 
 
-def train_on_files(keras_obj: FFNNKeras, dir_path: str):
+def train_on_file(keras_obj: FFNNKeras, file_path: str, epochs, batch_size, validation_split):
+    out_file = sys.stderr
+    no_print = False
+
+    print(file_path)
+    with cs.ExecutionTime(file=out_file, no_print=no_print):
+        data = pd.read_csv(file_path, dtype={cs.COLUMNS[0]: str, cs.COLUMNS[1]: np.float32})
+        data_x = data[cs.COLUMNS[0]].values
+        data_y = data[cs.COLUMNS[1]].values
+        # print(data.head())
+    with cs.ExecutionTime(file=out_file, no_print=no_print):
+        data_x_encoded = keras_obj.board_encoder.encode_board_n_fen(data_x)
+        # data_x_encoded = step_02.BoardEncoder.Encode778.encode_board_n_fen(data_x)
+    with cs.ExecutionTime(file=out_file, no_print=no_print):
+        data_y_normalized = keras_obj.score_normalizer(data_y)
+        # data_y_normalized = step_02.ScoreNormalizer.normalize_002(data_y)
+    keras_obj.c_train_model(data_x_encoded, data_y_normalized, epochs=epochs, batch_size=batch_size, validation_split=validation_split)
+    del data, data_x, data_y, data_x_encoded, data_y_normalized
+
+
+def train_on_folder(keras_obj: FFNNKeras, dir_path: str, epochs, batch_size, validation_split):
     if not Path(dir_path).exists():
         raise FileNotFoundError()
 
     tensorflow.device("/gpu:0")
-    j = 1
-    for ith_file in sorted(glob.glob(f"{Path(dir_path)}/*.csv")):
-        with cs.ExecutionTime():
-            data = pd.read_csv(ith_file, dtype={cs.COLUMNS[0]: str, cs.COLUMNS[1]: np.float32})
-            data_x = data[cs.COLUMNS[0]].values
-            data_y = data[cs.COLUMNS[1]].values
-            # print(data.head())
-        with cs.ExecutionTime():
-            data_x_encoded = step_02.BoardEncoder.Encode778.encode_board_n_fen(data_x)
-        with cs.ExecutionTime():
-            data_y_normalized = step_02.ScoreNormalizer.normalize_002(data_y)
-        keras_obj.c_train_model(data_x_encoded, data_y_normalized, epochs=10, batch_size=1024, validation_split=0.1)
-        print(ith_file)
-        print(j)
-        j += 1
+    for ith_file in tqdm(sorted(glob.glob(f"{Path(dir_path)}/*.csv"))):
+        train_on_file(keras_obj, ith_file, epochs=10, batch_size=1024, validation_split=0.1)
 
 
 # TRAINING on GPU
 # sess = tensorflow.compat.v1.Session(config=tensorflow.compat.v1.ConfigProto(log_device_placement=True))
 if __name__ == '__main__':
-    ffnn_keras_v5 = FFNNKeras(KerasModels.model_004, step_02.BoardEncoder.Encode778)
-    train_on_files(ffnn_keras_v5, dir_path='a_done_A00_to_B49/v2_A00-39')
-    ffnn_keras_v5.c_load_weights("ffnn_keras_v005_000010_weights.h5")
-    ffnn_keras_v5.c_load_model("ffnn_keras_v005_000010_model.h5")
-    # ffnn_keras_v5.c_save_weights("ffnn_keras_v005_000010_weights.h5")
-    # ffnn_keras_v5.c_save_model("ffnn_keras_v005_000010_model.h5")
+    ffnn_keras_v5 = FFNNKeras(KerasModels.model_004,
+                              step_02.BoardEncoder.Encode778,
+                              step_02.ScoreNormalizer.normalize_002,
+                              ModelVersion("ffnn_keras", 4, 778, 2, 10, "weights", 5))
+    ffnn_keras_v5.c_load_weights("ffnn_keras-mg004-be00778-sn002-ep00010-weights-v005.h5")
+    # keras_obj=ffnn_keras_v5; file_path="r_A00-A39__000000.csv"; epochs=10; batch_size=131072; validation_split=0.1;
+    train_on_file(keras_obj=ffnn_keras_v5, file_path="r_A00-A39__000000.csv", epochs=10, batch_size=131072, validation_split=0.1)
+    # train_on_folder(ffnn_keras_v5, dir_path="a_done_A00_to_B49/v2_A00-39", epochs=10, batch_size=131072, validation_split=0.1)
+    ffnn_keras_v5.model_version.version += 1
+    ffnn_keras_v5.c_save_weights(ffnn_keras_v5.model_version.__str__())
+    ffnn_keras_v5.c_save_model(ffnn_keras_v5.model_version.__str__())
+    # ffnn_keras_v5.c_load_weights("ffnn_keras_v005_000010_weights.h5")
+    # ffnn_keras_v5.c_load_model("ffnn_keras_v005_000010_model.h5")
+
+    ########################
+    # OLD
+    ########################
 
     # DATA-SET loading
     with cs.ExecutionTime():
