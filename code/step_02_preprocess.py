@@ -1,3 +1,4 @@
+import abc
 import copy
 import itertools
 import multiprocessing
@@ -233,8 +234,38 @@ class BoardEncoder:
     def is_checkmate(board: chess.Board, side: chess.Color) -> bool:
         return board.is_checkmate() and board.turn == side
 
-    class Encode778:
+    class EncodeBase(object):
+        @staticmethod
+        def encode_board_1(board_1: chess.Board) -> np.ndarray:
+            pass
 
+        @staticmethod
+        def encode_board_1_fen(board_1_fen: str) -> np.ndarray:
+            pass
+
+        @staticmethod
+        def encode_board_n_fen(board_n_fen: Union[List[str], Tuple[str]]) -> np.ndarray:
+            """
+            Convert list of tuple of chess boards from fen notation to 778 floating point 0's and 1's
+
+            NOTE: this computation is performed in parallel processes
+
+            :param board_n_fen:
+            :return: np.ndarray
+            """
+
+        @staticmethod
+        def encode_board_n(board_n: Union[List[chess.Board], Tuple[chess.Board]]) -> np.ndarray:
+            """
+            Convert list of tuple of chess boards to 778 floating point 0's and 1's
+
+            NOTE: this computation is performed in parallel processes
+
+            :param board_n:
+            :return: np.ndarray
+            """
+
+    class Encode778(EncodeBase):
         @staticmethod
         def encode_board_1(board_1: chess.Board) -> np.ndarray:
             if not board_1.is_valid():
@@ -353,7 +384,7 @@ class ScoreNormalizer:
         data_np *= 10000
 
         # [0.0, 0.2]
-        data_np[np.logical_and(0 <= data_np, data_np <= 50)] /= (50/0.2)
+        data_np[np.logical_and(0 <= data_np, data_np <= 50)] /= (50 / 0.2)
 
         # [0.2, 0.4]
         data_np[np.logical_and(50 <= data_np, data_np <= 2000)] = (data_np[np.logical_and(50 <= data_np, data_np <= 2000)] - 50) / 1950 * 0.2 + 0.2
@@ -365,7 +396,7 @@ class ScoreNormalizer:
         data_np[6000 <= data_np] = (data_np[6000 <= data_np] - 6000) / 4000 * 0.2 + 0.8
 
         # [-0.2, 0.0]
-        data_np[np.logical_and(-50 <= data_np, data_np < 0)] /= (50/0.2)
+        data_np[np.logical_and(-50 <= data_np, data_np < 0)] /= (50 / 0.2)
 
         # [-0.4, -0.2]
         data_np[np.logical_and(-2000 <= data_np, data_np <= -50)] = (data_np[np.logical_and(-2000 <= data_np, data_np <= -50)] + 50) / 1950 * 0.2 - 0.2
@@ -481,4 +512,3 @@ if __name__ == "__main__":
     # pgn_obj = PreprocessPGN(pgn_file_path="KingBase2019-A80-A99.pgn")
     # print(pgn_obj.get_pgn_game_count())
     # pgn_obj.pgn_to_csv(output_path="./game_limited boards/")
-
