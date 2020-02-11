@@ -311,14 +311,21 @@ class ModelVersion:
 # NOTE: `c` before each method name means that it is custom
 # Feed Forward Neural Network - Keras
 class FFNNKeras:
-    def __init__(self, model_generator, board_encoder, model_save_path: str = "../chess_models/", generate_model_image=False):
+    def __init__(self,
+                 model_generator: 'KerasModels.__call__',
+                 board_encoder: Type[step_02.BoardEncoder.EncodeBase],
+                 score_normalizer: Callable[[np.ndarray], np.ndarray],
+                 version_obj: ModelVersion,
+                 model_save_path: str = "../chess_models/", generate_model_image=False):
         self.model: keras.Sequential = model_generator()
-        self.board_encoder = board_encoder
-        self.model_save_path = model_save_path
+        self.board_encoder: Type[step_02.BoardEncoder.EncodeBase] = board_encoder
+        self.score_normalizer = score_normalizer
+        self.model_version: ModelVersion = version_obj
+        self.model_save_path: str = model_save_path
         # self.model_save_path_dir = str(Path(model_save_path).parent)
 
         # CREATE a callback that saves the model's weights
-        self.cp_callback = keras.callbacks.ModelCheckpoint(filepath=str(Path(self.model_save_path) / "weights.{epoch:06d}-{val_loss:.2f}.hdf5"),
+        self.cp_callback = keras.callbacks.ModelCheckpoint(filepath=str(Path(self.model_save_path) / "ep{epoch:05d}-vl{val_loss:.5f}-weight.h5"),
                                                            save_best_only=True,
                                                            save_weights_only=True,
                                                            verbose=1)
@@ -423,6 +430,9 @@ class FFNNKeras:
             ),
             verbose
         )
+
+    def generate_name(self):
+        return self.model_version.__str__()
 
 
 class KerasModels:
@@ -575,7 +585,10 @@ if __name__ == '__main__':
 
     # MODEL creation and training
     tensorflow.device("/gpu:0")
-    ffnn_keras = FFNNKeras(KerasModels.model_001, board_encoder=step_02.BoardEncoder.Encode778)
+    ffnn_keras = FFNNKeras(KerasModels.model_001,
+                           step_02.BoardEncoder.Encode778,
+                           step_02.ScoreNormalizer.normalize_001,
+                           ModelVersion("ffnn_keras", 1, 778, 1, 10, "weights", 4))
     ffnn_keras.c_load_weights("ffnn_keras_v004_000010_weights.h5")
     with cs.ExecutionTime():
         ffnn_keras.c_train_model(data_x_encoded, data_y, 1000, 512, 0.2)
