@@ -511,10 +511,16 @@ class ChessPlayCLI:
 #########################################################################################################################
 
 if __name__ == "__main__":
-    ffnn_keras = step_03.FFNNKeras(step_03.KerasModels.model_001, step_02.BoardEncoder.Encode778)
+    ffnn_keras = step_03.FFNNKeras(step_03.KerasModels.model_001,
+                                   step_02.BoardEncoder.Encode778,
+                                   step_02.ScoreNormalizer.normalize_001,
+                                   step_03.ModelVersion("ffnn_keras", 1, 778, 1, 10, "weights", 4))
     ffnn_keras.c_load_weights("ffnn_keras_v004_000010_weights.h5")
 
-    ffnn_keras2 = step_03.FFNNKeras(step_03.KerasModels.model_004, step_02.BoardEncoder.Encode778)
+    ffnn_keras2 = step_03.FFNNKeras(step_03.KerasModels.model_004,
+                                    step_02.BoardEncoder.Encode778,
+                                    step_02.ScoreNormalizer.normalize_002,
+                                    step_03.ModelVersion("ffnn_keras", 4, 778, 2, 10, "weights", 5))
     ffnn_keras2.c_load_weights("ffnn_keras_v005_000010_weights.h5")
 
     engine_sf = step_01.CustomEngine(src_path=None, cp_score_max=8000, mate_score_max=10000,
