@@ -2,10 +2,10 @@ import pickle
 from pathlib import Path
 from typing import Union
 
+import joblib
 import numpy as np
 import pandas as pd
 import tensorflow as tf
-import joblib
 from sklearn.neural_network import MLPRegressor
 from tensorflow.keras import layers
 
