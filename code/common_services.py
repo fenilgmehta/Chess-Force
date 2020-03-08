@@ -9,8 +9,14 @@ from typing import List, Union
 
 from shell import Shell
 
-COLUMNS = ["fen_board", "cp_score"]
+COLUMNS: List[str] = ["fen_board", "cp_score"]
+VERSION: str = "ChessAI 1.1"
 
+
+# def load_csv(file_path: str, print_execution_time: bool) -> pd.DataFrame:
+#     with ExecutionTime(file=sys.stderr, print=print_execution_time):
+#         data = pd.read_csv(file_path, dtype={COLUMNS[0]: str, COLUMNS[1]: np.float32})
+#     return data
 
 ###########################################################################################################
 
@@ -19,7 +25,7 @@ COLUMNS = ["fen_board", "cp_score"]
 # REFER ANSWER   : Shital Shah (https://stackoverflow.com/users/207661/shital-shah)
 
 class ExecutionTime:
-    def __init__(self, name="(block)", seconds_precision=1, file=sys.stdout, no_print=False, disable_gc=False):
+    def __init__(self, name="(block)", seconds_precision=1, file=sys.stdout, print=True, disable_gc=False):
         """
         Simple class to measure execution time of any block of code quickly.
 
@@ -34,7 +40,7 @@ class ExecutionTime:
         :param name: any str which is to be printed along with execution time
         :param seconds_precision: the precision to which milliseconds should be printed
         :param file: place to print the execution time
-        :param no_print: whether to print the execution time or not
+        :param print: whether to print the execution time or not
         :param disable_gc: disable garbage collector or not
         """
         assert seconds_precision >= 0, "`seconds_precision` should be a positive integer"
@@ -42,7 +48,7 @@ class ExecutionTime:
         self.name = name
         self.seconds_precision = seconds_precision
         self.file = file
-        self.no_print = no_print
+        self.print = print
         self.disable_gc = disable_gc
 
         self.__gc_old = None
@@ -65,7 +71,7 @@ class ExecutionTime:
 
         if self.disable_gc and self.__gc_old:
             gc.enable()
-        if not self.no_print:
+        if self.print:
             print('[ExecutionTime] "{}" = {}'.format(self.name, self.elapsed_str), file=self.file)
         return False  # re-raise any exceptions
 
@@ -134,7 +140,10 @@ def get_network_ip() -> str:
         return [
             l for l in (
                 [ip for ip in socket.gethostbyname_ex(socket.gethostname())[2] if not ip.startswith("127.")][:1],
-                [[(s.connect(('8.8.8.8', 53)), s.getsockname()[0], s.close()) for s in [socket.socket(socket.AF_INET, socket.SOCK_DGRAM)]][0][1]]
+                [
+                    [(s.connect(('8.8.8.8', 53)), s.getsockname()[0], s.close())
+                     for s in [socket.socket(socket.AF_INET, socket.SOCK_DGRAM)]][0][1]
+                ]
             ) if l
         ][0][0]
     except OSError as e:
@@ -143,7 +152,9 @@ def get_network_ip() -> str:
         return "127.0.0.1"
 
 
-def print_ip_port_auth(file_to_write: Union[str, Path] = 'step_02_preprocess_server_ip.txt', your_port: int = None, your_authkey: str = None) -> None:
+def print_ip_port_auth(file_to_write: Union[str, Path] = 'step_02_preprocess_server_ip.txt',
+                       your_port: int = None,
+                       your_authkey: str = None) -> None:
     if your_port is None or not (isinstance(your_port, int)) or not (1000 <= your_port <= 65535):
         raise ValueError("ERROR: your_port should be int -> [1000-65535]")
     if your_authkey is None or not (isinstance(your_authkey, str)):
