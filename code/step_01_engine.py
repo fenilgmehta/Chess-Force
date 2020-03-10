@@ -10,7 +10,7 @@ import chess.engine
 import numpy as np
 
 
-#########################################################################################################################
+########################################################################################################################
 class CustomEngine:
     def __init__(self, src_path: Union[str, Path] = None,
                  cp_score_max: int = 8000,
@@ -49,6 +49,10 @@ class CustomEngine:
             DEFAULT_ENGINE_PATH = Path(r"../chess_engines/Linux/stockfish_10_x64")
             if not DEFAULT_ENGINE_PATH.exists():
                 DEFAULT_ENGINE_PATH = Path(r"chess_engines/Linux/stockfish_10_x64")
+            if not DEFAULT_ENGINE_PATH.exists():
+                DEFAULT_ENGINE_PATH = Path(r"Linux/stockfish_10_x64")
+            if not DEFAULT_ENGINE_PATH.exists():
+                DEFAULT_ENGINE_PATH = Path(r"stockfish_10_x64")
             if not DEFAULT_ENGINE_PATH.exists():
                 print("WARNING: default path does not exists", file=sys.stderr)
             self.engine_path = DEFAULT_ENGINE_PATH
@@ -134,23 +138,21 @@ class CustomEngine:
             depth_1 = self.MAX_DEPTH
         return self.engine_obj.play(board=board_1, limit=chess.engine.Limit(time=time_1, depth=depth_1)).move
 
-    def finish(self):
+    def close(self):
+        """
+        Close the connection with the Chess Engine
+        """
         self.engine_obj.close()
 
 
-#########################################################################################################################
+########################################################################################################################
 if __name__ == "__main__":
-    engine_sf = None
-
-    try:
-        del engine_sf
-    except:
-        pass
+    print("Testing the engine\n")
     engine_sf = CustomEngine(src_path=None,
                              cp_score_max=8000,
                              mate_score_max=10000,
                              mate_score_difference=50,
-                             cpu_cores=1,
+                             cpu_cores=4,
                              hash_size_mb=16,
                              depth=20,
                              analyse_time=1.0)
@@ -174,7 +176,7 @@ if __name__ == "__main__":
     for i in BOARD_STR: print(engine_sf.evaluate_fen(i))
     end = time.time()
     print(f"running time = {end - start}")
-    print(f"board count = {len(BOARD_STR)}")
+    print(f"board count = {len(BOARD_STR)}\n")
 
     # ------------------------------------
 
@@ -184,7 +186,9 @@ if __name__ == "__main__":
     for i in range(10): print(engine_sf.evaluate_board(board))
     end = time.time()
     print(f"running time = {end - start}")
-    print(f"board count = {10}")
+    print(f"board count = {10}\n")
+
+    engine_sf.close()
 
 # default_param = {
 #     "Write Debug Log": "false",
