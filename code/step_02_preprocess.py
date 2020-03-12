@@ -1,8 +1,11 @@
 import abc
 import copy
+import glob
 import itertools
 import logging
 import multiprocessing
+import os
+import shutil
 import sys
 from pathlib import Path
 from typing import Union, Iterable, List, TextIO, Tuple
@@ -11,8 +14,7 @@ import chess.pgn
 import joblib
 import numpy as np
 import pandas as pd
-from minimalcluster import MasterNode
-from shell import Shell
+from tqdm.autonotebook import tqdm
 
 import common_services as cs
 import step_01_engine
@@ -85,23 +87,26 @@ class PreprocessPGN:
 
     def get_pgn_game_count(self) -> int:
         game_count = 0
-        for i in self.iterate_pgn(self.pgn_text_io):
+        for i in self.iterate_pgn():
             game_count += 1
 
         self.reload_pgn()
         return game_count
 
-    def pgn_to_csv_simple(self, output_path: Union[str, Path]):
+    def pgn_to_csv_simple(self, output_dir: Union[str, Path]):
         global engine_sf, BATCH_SIZE
 
         # Generate the output path if it does not exists and don't raise Exception if output_path already present.
         # if not Path(output_path).exists():
-        Path(output_path).mkdir(parents=True, exist_ok=True)
+        Path(output_dir).mkdir(parents=True, exist_ok=True)
+        if not Path(output_dir).exists():
+            print(f"ERROR: `output_path={output_dir}` does NOT exists")
+            return
 
         # Initialize variables
         # INPUT_PGN_NAME : name of the pgn file
-        # res_pd         : pd.DataFrame with fen notation of chess.Board and CP score of the board
-        # engine_sf      : CustomEngine object to generate the CP score of the board
+        # res_pd         : pd.DataFrame with FEN notation of chess.Board objects and CentiPawn score of the board
+        # engine_sf      : CustomEngine object to generate the CentiPawn score of the board
         INPUT_PGN_NAME: str = Path(self.pgn_file_path).name[:-4]
         res_pd = pd.DataFrame(data=[BATCH_SIZE * [None, None]], index=None, columns=cs.COLUMNS)
         # engine_sf = step_01_engine.CustomEngine(src_path=None, mate_score_max=10000, mate_score_difference=50, hash_size_mb=8192, depth=15, analyse_time=0.2)
@@ -109,9 +114,9 @@ class PreprocessPGN:
         file_count = 1
         game_count = 1
         print(f"DEBUG: processing started...\n")
-        for i in self.iterate_pgn(self.pgn_text_io):
+        for i in self.iterate_pgn():
             print(f"\r\t{game_count}", end="")
-            for j in self.iterate_game(i):
+            for j in PreprocessPGN.iterate_game(i):
                 if not j.is_valid():
                     print(f"*** WARNING: invalid board state in the game: {j.fen()}", file=sys.stderr)
                     continue
@@ -119,14 +124,14 @@ class PreprocessPGN:
             game_count += 1
 
             if len(res_pd) > BATCH_SIZE:
-                output_file = Path(output_path) / f"{INPUT_PGN_NAME}_{file_count:06}.csv"
+                output_file = Path(output_dir) / f"{INPUT_PGN_NAME}_{file_count:06}.csv"
                 res_pd.to_csv(output_file, index=False)
                 print(f"DEBUG: boards successfully written to file: {output_file}", file=sys.stderr)
                 file_count += 1
                 res_pd = pd.DataFrame(data=[BATCH_SIZE * [None, None]], index=None, columns=cs.COLUMNS)
 
         if len(res_pd) > 0:
-            output_file = Path(output_path) / f"{INPUT_PGN_NAME}_{file_count:06}.csv"
+            output_file = Path(output_dir) / f"{INPUT_PGN_NAME}_{file_count:06}.csv"
             res_pd.to_csv(output_file, index=False)
             print(f"DEBUG: boards successfully written to file: {output_file}", file=sys.stderr)
         print(f"DEBUG: processing finished :)")
@@ -226,7 +231,7 @@ class PreprocessPGN:
         logger.info(f"execution successfully complete for '{pgn_obj.pgn_file_path}'")
 
 
-#########################################################################################################################
+########################################################################################################################
 class BoardEncoder:
     @staticmethod
     def is_check(board: chess.Board, side: chess.Color) -> bool:
@@ -249,7 +254,7 @@ class BoardEncoder:
         @staticmethod
         def encode_board_n_fen(board_n_fen: Union[List[str], Tuple[str]]) -> np.ndarray:
             """
-            Convert list of tuple of chess boards from fen notation to 778 floating point 0's and 1's
+            Convert list of tuple of chess boards from FEN notation to 778 floating point 0's and 1's
 
             NOTE: this computation is performed in parallel processes
 
@@ -282,14 +287,19 @@ class BoardEncoder:
             result_nparray: np.array = np.array([
                 board_1.turn,  # True => white's turn, False => black's turn
                 board_1.is_checkmate(),  # V.V.V Important feature/attribute/information  # ADDED 20191207T1137
-                board_1.has_kingside_castling_rights(chess.WHITE),  # True => Castling rights present, False => no rights
+                board_1.has_kingside_castling_rights(chess.WHITE),
+                # True => Castling rights present, False => no rights
                 board_1.has_queenside_castling_rights(chess.WHITE),  # --------------------||---------------------
                 board_1.has_kingside_castling_rights(chess.BLACK),  # ---------------------||---------------------
                 board_1.has_queenside_castling_rights(chess.BLACK),  # --------------------||---------------------
-                BoardEncoder.is_check(board_1, chess.WHITE),  # True => White King has a Check, False => no check to White King
-                BoardEncoder.is_check(board_1, chess.BLACK),  # True => Black King has a Check, False => no check to Black King
-                (sum((board_mat_df.values == 'Q').ravel()) != 0),  # True => White Queen alive, False => White Queen out works if there are more than on Queen
-                (sum((board_mat_df.values == 'q').ravel()) != 0),  # True => Black Queen alive, False => Black Queen out works if there are more than on Queen
+                # True => White King has a Check, False => no check to White King
+                BoardEncoder.is_check(board_1, chess.WHITE),
+                # True => Black King has a Check, False => no check to Black King
+                BoardEncoder.is_check(board_1, chess.BLACK),
+                # True => White Queen alive, False => White Queen out works if there are more than on Queen
+                (sum((board_mat_df.values == 'Q').ravel()) != 0),
+                # True => Black Queen alive, False => Black Queen out works if there are more than on Queen
+                (sum((board_mat_df.values == 'q').ravel()) != 0),
             ])
 
             # The following two lines check if Queen is alive or not. However, am not sure if it will work when there are more than one Queens
@@ -321,7 +331,7 @@ class BoardEncoder:
         @staticmethod
         def encode_board_n_fen(board_n_fen: Union[List[str], Tuple[str]]) -> np.ndarray:
             """
-            Convert list of tuple of chess boards from fen notation to 778 floating point 0's and 1's
+            Convert list of tuple of chess boards from FEN notation to 778 floating point 0's and 1's
 
             NOTE: this computation is performed in parallel processes
 
