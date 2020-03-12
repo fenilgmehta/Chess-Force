@@ -1,6 +1,7 @@
 import abc
 import copy
 import itertools
+import logging
 import multiprocessing
 import sys
 from pathlib import Path
@@ -20,8 +21,12 @@ engine_sf = None
 MINI_BATCH_SIZE: int = 1000
 BATCH_SIZE: int = 10000
 
+# REFER: https://stackoverflow.com/questions/7016056/python-logging-not-outputting-anything
+# This sets the root logger to write to stdout (your console)
+logging.basicConfig()
 
-#########################################################################################################################
+
+########################################################################################################################
 class PreprocessPGN:
     def __init__(self, pgn_file_path: Union[str, Path]):
         if not pgn_file_path.endswith(".pgn"):
@@ -35,20 +40,22 @@ class PreprocessPGN:
         # https://python-chess.readthedocs.io/en/latest/pgn.html
         if not Path(self.pgn_file_path).exists():
             print(f"ERROR: {self.pgn_file_path} does not exist", file=sys.stderr)
-            raise Exception(f"FileDoesNotExists: {self.pgn_file_path} ")
+            raise FileNotFoundError(f"'{self.pgn_file_path}'")
 
         pgn = open(self.pgn_file_path, mode="rt")
         return pgn
 
-    @staticmethod
-    def iterate_pgn(pgn_text_io) -> Iterable[chess.pgn.Game]:
-        game = chess.pgn.read_game(pgn_text_io)
+    def iterate_pgn(self) -> Iterable[chess.pgn.Game]:
+        game = chess.pgn.read_game(self.pgn_text_io)
         while game is not None:
             yield game
             try:
-                game = chess.pgn.read_game(pgn_text_io)
+                game = chess.pgn.read_game(self.pgn_text_io)
             except UnicodeDecodeError as e:
-                print(f"WARNING: it seems pgn file has been completely read, UnicodeDecodeError occurred:\n\t{e}", file=sys.stderr)
+                print(
+                    f"WARNING: it seems pgn file has been completely read, UnicodeDecodeError occurred:\n\t{e}",
+                    file=sys.stderr
+                )
                 break
         return
 
@@ -124,65 +131,61 @@ class PreprocessPGN:
             print(f"DEBUG: boards successfully written to file: {output_file}", file=sys.stderr)
         print(f"DEBUG: processing finished :)")
 
-    def pgn_to_csv(self, output_path: Union[str, Path], resume_file_name=None, debug_flag=0):
-        global engine_sf, MINI_BATCH_SIZE, BATCH_SIZE
+    @staticmethod
+    def pgn_to_csv(pgn_file_path: Union[str, Path], output_dir: Union[str, Path], resume_file_name=None, debug_flag=3):
+        global MINI_BATCH_SIZE, BATCH_SIZE
+        logger = logging.getLogger("pgn_to_csv")
+        logger.setLevel(logging.DEBUG)
+
+        pgn_obj = PreprocessPGN(pgn_file_path)
 
         # Generate the output path if it does not exists and don't raise Exception if output_path already present.
         # if not Path(output_path).exists():
-        Path(output_path).mkdir(parents=True, exist_ok=True)
+        Path(output_dir).mkdir(parents=True, exist_ok=True)
+        if not Path(output_dir).exists():
+            print(f"ERROR: `output_path={output_dir}` does NOT exists")
+            return
 
         # Initialize variables
         # INPUT_PGN_NAME : name of the pgn file
-        # res_pd         : pd.DataFrame with fen notation of chess.Board and CP score of the board
-        # engine_sf      : CustomEngine object to generate the CP score of the board
-        INPUT_PGN_NAME: str = Path(self.pgn_file_path).name[:-4]
+        # res_pd         : pd.DataFrame with FEN notation of chess.Board objects and CentiPawn score of the board
+        INPUT_PGN_NAME: str = Path(pgn_obj.pgn_file_path).stem
         if resume_file_name is None:
-            resume_file_name = f"resume_{INPUT_PGN_NAME}.txt"
+            resume_file_name = f"{Path(pgn_file_path).parent}/resume_{INPUT_PGN_NAME}.txt"
+            logger.info(f"Using default name fore resume file='{resume_file_name}'")
         res_pd = pd.DataFrame(data=None, index=None, columns=cs.COLUMNS)
-        # engine_sf = step_01_engine.CustomEngine(src_path=None, mate_score_max=10000, mate_score_difference=50, hash_size_mb=8192, depth=15, analyse_time=0.2)
-
-        # Used this with "KingBase2019-A80-A99.pgn"
-        # # NOTE: change 2: use the following lines only for the first time csv generation
-        # default_board = chess.Board()
-        # for i in default_board.legal_moves:
-        #     default_board.push(i)
-        #     # NOTE: change 01: replace None with call to evaluate function if required
-        #     # NOTE: None -> engine_sf.evaluate_board(default_board)
-        #     res_pd.loc[len(res_pd)] = [default_board.fen(), None]
-        #     default_board.pop()
 
         game_count = 1
-        # file_count = 1
         # (last game written + 1), (next file number to be written)
         last_line_content = cs.read_last_line(resume_file_name)
         if last_line_content == '-done-':
-            print(f"DEBUG: PGN file already processed completely: '{self.pgn_file_path}'"
-                  f"\n\treturning", file=sys.stderr)
+            logger.info(f"PGN file already processed completely: '{pgn_obj.pgn_file_path}'"
+                        f"\n\treturning")
             return
 
         resume_game_count, file_count = cs.readpoint(resume_file_name, 2)
-        print(resume_game_count, file_count)
-        if game_count < resume_game_count and (Path(output_path) / f"{INPUT_PGN_NAME}_{file_count:06}.csv").exists():
-            res_pd = pd.read_csv(Path(output_path) / f"{INPUT_PGN_NAME}_{file_count:06}.csv")
+        logger.debug(f"resume_game_count, file_count = {resume_game_count}, {file_count}")
+        if game_count < resume_game_count and (Path(output_dir) / f"{INPUT_PGN_NAME}_{file_count:06}.csv").exists():
+            res_pd = pd.read_csv(Path(output_dir) / f"{INPUT_PGN_NAME}_{file_count:06}.csv")
             if debug_flag >= 1:
-                print(f"INFO: loading partially saved file, lines = {len(res_pd)}", file=sys.stderr)
+                logger.info(f"loading partially saved file, lines = {len(res_pd)}")
 
-        for i in self.iterate_pgn(self.pgn_text_io):
+        for i in pgn_obj.iterate_pgn():
             if game_count < resume_game_count:
                 if debug_flag >= 2:
-                    print(f"DEBUG: skip {game_count}", file=sys.stderr)
+                    print(f"\rskip {game_count}", file=sys.stderr)
                 game_count += 1
                 continue
 
             if debug_flag >= 3:
-                print(f"DEBUG: processing game_count = {game_count} ({len(res_pd)})", file=sys.stderr)
+                logger.info(f"processing game_count = {game_count} ({len(res_pd)})")
             board_count = 1
-            for j in self.iterate_game(i):
+            for j in PreprocessPGN.iterate_game(i):
                 print(f"\r\t{board_count}", end="", file=sys.stderr)
                 board_count += 1
 
                 if not j.is_valid():
-                    print(f"*** WARNING: invalid board state in the game: {j.fen()}", file=sys.stderr)
+                    logger.warning(f"*** invalid board state in the game: {j.fen()}")
                     continue
 
                 try:
@@ -193,17 +196,17 @@ class PreprocessPGN:
                     # for k in generate_boards(j):
                     #     res_pd.loc[len(res_pd)] = [k.fen(), None]
                 except Exception as e:
-                    print(f"ERROR: {e}")
-                    print(f"\tINFO: is_valid() = {j.is_valid()}, board.fen() = {j.fen()}")
+                    logger.error(e)
+                    logger.info(f"\tis_valid() = {j.is_valid()}, board.fen() = {j.fen()}")
 
             print("\r", end="", file=sys.stderr)
 
             game_count += 1
             if len(res_pd) > BATCH_SIZE or len(res_pd) > MINI_BATCH_SIZE * (max(0, len(res_pd) - 1) // MINI_BATCH_SIZE + 1):
-                output_file = Path(output_path) / f"{INPUT_PGN_NAME}_{file_count:06}.csv"
+                output_file = Path(output_dir) / f"{INPUT_PGN_NAME}_{file_count:06}.csv"
                 res_pd.to_csv(output_file, index=False)
                 if debug_flag >= 1:
-                    print(f"DEBUG: boards successfully written to file: {output_file}", file=sys.stderr)
+                    logger.info(f"boards successfully written to file: {output_file}")
                 if len(res_pd) > BATCH_SIZE:
                     file_count += 1
                     cs.append_secondlast_line(resume_file_name, f"# {len(res_pd)} {game_count} {file_count}")
@@ -211,16 +214,16 @@ class PreprocessPGN:
                 cs.savepoint(resume_file_name, f"{game_count},{file_count}")
 
         if len(res_pd) > 0:
-            output_file = Path(output_path) / f"{INPUT_PGN_NAME}_{file_count:06}.csv"
+            output_file = Path(output_dir) / f"{INPUT_PGN_NAME}_{file_count:06}.csv"
             res_pd.to_csv(output_file, index=False)
             if debug_flag >= 1:
-                print(f"\nDEBUG: boards successfully written to file: {output_file}", file=sys.stderr)
+                logger.info(f"\nboards successfully written to file: {output_file}")
             file_count += 1
             cs.savepoint(resume_file_name, f"{game_count},{file_count}")
 
         cs.savepoint(resume_file_name, f"-done-")
 
-        print(f"DEBUG: execution successfully complete for '{self.pgn_file_path}'", file=sys.stderr)
+        logger.info(f"execution successfully complete for '{pgn_obj.pgn_file_path}'")
 
 
 #########################################################################################################################
