@@ -362,12 +362,25 @@ class BoardEncoder:
 
 
 class ScoreNormalizer:
+    input_range_2 = [(0, 50), (50, 2000), (2000, 6000), (6000, 10000), (-50, 0), (-2000, -50), (-6000, -2000), (-10000, -6000)]
+    output_range_2 = [(0.0, 0.2), (0.2, 0.4), (0.4, 0.8), (0.8, 1.0), (-0.2, 0.0), (-0.4, -0.2), (-0.8, -0.4), (-1.0, -0.8)]
+    input_range_3 = [(0, 50), (50, 2000), (2000, 10000), (-50, 0), (-2000, -50), (-10000, -2000)]
+    output_range_3 = [(0.0, 0.3), (0.3, 0.95), (0.95, 1.0), (-0.3, 0.0), (-0.95, -0.3), (-1.0, -0.95)]
+
+    @staticmethod
+    def __scale_limits(np_array: np.ndarray, old_low, old_high, new_low, new_high) -> None:
+        np_logical_and = np.logical_and(old_low <= np_array, np_array <= old_high)
+        np_array[np_logical_and] = \
+            ((np_array[np_logical_and] - old_low) / (old_high - old_low)) * (new_high - new_low) + new_low
+
     @staticmethod
     def normalize_001(data_np: np.ndarray) -> np.ndarray:
         """
-        All cp_scores between [0, 10] are scaled down to [0, 1]
-
-        All cp_scores above 10 are scaled down to 1
+        Following is the cp_scores normalization details:
+            • [      0,    10 ] -> [  0.0,  1.0 ]
+            • [     10, 10000 ] -> [     1.0    ]
+            • [    -10,     0 ] -> [ -1.0,  0.0 ]
+            • [ -10000,   -10 ] -> [    -1.0    ]
 
         NOTE: Results are not good
 
@@ -384,11 +397,15 @@ class ScoreNormalizer:
     @staticmethod
     def normalize_002(data_np: np.ndarray) -> np.ndarray:
         """
-        All cp_scores between [0, 50] are scaled down to [0, 0.2]
-
-        All cp_scores above 10 are scaled down to 1
-
-        NOTE: Results are not good
+        Following is the cp_scores normalization details:
+            • [      0,    50 ] -> [  0.0,  0.2 ]
+            • [     50,  2000 ] -> [  0.2,  0.4 ]
+            • [   2000,  6000 ] -> [  0.4,  0.8 ]
+            • [   6000, 10000 ] -> [  0.8,  1.0 ]
+            • [    -50,     0 ] -> [ -0.2,  0.0 ]
+            • [  -2000,   -50 ] -> [ -0.4, -0.2 ]
+            • [  -6000, -2000 ] -> [ -0.8, -0.4 ]
+            • [ -10000, -6000 ] -> [ -1.0, -0.8 ]
 
         :param data_np:
         :return: Normalized `np.ndarray`
@@ -396,30 +413,93 @@ class ScoreNormalizer:
         data_np = copy.deepcopy(data_np)
         data_np *= 10000
 
-        # [0.0, 0.2]
-        data_np[np.logical_and(0 <= data_np, data_np <= 50)] /= (50 / 0.2)
+        data_np = copy.deepcopy(data_np)
+        for i, j in zip(ScoreNormalizer.input_range_2, ScoreNormalizer.output_range_2):
+            ScoreNormalizer.__scale_limits(data_np, i[0], i[1], j[0], j[1])
 
-        # [0.2, 0.4]
-        data_np[np.logical_and(50 <= data_np, data_np <= 2000)] = (data_np[np.logical_and(50 <= data_np, data_np <= 2000)] - 50) / 1950 * 0.2 + 0.2
+        return data_np
 
-        # [0.4, 0.8]
-        data_np[np.logical_and(2000 <= data_np, data_np <= 6000)] = (data_np[np.logical_and(2000 <= data_np, data_np <= 6000)] - 2000) / 4000 * 0.4 + 0.4
+    @staticmethod
+    def denormalize_002(data_np: np.ndarray) -> np.ndarray:
+        """
+        Following is the cp_scores normalization details:
+            • [  0.0,  0.2 ] -> [      0,    50 ]
+            • [  0.2,  0.4 ] -> [     50,  2000 ]
+            • [  0.4,  0.8 ] -> [   2000,  6000 ]
+            • [  0.8,  1.0 ] -> [   6000, 10000 ]
+            • [ -0.2,  0.0 ] -> [    -50,     0 ]
+            • [ -0.4, -0.2 ] -> [  -2000,   -50 ]
+            • [ -0.8, -0.4 ] -> [  -6000, -2000 ]
+            • [ -1.0, -0.8 ] -> [ -10000, -6000 ]
 
-        # [0.8, 1.0]
-        data_np[6000 <= data_np] = (data_np[6000 <= data_np] - 6000) / 4000 * 0.2 + 0.8
+        :param data_np:
+        :return: Normalized `np.ndarray`
+        """
+        data_np = copy.deepcopy(data_np)
 
-        # [-0.2, 0.0]
-        data_np[np.logical_and(-50 <= data_np, data_np < 0)] /= (50 / 0.2)
+        # The following three lines were added, no other change to `normalize_002(...)`
+        input_range, output_range = ScoreNormalizer.output_range_2, ScoreNormalizer.input_range_2
+        input_range.reverse()
+        output_range.reverse()
 
-        # [-0.4, -0.2]
-        data_np[np.logical_and(-2000 <= data_np, data_np <= -50)] = (data_np[np.logical_and(-2000 <= data_np, data_np <= -50)] + 50) / 1950 * 0.2 - 0.2
+        for i, j in zip(input_range, output_range):
+            ScoreNormalizer.__scale_limits(data_np, i[0], i[1], j[0], j[1])
 
-        # [-0.8, -0.4]
-        data_np[np.logical_and(-6000 <= data_np, data_np <= -2000)] = (data_np[np.logical_and(-6000 <= data_np, data_np <= -2000)] + 2000) / 4000 * 0.4 - 0.4
+        data_np /= 10000
+        return data_np
 
-        # [-1.0, -0.8]
-        data_np[data_np <= -6000] = (data_np[data_np <= -6000] + 6000) / 4000 * 0.2 - 0.8
+    @staticmethod
+    def normalize_003(data_np: np.ndarray) -> np.ndarray:
+        """
+        Following is the cp_scores normalization details:
+            • [      0,    50 ] -> [  0.0,  0.3 ]
+            • [     50,  2000 ] -> [  0.2,  0.4 ]
+            • [   2000,  6000 ] -> [  0.4,  0.8 ]
+            • [   6000, 10000 ] -> [  0.8,  1.0 ]
+            • [    -50,     0 ] -> [ -0.2,  0.0 ]
+            • [  -2000,   -50 ] -> [ -0.4, -0.2 ]
+            • [  -6000, -2000 ] -> [ -0.8, -0.4 ]
+            • [ -10000, -6000 ] -> [ -1.0, -0.8 ]
 
+        :param data_np:
+        :return: Normalized `np.ndarray`
+        """
+        data_np = copy.deepcopy(data_np)
+        data_np *= 10000
+
+        data_np = copy.deepcopy(data_np)
+        for i, j in zip(ScoreNormalizer.input_range_3, ScoreNormalizer.output_range_3):
+            ScoreNormalizer.__scale_limits(data_np, i[0], i[1], j[0], j[1])
+
+        return data_np
+
+    @staticmethod
+    def denormalize_003(data_np: np.ndarray) -> np.ndarray:
+        """
+        Following is the cp_scores normalization details:
+            • [  0.0,  0.2 ] -> [      0,    50 ]
+            • [  0.2,  0.4 ] -> [     50,  2000 ]
+            • [  0.4,  0.8 ] -> [   2000,  6000 ]
+            • [  0.8,  1.0 ] -> [   6000, 10000 ]
+            • [ -0.2,  0.0 ] -> [    -50,     0 ]
+            • [ -0.4, -0.2 ] -> [  -2000,   -50 ]
+            • [ -0.8, -0.4 ] -> [  -6000, -2000 ]
+            • [ -1.0, -0.8 ] -> [ -10000, -6000 ]
+
+        :param data_np:
+        :return: Normalized `np.ndarray`
+        """
+        data_np = copy.deepcopy(data_np)
+
+        # The following three lines were added, no other change to `normalize_002(...)`
+        input_range, output_range = ScoreNormalizer.output_range_3, ScoreNormalizer.input_range_3
+        input_range.reverse()
+        output_range.reverse()
+
+        for i, j in zip(input_range, output_range):
+            ScoreNormalizer.__scale_limits(data_np, i[0], i[1], j[0], j[1])
+
+        data_np /= 10000
         return data_np
 
 
