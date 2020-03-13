@@ -1,4 +1,3 @@
-import abc
 import copy
 import glob
 import itertools
@@ -503,11 +502,11 @@ class ScoreNormalizer:
         return data_np
 
 
-#########################################################################################################################
+########################################################################################################################
 def generate_all_boards(depth_d: int):
     board_b = chess.Board()
     output_list = [[board_b, ], ]
-    for i in range(depth_d):
+    for i in tqdm(range(depth_d)):
         output_list.append(list())
         print(f"DEBUG: working on {i + 1}")
         with multiprocessing.Pool() as pool:
@@ -536,33 +535,34 @@ def generate_all_boards_to_csv(file_name: str, depth_d: int):
 #     generate_all_boards_to_csv('boards', 5)
 
 
-#########################################################################################################################
-def csv_score_generation(csv_file_path: Union[str, Path], resume_file_name):
+########################################################################################################################
+def csv_score_generation(csv_folder_path: Union[str, Path], resume_file_name):
     global engine_sf
-    engine_sf = step_01_engine.CustomEngine(src_path=None, hash_size_mb=8192, depth=15, analyse_time=0.2)
+    engine_sf = step_01_engine.CustomEngine(src_path=None, hash_size_mb=16, depth=15, analyse_time=0.2)
 
     file_count = 1
     resume_file_count: int = cs.readpoint(resume_file_name, 1)[0]
 
-    input_data = Path(csv_file_path)
+    input_data = Path(csv_folder_path)
     input_files_list = sorted(list(input_data.glob("*.csv")))
-    for i in input_files_list:
+    for i in tqdm(input_files_list, leave=None):
         if file_count < resume_file_count:
             print(f"DEBUG: skip {i} = {file_count}", file=sys.stderr)
             file_count += 1
             continue
 
-        print(f"DEBUG: processing file {i} = {file_count}")
+        # print(f"DEBUG: processing file {i} = {file_count}")
         data = pd.read_csv(i)
         line_count = 2
-        for j in range(len(data)):
+        for j in tqdm(range(len(data)), leave=None):
             # data.loc[j][1] = engine_sf.evaluate(chess.Board(data.loc[j][0]))
             if not chess.Board(data.loc[j][0]).is_valid():
                 print(f"\rERROR: board state not valid at line count = {line_count}")
+                line_count += 1
+                continue
             data.at[j, 'cp_score'] = engine_sf.evaluate_fen(data.loc[j][0])
             line_count += 1
-            print(f"\r\t{line_count}", end="", file=sys.stderr)
-        print(f"\r", end="", file=sys.stderr)
+            # print(f"\r\t{line_count}", end="", file=sys.stderr)
 
         data.to_csv(i, index=False)
         file_count += 1
@@ -570,32 +570,30 @@ def csv_score_generation(csv_file_path: Union[str, Path], resume_file_name):
         print(f"DEBUG: successfully processed {i}", file=sys.stderr)
 
 
-def pgn_to_csv_parallel(kingbase_dir: str):
-    your_host = '0.0.0.0'  # or use '0.0.0.0' if you have high enough privilege
-    your_port = 60006  # the port to be used by the master node
-    your_authkey = 'a1'  # this is the password clients use to connect to the master(i.e. the current node)
-    your_chunksize = 1
-    sh = Shell(has_input=False, record_output=True, record_errors=True, strip_empty=True)
-    #################################
+def pgn_to_csv_parallel(input_dir: str, output_dir: str):
+    if output_dir is None:
+        output_dir = input_dir
 
-    print()
-    cs.print_ip_port_auth(your_port=your_port, your_authkey=your_authkey)
+    with multiprocessing.Pool(processes=None, maxtasksperchild=1) as pool:
+        pool.starmap(func=PreprocessPGN.pgn_to_csv,
+                     iterable=[(i, output_dir, None, 3) for i in glob.glob(f"{Path(input_dir)}/*.pgn")],
+                     chunksize=1)
 
-    master = MasterNode(HOST=your_host, PORT=your_port, AUTHKEY=your_authkey, chunk_size=your_chunksize)
-    master.start_master_server(if_join_as_worker=False)
-    master.load_envir("""from step_02_preprocess import *""" +
-                      """\ndef fun1(arg1):"""
-                      """\n    pgn_obj = PreprocessPGN(pgn_file_path=arg1)""" +
-                      """\n    return pgn_obj.get_pgn_game_count()"""
-                      """\ndef fun2(arg2):"""
-                      """\n    pgn_obj = PreprocessPGN(pgn_file_path=arg2)""" +
-                      """\n    pgn_obj.pgn_to_csv(output_path="/home/student/Desktop/Fenil/Final Year Project/KingBase2019-pgn/data_out_pgn/", debug_flag=1)""",
-                      from_file=False)
-    master.register_target_function("fun2")  # CHANGE this as per requirement
-    master.load_args([str(Path(kingbase_dir) / i) for i in sh.run(f"ls '{kingbase_dir}'").output(raw=False)])
-    result = master.execute()
 
-    joblib.dump(result, "pgn_game_processing.obj")
+# TODO: check the implementation
+def pgn_to_csv_all_possible_state(input_path: str, output_path: str = None):
+    if output_path is None:
+        output_path = input_path
+    for i in glob.glob(f"{Path(input_path)}/*.pgn"):
+        pgn_obj = PreprocessPGN(pgn_file_path=i)
+        res_pd = pd.DataFrame(data=None, index=None, columns=cs.COLUMNS)
+        for j in pgn_obj.iterate_pgn():
+            for k in PreprocessPGN.iterate_game(j):
+                for l in PreprocessPGN.generate_boards(k):
+                    res_pd.loc[len(res_pd)] = [l.fen(), None]
+        res_pd.to_csv(f"{os.path.splitext(Path(i))[0]}.csv", index=False)
+
+
 
 
 #########################################################################################################################
