@@ -1,20 +1,19 @@
 # SERVER
 # REFER: https://github.com/XD-DENG/minimalcluster-py
 import gc
-import os
-import pickle
+import glob
 import time
-from multiprocessing import Process, Queue
-from os.path import isfile, join
+from multiprocessing import Process
 from pathlib import Path
 
 import pandas as pd
 from minimalcluster import MasterNode
+from tqdm.autonotebook import tqdm
 
 import common_services as cs
 
 
-#########################################################################################################################
+########################################################################################################################
 
 
 def ring_beep():
@@ -23,21 +22,23 @@ def ring_beep():
         time.sleep(0.5)
 
 
-#########################################################################################################################
+########################################################################################################################
 
 # IMPORTANT SETTINGS
 # input_file = 'Chess_preprocessed_data_KingBase2019-A00-A39_000001.csv'
-INPUT_FOLDER = "/home/student/.workc/D00-D99_in"  # "../../../data_in_combined"
-OUTPUT_FOLDER = "/home/student/.workc/D00-D99_out"  # "../../../data_out_combined"
+INPUT_FOLDER = "/home/student/Desktop/fenil/35_Final Year Project/aggregated output 03/Test_kaufman"  # "../../../data_in_combined"
+OUTPUT_FOLDER = "/home/student/Desktop/fenil/35_Final Year Project/aggregated output 03/Test_kaufman/output"  # "../../../data_out_combined"
 
 your_host = '0.0.0.0'  # or use '0.0.0.0' if you have high enough privilege
-your_port = 60005  # the port to be used by the master node
+your_port = 60556  # the port to be used by the master node
 your_authkey = 'a1'  # this is the password clients use to connect to the master(i.e. the current node)
-your_chunksize = 30  # chunks in which the worker node should get the work to execute
+your_chunksize = 1  # chunks in which the worker node should get the work to execute
 
-APPROX_MAX_JOB_TIME = your_chunksize * 0.9  # max time for which the master node should wait before pushing the job back to the queue as it did not get a reply in expected time
-WORKER_THRESHOLD_TO_RESTART = 400           # If number of workers go above this number, ring beep sound repeatedly
-CLIENT_SIDE_WORKERS_PROCESSES = 128         # The max number of parallel processes to be used on client for computation
+CUSTOM_CLIENT_PROCESSES = 4  # The max number of parallel processes to be used on client for computation
+CUSTOM_CHUNK_SIZE = CUSTOM_CLIENT_PROCESSES * 50
+
+APPROX_MAX_JOB_TIME = your_chunksize * CUSTOM_CHUNK_SIZE * 5  # max time for which the master node should wait before pushing the job back to the queue as it did not get a reply in expected time
+WORKER_THRESHOLD_TO_RESTART = 20  # If number of workers go above this number, ring beep sound repeatedly
 
 #################################
 print()
@@ -50,7 +51,7 @@ master.start_master_server(if_join_as_worker=False)
 
 input("\n\nPress ENTER to start task delegation :)\n")
 
-#########################################################################################################################
+########################################################################################################################
 
 # daemon=False, this means that this process will not exit even when the parent process has exited or is killed
 # write_dict_to_dataframe(result, output_file_path)
@@ -60,8 +61,9 @@ Path(OUTPUT_FOLDER).mkdir(parents=True, exist_ok=True)
 if not Path(INPUT_FOLDER).exists():
     print(f"DEBUG: Input folder does not exists: '{INPUT_FOLDER}'")
     exit(1)
-input_files = [tempf for tempf in os.listdir(INPUT_FOLDER) if isfile(join(INPUT_FOLDER, tempf))]
-for i in sorted(input_files, reverse=False):
+# input_files = [tempf for tempf in os.listdir(INPUT_FOLDER) if isfile(join(INPUT_FOLDER, tempf))]
+input_files = [Path(tempf).name for tempf in glob.glob(f"{Path(INPUT_FOLDER)}/*.csv")]
+for i in tqdm(sorted(input_files, reverse=False)):
     print()
     input_file_name = Path(i).name
     input_file_path = f'{INPUT_FOLDER}/{i}'
@@ -93,15 +95,26 @@ for i in sorted(input_files, reverse=False):
 
     time.sleep(0.91)
     print(f"WORKING ON: {input_file_name} -> {output_file_name}")
+    # NOTE: it is important to have ONLY unique elements in data_in
     data_in = list(set(pd.read_csv(input_file_path)[cs.COLUMNS[0]]))  # cs.COLUMNS[0] == 'fen_board'
     print(f"DEBUG: Input len = {len(data_in)}")
 
     with cs.ExecutionTime():
-        master.load_envir("step_02c_client_environment.py", from_file=True)
-        master.register_target_function("fun_board_eval_obj")
-        # data_in_new = [(tuple(data_in[i: i + your_chunksize]), CLIENT_SIDE_WORKERS_PROCESSES,) for i in range(0, len(data_in), your_chunksize)]
-        master.load_args(data_in)
+        master.load_envir("step_02c_worker_environment.py", from_file=True)
+        # master.register_target_function("fun_board_eval_obj")
+        # master.load_args(data_in)
+        master.register_target_function("board_mapper")
+        data_in_new = [(tuple(data_in[i: i + CUSTOM_CHUNK_SIZE]), CUSTOM_CLIENT_PROCESSES,)
+                       for i in range(0, len(data_in), CUSTOM_CHUNK_SIZE)]
+        master.load_args(data_in_new)
         result = master.execute(approx_max_job_time=APPROX_MAX_JOB_TIME)
+
+    result_new = {}
+    for result_key, result_value in result.items():
+        # result_key[0] is used because all parameters passed are returned, result_key[1] is CUSTOM_CLIENT_PROCESSES
+        result_new.update(zip(result_key[0], result_value))
+    # joblib.dump((result, result_new,), "kaufman_board.pkl")
+    result = result_new
 
     print(f"DEBUG: Result len = {len(result.keys())}")
     pd.DataFrame(data=list(result.items()), columns=cs.COLUMNS).to_csv(output_file_path, index=False)
@@ -109,12 +122,12 @@ for i in sorted(input_files, reverse=False):
     del data_in
     gc.collect()
     # print(f"1 second pause")
-    # time.sleep(1)
+    time.sleep(1)
 
 master.shutdown()
 print(f"\n\nProcessing successfully complete :)\n\nPress Ctrl+C to exit\n")
 
-#########################################################################################################################
+########################################################################################################################
 
 # STATS
 
