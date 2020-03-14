@@ -61,7 +61,7 @@ class CustomEngine:
 
         self.engine_obj = self.__load()
         if self.engine_obj is None:
-            raise Exception(f"FileNotFound: {self.engine_path}")
+            raise FileNotFoundError(f"'{self.engine_path}'")
 
         self.__update_settings(hash_size=self.MAX_HASH_TABLE_SIZE, cpu_cores=self.MAX_THREADS_TO_USE)
 

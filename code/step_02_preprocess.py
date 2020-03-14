@@ -594,11 +594,158 @@ def pgn_to_csv_all_possible_state(input_path: str, output_path: str = None):
         res_pd.to_csv(f"{os.path.splitext(Path(i))[0]}.csv", index=False)
 
 
+class FenToPkl:
+    @staticmethod
+    def __load_transform(board_encoder,
+                         score_normalizer,
+                         file_path: str,
+                         print_execution_time: bool = False) -> Tuple[np.ndarray, np.ndarray]:
+        with cs.ExecutionTime(file=sys.stderr, print=print_execution_time):
+            data = pd.read_csv(file_path, dtype={cs.COLUMNS[0]: str, cs.COLUMNS[1]: np.float32})
+            data_x = data[cs.COLUMNS[0]].values
+            data_y = data[cs.COLUMNS[1]].values
+            # print(data.head())
+
+            data_x_encoded: np.ndarray = board_encoder.encode_board_n_fen(data_x)
+            # data_x_encoded = step_02.BoardEncoder.Encode778.encode_board_n_fen(data_x)
+
+            if score_normalizer is not None:
+                data_y_normalized: np.ndarray = score_normalizer(data_y)
+            else:
+                data_y_normalized: np.ndarray = data_y
+            # data_y_normalized = step_02.ScoreNormalizer.normalize_002(data_y)
+
+        del data, data_x, data_y
+        return data_x_encoded, data_y_normalized
+
+    @staticmethod
+    def convert_fen_to_pkl_file(file_path: str, output_dir: str, move_dir: str,
+                                board_encoder_str: str, score_normalizer_str: str,
+                                suffix_to_append: str = "-be?????-sn???.pkl", ):
+        data_x_encoded, data_y_normalized = FenToPkl.__load_transform(eval(board_encoder_str),
+                                                                      eval(score_normalizer_str),
+                                                                      file_path,
+                                                                      print_execution_time=True)
+
+        # Path(...).stem returns file name only without extension
+        # compress=1, performs basic compression. compress=0 means no compression
+        joblib.dump((data_x_encoded, data_y_normalized,),
+                    filename=f"{Path(output_dir) / Path(file_path).stem}{suffix_to_append}",
+                    compress=1)
+        shutil.move(file_path, move_dir)
+        del data_x_encoded, data_y_normalized
+
+    @staticmethod
+    def convert_fen_to_pkl_folder(input_dir: str, output_dir: str, move_dir: str,
+                                  board_encoder: str, score_normalizer: str,
+                                  suffix_to_append: str = "-be?????-sn???.pkl"):
+        """
+        Example:
+            >>> FenToPkl.convert_fen_to_pkl_folder(
+            ...     input_dir="../../aggregated output 03",
+            ...     output_dir="../../aggregated output 03/be00778-sn002-pkl",
+            ...     move_dir="../../aggregated output 03/03_csv",
+            ...     board_encoder="BoardEncoder.Encode778",
+            ...     score_normalizer="ScoreNormalizer.normalize_002",
+            ...     suffix_to_append="-be00778-sn002.pkl"
+            ... )
+        :param input_dir:
+        :param output_dir: 
+        :param move_dir: 
+        :param board_encoder:
+        :param score_normalizer:
+        :param suffix_to_append:
+        """
+        Path(output_dir).mkdir(parents=True, exist_ok=True)
+        Path(move_dir).mkdir(parents=True, exist_ok=True)
+        if not Path(input_dir).exists():
+            raise FileNotFoundError(f"Source path does not exists: '{input_dir}'")
+        if not Path(output_dir).exists():
+            raise FileNotFoundError(f"Destination path does not exists: '{output_dir}'")
+        if not Path(move_dir).exists():
+            raise FileNotFoundError(f"Move path does not exists: '{move_dir}'")
+
+        with tqdm(sorted(glob.glob(f"{Path(input_dir)}/*.csv"))) as t:
+            for ith_file in t:
+                t.set_description(f"File: {Path(ith_file).name}")
+                FenToPkl.convert_fen_to_pkl_file(ith_file, output_dir, move_dir, board_encoder, score_normalizer, suffix_to_append)
 
 
-#########################################################################################################################
+# pgn_to_csv_all_possible_state("/home/student/Desktop/fenil/35_Final Year Project/aggregated output 03/Test_kaufman")
+
+########################################################################################################################
 if __name__ == "__main__":
-    pgn_to_csv_parallel(kingbase_dir="/home/student/Desktop/Fenil/Final Year Project/KingBase2019-pgn/")
+    from docopt import docopt
+
+    doc_string = \
+        """
+        Usage: 
+            step_02_preprocess.py generate_all_boards_to_csv --file_name=PATH --depth=N
+            step_02_preprocess.py pgn_to_csv_parallel --input_dir=PATH [--output_dir=PATH]
+            step_02_preprocess.py convert_fen_to_pkl_file --file_path=PATH --output_dir=PATH --move_dir=PATH --board_encoder=[BoardEncoder.Encode778] --score_normalizer=[ScoreNormalizer.normalize_001 | ScoreNormalizer.normalize_002 | ScoreNormalizer.normalize_003] --suffix_to_append=SUFFIX
+            step_02_preprocess.py convert_fen_to_pkl_folder --input_dir=PATH --output_dir=PATH --move_dir=PATH --board_encoder=[BoardEncoder.Encode778] --score_normalizer=[ScoreNormalizer.normalize_001 | ScoreNormalizer.normalize_002 | ScoreNormalizer.normalize_003] --suffix_to_append=SUFFIX
+            step_02_preprocess.py (-h | --help)
+            step_02_preprocess.py --version
+            
+        Options:
+            -h --help    show this
+        """
+    arguments = docopt(doc_string, argv=None, help=True, version=f"{cs.VERSION} - Preprocess", options_first=False)
+    print(arguments)
+    if arguments['generate_all_boards_to_csv']:
+        generate_all_boards_to_csv(arguments['--file_name'], int(arguments['--depth']))
+    elif arguments['pgn_to_csv_parallel']:
+        pgn_to_csv_parallel(arguments['--input_dir'], arguments['--output_dir'])
+    elif arguments['convert_fen_to_pkl_file']:
+        FenToPkl.convert_fen_to_pkl_file(
+            arguments['--file_path'],
+            arguments['--output_dir'],
+            arguments['--move_dir'],
+            arguments['--board_encoder'],
+            arguments['--score_normalizer'],
+            arguments['--suffix_to_append'],
+        )
+    elif arguments['convert_fen_to_pkl_folder']:
+        FenToPkl.convert_fen_to_pkl_folder(
+            arguments['--input_dir'],
+            arguments['--output_dir'],
+            arguments['--move_dir'],
+            arguments['--board_encoder'],
+            arguments['--score_normalizer'],
+            arguments['--suffix_to_append'],
+        )
+    else:
+        print("ERROR: invalid command line arguments")
+
+    r'''
+    Example:
+        python step_02_preprocess.py pgn_to_csv_parallel \
+            --input_dir '/home/student/Desktop/KingBase2019-pgn' \
+            --output_dir '/home/student/Desktop/KingBase2019-pgn/output'
+    
+        python step_02_preprocess.py convert_fen_to_pkl_file \
+            --file_path '/home/student/Desktop/fenil_pc/aggregated output 03/03_csv/z__r_B50-B99__aa.csv' \
+            --output_dir '/home/student/Desktop/fenil_pc/aggregated output 03/' \
+            --move_dir '/home/student/Desktop/fenil_pc/aggregated output 03/03_csv_done' \
+            --board_encoder 'BoardEncoder.Encode778' \
+            --score_normalizer 'None' \
+            --suffix_to_append '-be00778.pkl'
+
+        python step_02_preprocess.py convert_fen_to_pkl_folder \
+            --input_dir '/home/student/Desktop/fenil_pc/aggregated output 03/03_csv' \
+            --output_dir '/home/student/Desktop/fenil_pc/aggregated output 03/be00778_new1' \
+            --move_dir '/home/student/Desktop/fenil_pc/aggregated output 03/03_csv_done' \
+            --board_encoder 'BoardEncoder.Encode778' \
+            --score_normalizer 'None' \
+            --suffix_to_append '-be00778.pkl'
+    '''
+
+    # POSSIBLE TASKS that can be performed
+    # - Convert PGN to csv
+    # - Generate score for csv
+    # - CSV to PKL
+
+    # pgn_to_csv_parallel(input_path="/home/student/Desktop/Fenil/Final Year Project/KingBase2019-pgn/")
 
     # pgn_obj = PreprocessPGN(pgn_file_path="KingBase2019-A80-A99.pgn")
     # print(pgn_obj.get_pgn_game_count())
