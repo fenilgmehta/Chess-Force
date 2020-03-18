@@ -1,15 +1,11 @@
-import glob
 import multiprocessing
 import os
-import sys
 import warnings
 from pathlib import Path
-from typing import Union, Tuple, List, Callable, TypeVar, Type
-from tqdm import tqdm
+from typing import Union, Tuple, List, Callable, Type, Dict
 
-# WARNING/ERROR: numpy FutureWarning
-# SOLUTION: https://github.com/tensorflow/tensorflow/issues/30427
-import tensorflow
+import chess
+import numpy as np
 
 warnings.filterwarnings('ignore', category=FutureWarning)
 
@@ -25,18 +21,16 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 # TESTED SOLUTION: https://anaconda.org/anaconda/tensorflow-gpu
 # conda install -c anaconda tensorflow-gpu
 
-import chess
-import numpy as np
-import pandas as pd
-# import torch
-# import torch.nn
-import tensorflow as tf
-from tensorflow.python import keras
-from tensorflow.python.client import device_lib
+# WARNING/ERROR: numpy FutureWarning
+# SOLUTION: https://github.com/tensorflow/tensorflow/issues/30427
+# import tensorflow as tf
+# from tensorflow.python import keras
+import tensorflow.keras as keras
 
-import common_services as cs
 import step_02_preprocess as step_02
 
+
+########################################################################################################################
 
 class ModelVersion:
     def __init__(self,
@@ -64,13 +58,14 @@ class ModelVersion:
 
     @staticmethod
     def create_obj(file_name: str):
-        name, extension = file_name.split('.')
+        name, extension = str(Path(file_name).name).split('.')
         arr = name.split('-')
-        if len(arr) != 9: raise Exception("Invalid ModelVersion str name")
-        return ModelVersion(*arr)
+        if len(arr) != 7: raise Exception("Invalid ModelVersion str name")
+        return ModelVersion(arr[0], int(arr[1][2:]), int(arr[2][2:]), int(arr[3][2:]), int(arr[4][2:]), arr[5], int(arr[6][1:]))
 
     @staticmethod
-    def model_name(prefix: str, model_generator, board_encoder, score_normalizer, epochs, weight_or_model, version: int, file_extension="h5"):
+    def model_name(prefix: str, model_generator, board_encoder, score_normalizer, epochs, weight_or_model, version: int,
+                   file_extension="h5"):
         # return f"{prefix}-v{version:03}-mg{model_generator:03}-be{board_encoder:03}-"
         return "-".join([
             f"{prefix}",
@@ -78,305 +73,134 @@ class ModelVersion:
             f"be{board_encoder:05d}",
             f"sn{score_normalizer:03d}",
             f"ep{epochs:05d}",
-            f"{weight_or_model}"
+            f"{weight_or_model}",
             f"v{version:03d}",
         ]) + f".{file_extension}"
 
 
-#########################################################################################################################
-
-#
-# parser = argparse.ArgumentParser(description='FFNN')
-#
-# parser.add_argument('--pre', metavar='PRETRAINED', default=None, type=str,
-#                     help='path to the pretrained model')
-#
-# parser.add_argument('--gpu', metavar='GPU', type=str, default="2",
-#                     help='GPU id to use.')
-#
-# parser.add_argument('--task', default="SFANet_bnt2_", metavar='TASK', type=str,
-#                     help='task id to use.')
-#
-
-# dtype = torch.cuda.FloatTensor  # Uncomment this to run on GPU
-#
-# # Feed Forward Neural Network
-# class FFNNTorch(torch.nn.Module):
-#     def __init__(self, model_generator, board_encoder, learning_rate, use_gpu=True):
-#         super().__init__()
-#
-#         self.model_generator = model_generator
-#         self.board_encoder = board_encoder
-#         self.learning_rate = learning_rate
-#         self.use_gpu = use_gpu
-#
-#         # We will use ``torch.device`` objects to move tensors in and out of GPU
-#         if use_gpu and torch.cuda.is_available():
-#             self.device = torch.device("cuda", 0)  # a CUDA device object
-#         else:
-#             self.device = torch.device("cpu", 0)  # a CPU device object
-#
-#         self.model: torch.nn.Sequential = model_generator(self.device)
-#
-#         # global parser
-#         # self.arg = parser.parse_args()
-#         # self.arg.lr = 0.001
-#         # self.arg.batch_size = 64
-#         # self.arg.momentum = 0.95
-#         # self.arg.decay = 5e-3
-#         # self.arg.start_epoch = 1
-#         # self.arg.epochs = 400
-#         # self.arg.workers = 1
-#         # self.arg.seed = time.time()
-#         # self.arg.print_freq = 4
-#
-#         # Define the loss
-#         self.criterion = torch.nn.MSELoss(reduction='mean').to(self.device)  # alternative reduction='mean' /
-#
-#         # Optimizers require the parameters to optimize and a learning rate
-#         self.optimizer = torch.optim.SGD(self.model.parameters(), lr=learning_rate)
-#         # self.optimizer = torch.optim.Adam(self.model.parameters(), lr=learning_rate)
-#
-#         return
-#
-#     def c_save_model(self, model_path: Union[str, Path]):
-#         # with h5py.File(model_path, 'w') as h5f:
-#         #     for k, v in self.model.state_dict().items():
-#         #         h5f.create_dataset(k, data=v.cpu().numpy())
-#         torch.save(self.model.module.state_dict(), model_path)
-#         return
-#
-#     def c_load_model(self, model_path: Union[str, Path]):
-#         # with h5py.File(model_path, 'r') as h5f:
-#         #     for k, v in self.model.state_dict().items():
-#         #         param = torch.from_numpy(np.asarray(h5f[k]))
-#         #         v.copy_(param)
-#         self.model.load_state_dict(torch.load(model_path, map_location=self.device))
-#         self.model.to(device=self.device)
-#         self.model.eval()
-#         return
-#
-#     def c_save_checkpoint(self, checkpoint_path: Union[str, Path], epoch, loss):
-#         # def c_save_checkpoint(state, is_best, task_id, filename='checkpoint.pth.tar'):
-#         #     torch.save(state, task_id + filename)
-#         #     if is_best:
-#         #         shutil.copyfile(task_id + filename, task_id + 'model_best.pth.tar')
-#
-#         torch.save({
-#             'epoch': epoch,
-#             'model_state_dict': self.model.state_dict(),
-#             'optimizer_state_dict': self.optimizer.state_dict(),
-#             'loss': loss,
-#         }, checkpoint_path)
-#
-#     def c_load_checkpoint(self, checkpoint_path: str, strict=True):
-#         # def c_load_checkpoint(self, checkpoint_path: str):
-#         #     if checkpoint_path:
-#         #         if os.path.isfile(checkpoint_path):
-#         #             print("=> loading checkpoint '{}'".format(checkpoint_path))
-#         #             checkpoint = torch.load(checkpoint_path)
-#         #             self.args.start_epoch = checkpoint['epoch']
-#         #             best_prec1 = checkpoint['best_prec1']
-#         #             self.model.load_state_dict(checkpoint['state_dict'])
-#         #             self.optimizer.load_state_dict(checkpoint['optimizer'])
-#         #             print("=> loaded checkpoint '{}' (epoch {})".format(checkpoint_path, checkpoint['epoch']))
-#         #         else:
-#         #             print("=> no checkpoint found at '{}'".format(checkpoint_path))
-#         checkpoint = torch.load(checkpoint_path)
-#         self.model.load_state_dict(checkpoint['model_state_dict'], strict=strict)
-#         self.model.to(device=self.device)
-#         self.optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
-#         epoch = checkpoint['epoch']
-#         loss = checkpoint['loss']
-#         return epoch, loss,
-#
-#     def c_train_model(self, x_input, y_output, epochs, batch_size, validation_split):
-#         x_input = torch.from_numpy(x_input).to(device=self.device).float()
-#         y_output = torch.from_numpy(y_output).to(device=self.device).float()
-#         for epoch in range(epochs):
-#             # Forward pass: Compute predicted y by passing x to the model
-#             y_pred = self.model(x_input)
-#
-#             # Compute and print loss
-#             print(type(y_pred), type(y_output))
-#             loss = self.criterion(y_pred, y_output)
-#             print(type)
-#             # print('epoch {}, loss {}'.format(epoch, loss.data[0]))
-#             print('epoch {}, loss {}'.format(epoch, loss.item()))
-#
-#             # Before the backward pass, use the optimizer object to zero all of the
-#             # gradients for the Tensors it will update (which are the learnable weights
-#             # of the model)
-#             # Zero gradients, perform a backward pass, and update the weights.
-#             self.optimizer.zero_grad()
-#
-#             # Backward pass: compute gradient of the loss with respect to model parameters
-#             # loss.backward()
-#             loss.mean().backward()
-#
-#             # Calling the step function on an Optimizer makes an update to its parameters
-#             self.optimizer.step()
-#
-#         return
-#
-#     # TODO: implement this
-#     def c_evaluate_model(self, x_input_test, y_output_test):
-#         y_output_test = torch.from_numpy(y_output_test).to(device=self.device).float()
-#         y_predicted = self.c_predict(x_input_test)
-#         loss = self.criterion(y_predicted, y_output_test)
-#         print(f"Loss = {loss}")
-#         return
-#
-#     def c_predict(self, encoded_board: np.ndarray) -> torch.Tensor:
-#         # Pass the input tensor through each of our operations
-#         encoded_board = torch.from_numpy(encoded_board).to(device=self.device)
-#         return self.model(encoded_board)
-#         # return self.model.predict(encoded_board)
-#
-#     def c_predict_board_1(self, board_1: chess.Board) -> torch.Tensor:
-#         return self.c_predict(
-#             self.board_encoder.encode_board_1(
-#                 board_1
-#             ).reshape(1, -1)
-#         )[0]
-#
-#     def c_predict_board_n(self, board_n: Union[List[chess.Board], Tuple[chess.Board]]) -> torch.Tensor:
-#         return self.c_predict(
-#             self.board_encoder.encode_board_n(
-#                 board_n
-#             )
-#         )
-#
-#     def c_predict_fen_1(self, board_1_fen: str) -> torch.Tensor:
-#         return self.c_predict(
-#             self.board_encoder.encode_board_1_fen(
-#                 board_1_fen
-#             ).reshape(1, -1)
-#         )[0]
-#
-#     def c_predict_fen_n(self, board_n_fen: Union[List[str], Tuple[str]]) -> torch.Tensor:
-#         return self.c_predict(
-#             self.board_encoder.encode_board_n(
-#                 [chess.Board(i) for i in board_n_fen]
-#             )
-#         )
-#
-#
-# class TorchModels:
-#     @staticmethod
-#     def model_001(device):
-#         """
-#         Inputs = 778
-#
-#         Outputs = 1
-#
-#         :param device:
-#         :return:
-#         """
-#
-#         model_layers = [
-#             torch.nn.Linear(778, 512),  # Input layer
-#             torch.nn.ReLU(),
-#             torch.nn.Dropout(p=0.2),
-#
-#             torch.nn.Linear(512, 512),  # Layer 1
-#             torch.nn.ReLU(),
-#             torch.nn.Dropout(p=0.2),
-#
-#             torch.nn.Linear(512, 512),  # Layer 2
-#             torch.nn.ReLU(),
-#             torch.nn.Dropout(p=0.2),
-#
-#             torch.nn.Linear(512, 512),  # Layer 3
-#             torch.nn.ReLU(),
-#
-#             torch.nn.Linear(512, 1),  # Layer 4 and Output layer
-#             torch.nn.Sigmoid()
-#         ]
-#
-#         # Build a feed-forward network
-#         model = torch.nn.Sequential(*model_layers).to(device=device)
-#
-#         return model
-#
-#     # @staticmethod
-#     # def model_002(device):
-#     #     model =
-#     #     model = model.to(device)
-#     #     criterion = [torch.nn.MSELoss(reduction='mean').to(device)]
-#     #     optimizer = torch.optim.Adam(model.parameters(), args.lr, weight_decay=args.decay)
-#
-
-#########################################################################################################################
+########################################################################################################################
 # NOTE: `c` before each method name means that it is custom
 # Feed Forward Neural Network - Keras
 class FFNNKeras:
-    def __init__(self,
-                 model_generator: 'KerasModels.__call__',
+    def __init__(self, model_generator: 'KerasModels.__call__',
                  board_encoder: Type[step_02.BoardEncoder.EncodeBase],
                  score_normalizer: Callable[[np.ndarray], np.ndarray],
-                 version_obj: ModelVersion,
-                 model_save_path: str = "../chess_models/", generate_model_image=False):
+                 model_version: ModelVersion,
+                 model_save_path: str = "../../Chess-Kesari-Models/",
+                 callback=False,
+                 generate_model_image=False):
         self.model: keras.Sequential = model_generator()
         self.board_encoder: Type[step_02.BoardEncoder.EncodeBase] = board_encoder
         self.score_normalizer = score_normalizer
-        self.model_version: ModelVersion = version_obj
+        self.model_version: ModelVersion = model_version
         self.model_save_path: str = model_save_path
         # self.model_save_path_dir = str(Path(model_save_path).parent)
 
         # CREATE a callback that saves the model's weights
-        self.cp_callback = keras.callbacks.ModelCheckpoint(filepath=str(Path(self.model_save_path) / "ep{epoch:05d}-vl{val_loss:.5f}-weight.h5"),
-                                                           save_best_only=True,
-                                                           save_weights_only=True,
-                                                           verbose=1)
+        if callback:
+            self.cp_callback = [
+                keras.callbacks.ModelCheckpoint(
+                    filepath=str(
+                        Path(self.model_save_path) / (self.generate_name()[:-3] + "_ep{epoch:05d}-vl{val_loss:.5f}.h5")
+                    ),
+                    save_best_only=True,
+                    save_weights_only=True,
+                    verbose=1)
+            ]
+        else:
+            self.cp_callback = None
 
         # PRINT model summary
         # self.model.summary()
 
         # SAVE the model graph
         if generate_model_image:
+            image_name_prefix = f"ffnn_keras-{self.generate_name()}"
             for i in range(1, 100):
-                if not Path(f'FFNNKeras_{i:03}.png').exists():
-                    keras.utils.plot_model(self.model, f'FFNNKeras_{i:03}.png', show_shapes=True)
-                    print(f"Saving the image: 'FFNNKeras_{i:03}.pgn'")
+                image_name = f'{image_name_prefix}_{i:03}.png'
+                if not Path(image_name).exists():
+                    keras.utils.plot_model(self.model, image_name, show_shapes=True)
+                    print(f"Saving the image: '{image_name}'")
                     break
         return
 
     # TODO: to fix this, probably this may not be saving the model correctly/properly due to some parameters or version compatibility problems
     # REFER: https://github.com/tensorflow/tensorflow/issues/28281
-    def c_save_model(self, model_name: str, model_path: Union[str, Path] = "../chess_models"):
+    def c_save_model(self, model_name: str = None, model_path: Union[str, Path] = None, write_name: str = 'z_last_model_weight_name.txt'):
+        if model_path is None:
+            model_path = self.model_save_path
+        if model_name is None:
+            model_name = self.generate_name()
+
         Path(model_path).mkdir(parents=True, exist_ok=True)
         self.model.save(str(Path(model_path) / model_name), overwrite=True)
+        open(f'{model_path}/{write_name}', "w").write(model_name)
+
+        print(f"Model successfully saved: {model_name}")
         return
 
-    def c_save_weights(self, model_name: str, model_path: Union[str, Path] = "../chess_models"):
+    def c_save_weights(self, model_name: str = None, model_path: Union[str, Path] = None, write_name: str = 'z_last_model_weight_name.txt'):
+        if model_path is None:
+            model_path = self.model_save_path
+        if model_name is None:
+            model_name = self.generate_name()
+
         Path(model_path).mkdir(parents=True, exist_ok=True)
         self.model.save_weights(str(Path(model_path) / model_name), overwrite=True)
+
+        try:
+            dict_file = f'{Path(model_path) / write_name}'
+            if os.path.exists(dict_file):
+                dict_prefix: Dict = eval(open(f'{Path(model_path) / write_name}', 'r').read().strip())
+                dict_prefix.update({self.model_version.prefix: model_name})
+            else:
+                dict_prefix = {self.model_version.prefix: model_name}
+            open(f'{model_path}/{write_name}', "w+").write(str(dict_prefix))
+        except:
+            pass
+
+        print(f"Path: {model_path}")
+        print(f"Model weights successfully saved: {model_name}")
         return
 
     # TODO: to fix this, not working
     # REFER: https://github.com/tensorflow/tensorflow/issues/28281
-    def c_load_model(self, model_name: str, model_path: Union[str, Path] = "../chess_models"):
+    def c_load_model(self, model_name: str, model_path: Union[str, Path] = None):
+        if model_path is None:
+            model_path = self.model_save_path
         if not (Path(model_path) / model_name).exists():
             print(f"ERROR: model does not exists: {Path(model_path) / model_name}")
+            raise FileNotFoundError(f"'{Path(model_path) / model_name}'")
         self.model = keras.models.load_model(str(Path(model_path) / model_name))
+        self.model_version: ModelVersion = ModelVersion.create_obj(model_name)
+        print(f"Model successfully loaded: {model_name}")
         return
 
-    def c_load_weights(self, model_name: str, model_path: Union[str, Path] = "../chess_models"):
+    def c_load_weights(self, model_name: str, model_path: Union[str, Path] = None):
+        if model_path is None:
+            model_path = self.model_save_path
         if not (Path(model_path) / model_name).exists():
             print(f"ERROR: model does not exists: {Path(model_path) / model_name}")
+            raise FileNotFoundError(f"'{Path(model_path) / model_name}'")
         self.model.load_weights(str(Path(model_path) / model_name))
+        self.model_version: ModelVersion = ModelVersion.create_obj(model_name)
+        print(f"Model weights successfully loaded: {model_name}")
         return
 
-    def c_train_model(self, x_input: np.ndarray, y_output: np.ndarray, epochs: int, batch_size: int, validation_split: float):
-        self.model.trainable = True
+    def c_train_model(self, x_input: np.ndarray, y_output: np.ndarray, epochs: int, batch_size: int,
+                      validation_split: float):
+        self.update_version()
+        if self.cp_callback is not None:
+            self.cp_callback[0].filepath = \
+                str(Path(self.model_save_path) / (self.generate_name()[:-3] + "_ep{epoch:05d}-vl{val_loss:.5f}.h5"))
 
+        self.model.trainable = True
         # compile the keras model
         # self.model.compile(optimizer='adam', loss='mean_squared_error', metrics=['mae'])  # mae = Mean Absolute Error
-        with tf.device('/gpu:0'):
-            self.model.fit(x_input, y_output, epochs=epochs, batch_size=batch_size, validation_split=validation_split,
-                           verbose=2, workers=multiprocessing.cpu_count(), use_multiprocessing=True,
-                           callbacks=[self.cp_callback])
+        # with tf.device('/gpu:0'):
+        self.model.fit(x_input, y_output, epochs=epochs, batch_size=batch_size, validation_split=validation_split,
+                       verbose=2, workers=multiprocessing.cpu_count(), use_multiprocessing=True,
+                       callbacks=self.cp_callback)
 
         self.model.trainable = False
         return
@@ -423,7 +247,7 @@ class FFNNKeras:
             verbose
         )[0]
 
-    def c_predict_fen_n(self, board_n_fen: Union[List[str], Tuple[str]], verbose=0) -> np.ndarray:
+    def c_predict_fen_n(self, board_n_fen: Union[List[str], Tuple[str], np.ndarray], verbose=0) -> np.ndarray:
         return self.c_predict(
             self.board_encoder.encode_board_n(
                 [chess.Board(i) for i in board_n_fen]
@@ -434,7 +258,14 @@ class FFNNKeras:
     def generate_name(self):
         return self.model_version.__str__()
 
+    def update_version(self, number: int = -1):
+        if number <= 0:
+            self.model_version.version += 1
+        else:
+            self.model_version.version = number
 
+
+# noinspection DuplicatedCode,PyUnresolvedReferences
 class KerasModels:
 
     # optimizer = keras.optimizers.adam(lr=0.001,
@@ -528,93 +359,87 @@ class KerasModels:
 
         return model
 
+    @staticmethod
+    def model_005():
+        inputs = keras.Input(shape=(778,), name='Encoded-Chess-Board')
+        x = keras.layers.Dense(2048, activation='relu')(inputs)
+        x = keras.layers.Dropout(rate=0.1)(x)
+        x = keras.layers.Dense(2048, activation='relu')(x)
+        x = keras.layers.Dropout(rate=0.1)(x)
+        x = keras.layers.Dense(1024, activation='relu')(x)
+        x = keras.layers.Dropout(rate=0.1)(x)
+        x = keras.layers.Dense(1024, activation='relu')(x)
+        x = keras.layers.Dropout(rate=0.1)(x)
+        x = keras.layers.Dense(1024, activation='relu')(x)
+        x = keras.layers.Dropout(rate=0.1)(x)
+        x = keras.layers.Dense(1024, activation='relu')(x)
+        x = keras.layers.Dropout(rate=0.1)(x)
+        outputs = keras.layers.Dense(1, activation='tanh')(x)
 
-#########################################################################################################################
-def get_available_gpus():
-    local_device_protos = device_lib.list_local_devices()
-    return [x.name for x in local_device_protos if x.device_type == 'GPU']
+        model = keras.Model(inputs=inputs, outputs=outputs, name='chess_778_model_v005')
 
+        # compile the keras model
+        model.compile(optimizer='adam', loss='mean_squared_error', metrics=['mse', 'mae'])  # mae = Mean Absolute Error
 
-# GET list of devices
-get_available_gpus()
-# list all local devices
-device_lib.list_local_devices()
-
-
-def train_on_file(keras_obj: FFNNKeras, file_path: str, epochs, batch_size, validation_split):
-    out_file = sys.stderr
-    no_print = False
-
-    print(file_path)
-    with cs.ExecutionTime(file=out_file, no_print=no_print):
-        data = pd.read_csv(file_path, dtype={cs.COLUMNS[0]: str, cs.COLUMNS[1]: np.float32})
-        data_x = data[cs.COLUMNS[0]].values
-        data_y = data[cs.COLUMNS[1]].values
-        # print(data.head())
-    with cs.ExecutionTime(file=out_file, no_print=no_print):
-        data_x_encoded = keras_obj.board_encoder.encode_board_n_fen(data_x)
-        # data_x_encoded = step_02.BoardEncoder.Encode778.encode_board_n_fen(data_x)
-    with cs.ExecutionTime(file=out_file, no_print=no_print):
-        data_y_normalized = keras_obj.score_normalizer(data_y)
-        # data_y_normalized = step_02.ScoreNormalizer.normalize_002(data_y)
-    keras_obj.c_train_model(data_x_encoded, data_y_normalized, epochs=epochs, batch_size=batch_size, validation_split=validation_split)
-    del data, data_x, data_y, data_x_encoded, data_y_normalized
+        return model
 
 
-def train_on_folder(keras_obj: FFNNKeras, dir_path: str, epochs, batch_size, validation_split):
-    if not Path(dir_path).exists():
-        raise FileNotFoundError()
+class FFNNBuilder:
+    @staticmethod
+    def build_004(name_prefix: str, version: int, callback=False, generate_model_image=False) -> FFNNKeras:
+        return FFNNKeras(model_generator=KerasModels.model_004, board_encoder=step_02.BoardEncoder.Encode778,
+                         score_normalizer=step_02.ScoreNormalizer.normalize_002,
+                         model_version=ModelVersion(name_prefix, 4, 778, 2, 0, "weights", version=version),
+                         callback=callback,
+                         generate_model_image=generate_model_image)
 
-    tensorflow.device("/gpu:0")
-    for ith_file in tqdm(sorted(glob.glob(f"{Path(dir_path)}/*.csv"))):
-        train_on_file(keras_obj, ith_file, epochs=10, batch_size=1024, validation_split=0.1)
+    @staticmethod
+    def build_005(name_prefix: str, version: int, callback=False, generate_model_image=False) -> FFNNKeras:
+        return FFNNKeras(model_generator=KerasModels.model_005, board_encoder=step_02.BoardEncoder.Encode778,
+                         score_normalizer=step_02.ScoreNormalizer.normalize_003,
+                         model_version=ModelVersion(name_prefix, 5, 778, 3, 0, "weights", version=version),
+                         callback=callback,
+                         generate_model_image=generate_model_image)
 
+    @staticmethod
+    def build(model_weights_file_name: str, callback=False, generate_model_image=False) -> FFNNKeras:
+        try:
+            model_version = ModelVersion.create_obj(model_weights_file_name)
+            model_generator, board_encoder, score_normalizer = None, None, None
+            if model_version.model_generator == 1:
+                model_generator = KerasModels.model_001
+            elif model_version.model_generator == 2:
+                model_generator = KerasModels.model_002
+            elif model_version.model_generator == 3:
+                model_generator = KerasModels.model_003
+            elif model_version.model_generator == 4:
+                model_generator = KerasModels.model_004
+            elif model_version.model_generator == 5:
+                model_generator = KerasModels.model_005
+            else:
+                raise Exception(f"Invalid ModelGenerator={model_version.model_generator}")
 
-# TRAINING on GPU
-# sess = tensorflow.compat.v1.Session(config=tensorflow.compat.v1.ConfigProto(log_device_placement=True))
-if __name__ == '__main__':
-    ffnn_keras_v5 = FFNNKeras(KerasModels.model_004,
-                              step_02.BoardEncoder.Encode778,
-                              step_02.ScoreNormalizer.normalize_002,
-                              ModelVersion("ffnn_keras", 4, 778, 2, 10, "weights", 5))
-    ffnn_keras_v5.c_load_weights("ffnn_keras-mg004-be00778-sn002-ep00010-weights-v005.h5")
-    # keras_obj=ffnn_keras_v5; file_path="r_A00-A39__000000.csv"; epochs=10; batch_size=131072; validation_split=0.1;
-    train_on_file(keras_obj=ffnn_keras_v5, file_path="r_A00-A39__000000.csv", epochs=10, batch_size=131072, validation_split=0.1)
-    # train_on_folder(ffnn_keras_v5, dir_path="a_done_A00_to_B49/v2_A00-39", epochs=10, batch_size=131072, validation_split=0.1)
-    ffnn_keras_v5.model_version.version += 1
-    ffnn_keras_v5.c_save_weights(ffnn_keras_v5.model_version.__str__())
-    ffnn_keras_v5.c_save_model(ffnn_keras_v5.model_version.__str__())
-    # ffnn_keras_v5.c_load_weights("ffnn_keras_v005_000010_weights.h5")
-    # ffnn_keras_v5.c_load_model("ffnn_keras_v005_000010_model.h5")
+            if model_version.board_encoder == 778:
+                board_encoder = step_02.BoardEncoder.Encode778
+            else:
+                raise Exception(f"Invalid BoardEncoder={model_version.board_encoder}")
 
-    ########################
-    # OLD
-    ########################
+            if model_version.score_normalizer == 1:
+                score_normalizer = step_02.ScoreNormalizer.normalize_001
+            elif model_version.score_normalizer == 2:
+                score_normalizer = step_02.ScoreNormalizer.normalize_002
+            elif model_version.score_normalizer == 3:
+                score_normalizer = step_02.ScoreNormalizer.normalize_003
+            else:
+                raise Exception(f"Invalid ScoreNormalizer={model_version.score_normalizer}")
 
-    # DATA-SET loading
-    with cs.ExecutionTime():
-        data = pd.read_csv('.csv', dtype={cs.COLUMNS[0]: str, cs.COLUMNS[1]: np.float32})
-        data_x = data[cs.COLUMNS[0]].values
-        data_y = data[cs.COLUMNS[1]].values
-    with cs.ExecutionTime():
-        data_x_encoded = step_02.BoardEncoder.Encode778.encode_board_n_fen(data_x)
-    with cs.ExecutionTime():
-        data_y_in = step_02.ScoreNormalizer.normalize_001(data_y)
+            return FFNNKeras(model_generator,
+                             board_encoder,
+                             score_normalizer,
+                             model_version,
+                             callback=callback,
+                             generate_model_image=generate_model_image)
 
-    # MODEL creation and training
-    tensorflow.device("/gpu:0")
-    ffnn_keras = FFNNKeras(KerasModels.model_001,
-                           step_02.BoardEncoder.Encode778,
-                           step_02.ScoreNormalizer.normalize_001,
-                           ModelVersion("ffnn_keras", 1, 778, 1, 10, "weights", 4))
-    ffnn_keras.c_load_weights("ffnn_keras_v004_000010_weights.h5")
-    with cs.ExecutionTime():
-        ffnn_keras.c_train_model(data_x_encoded, data_y, 1000, 512, 0.2)
-    ffnn_keras.c_save_weights("ffnn_keras_v004_000010_weights.h5")
-
-    # MODEL testing
-    with cs.ExecutionTime():
-        y_predicted = ffnn_keras.c_predict_fen_n(data_x)
-        print(f"MAE = {np.sum(np.abs(y_predicted - data_y) / len(y_predicted))}")
-    with cs.ExecutionTime():
-        ffnn_keras.c_evaluate_model(data_x_encoded, data_y)
+        except Exception as e:
+            print(f"ERROR: ModelVersion: {e}")
+########################################################################################################################
