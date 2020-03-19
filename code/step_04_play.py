@@ -1,21 +1,25 @@
 import collections.abc
 import copy
+import glob
 import operator
+import shutil
 import time
+from pathlib import Path
 from typing import Tuple, List, Union, Any
 
 import chess
 # import chess.pgn
 import numpy as np
+import pandas as pd
 from termcolor import colored
+from tqdm.autonotebook import tqdm
 
 import common_services as cs
 import step_01_engine as step_01
-import step_02_preprocess as step_02
-import step_03a_ffnn as step_03
+import step_03a_ffnn as step_03a
 
 
-#########################################################################################################################
+########################################################################################################################
 # This is for prediction
 class ChessPredict:
     def __init__(self,
@@ -125,7 +129,8 @@ class ChessPredict:
             return self.predict_best_move_v2(board)
         if self.predict_score_1 is not None:
             return self.predict_best_move_v1(board)
-        raise NotImplementedError("Neither of the prediction methods are given to ChessPredict: predict_score_1, predict_score_n, predict_move_1")
+        raise NotImplementedError(
+            "Neither of the prediction methods are given to ChessPredict: predict_score_1, predict_score_n, predict_move_1")
 
     def get_next_move(self, board: chess.Board):
         if self.predict_move_1 is not None:
@@ -134,10 +139,11 @@ class ChessPredict:
             return self.predict_best_move_v2(board)[0]
         if self.predict_score_1 is not None:
             return self.predict_best_move_v1(board)[0]
-        raise NotImplementedError("Neither of the prediction methods are given to ChessPredict: predict_score_1, predict_score_n, predict_move_1")
+        raise NotImplementedError(
+            "Neither of the prediction methods are given to ChessPredict: predict_score_1, predict_score_n, predict_move_1")
 
 
-#########################################################################################################################
+########################################################################################################################
 # This if for CLI game interface
 
 class ChessPlayCLI:
@@ -178,7 +184,7 @@ class ChessPlayCLI:
         self.delay = delay
 
     @staticmethod
-    def __pretty_board(board: chess.Board, clear_screen) -> str:
+    def pretty_board(board: chess.Board, clear_screen) -> str:
         color_decoration = 'blue'
         color_white = 'white'
         color_black = 'cyan'
@@ -227,8 +233,9 @@ class ChessPlayCLI:
         # board_play.is_repetition()
         # board_play.can_claim_threefold_repetition()
         # board_play.is_fivefold_repetition()
-        while not (board_play.is_checkmate() or board_play.is_stalemate() or board_play.is_insufficient_material() or board_play.can_claim_threefold_repetition()):
-            print(ChessPlayCLI.__pretty_board(board_play, self.clear_screen))
+        while not (
+                board_play.is_checkmate() or board_play.is_stalemate() or board_play.is_insufficient_material() or board_play.can_claim_threefold_repetition()):
+            print(ChessPlayCLI.pretty_board(board_play, self.clear_screen))
             print()
             print(f"DEBUG: board_play.fen() = {board_play.fen()}")
             print(f"DEBUG: Legal moves = {list(map(str, list(board_play.legal_moves)))}")
@@ -254,11 +261,11 @@ class ChessPlayCLI:
                     print(f"DEBUG: [{self.player2_name}] AI's move_score = {move_score}")
             board_play.push(move_selected)
             if self.game_analyzer is not None:
-                print(f"\nGame analysis = {self.game_analyzer.analyse_board(board_play)}")
+                print(f"\nGame analysis[from white's perspective] = {self.game_analyzer.analyse_board(board_play)}")
             current_player1_turn ^= True
             time.sleep(self.delay)
 
-        print("\n\n" + ChessPlayCLI.__pretty_board(board_play, self.clear_screen), end="\n\n")
+        print("\n\n" + ChessPlayCLI.pretty_board(board_play, self.clear_screen), end="\n\n")
         if board_play.is_stalemate():
             print(f"RESULTS: draw, as its a stalemate")
         elif board_play.is_checkmate() and board_play.turn == chess.WHITE:
@@ -280,270 +287,208 @@ class ChessPlayCLI:
         return
 
 
-#
-# #########################################################################################################################
-# # This is for GUI game interface
-# # REFER: https://github.com/PySimpleGUI/PySimpleGUI
-# class ChessPlay:
-#     CHESS_PATH = '.'  # path to the chess pieces
-#
-#     BLANK = 0  # piece names
-#     PAWNB = 1
-#     KNIGHTB = 2
-#     BISHOPB = 3
-#     ROOKB = 4
-#     KINGB = 5
-#     QUEENB = 6
-#     PAWNW = 7
-#     KNIGHTW = 8
-#     BISHOPW = 9
-#     ROOKW = 10
-#     KINGW = 11
-#     QUEENW = 12
-#
-#     initial_board = [[ROOKB, KNIGHTB, BISHOPB, QUEENB, KINGB, BISHOPB, KNIGHTB, ROOKB],
-#                      [PAWNB, ] * 8,
-#                      [BLANK, ] * 8,
-#                      [BLANK, ] * 8,
-#                      [BLANK, ] * 8,
-#                      [BLANK, ] * 8,
-#                      [PAWNW, ] * 8,
-#                      [ROOKW, KNIGHTW, BISHOPW, QUEENW, KINGW, BISHOPW, KNIGHTW, ROOKW]]
-#
-#     blank = os.path.join(CHESS_PATH, 'blank.png')
-#     bishopB = os.path.join(CHESS_PATH, 'nbishopb.png')
-#     bishopW = os.path.join(CHESS_PATH, 'nbishopw.png')
-#     pawnB = os.path.join(CHESS_PATH, 'npawnb.png')
-#     pawnW = os.path.join(CHESS_PATH, 'npawnw.png')
-#     knightB = os.path.join(CHESS_PATH, 'nknightb.png')
-#     knightW = os.path.join(CHESS_PATH, 'nknightw.png')
-#     rookB = os.path.join(CHESS_PATH, 'nrookb.png')
-#     rookW = os.path.join(CHESS_PATH, 'nrookw.png')
-#     queenB = os.path.join(CHESS_PATH, 'nqueenb.png')
-#     queenW = os.path.join(CHESS_PATH, 'nqueenw.png')
-#     kingB = os.path.join(CHESS_PATH, 'nkingb.png')
-#     kingW = os.path.join(CHESS_PATH, 'nkingw.png')
-#
-#     images = {BISHOPB: bishopB, BISHOPW: bishopW, PAWNB: pawnB, PAWNW: pawnW, KNIGHTB: knightB, KNIGHTW: knightW,
-#               ROOKB: rookB, ROOKW: rookW, KINGB: kingB, KINGW: kingW, QUEENB: queenB, QUEENW: queenW, BLANK: blank}
-#
-#     def open_pgn_file(self, filename):
-#         pgn = open(filename)
-#         first_game = chess.pgn.read_game(pgn)
-#         moves = [move for move in first_game.main_line()]
-#         return moves
-#
-#     def render_square(self, image, key, location):
-#         if (location[0] + location[1]) % 2:
-#             color = '#B58863'
-#         else:
-#             color = '#F0D9B5'
-#         return sg.RButton('', image_filename=image, size=(1, 1), button_color=('white', color), pad=(0, 0), key=key)
-#
-#     def redraw_board(self, window, board):
-#         for i in range(8):
-#             for j in range(8):
-#                 color = '#B58863' if (i + j) % 2 else '#F0D9B5'
-#                 piece_image = self.images[board[i][j]]
-#                 elem = window.FindElement(key=(i, j))
-#                 elem.Update(button_color=('white', color),
-#                             image_filename=piece_image, )
-#
-#     def PlayGame(self):
-#         menu_def = [['&File', ['&Open PGN File', 'E&xit']],
-#                     ['&Help', '&About...'], ]
-#
-#         # sg.SetOptions(margins=(0,0))
-#         sg.ChangeLookAndFeel('GreenTan')
-#         # create initial board setup
-#         psg_board = copy.deepcopy(self.initial_board)
-#         # the main board display layout
-#         board_layout = [[sg.T('     ')] + [sg.T('{}'.format(a), pad=((23, 27), 0), font='Any 13') for a in 'abcdefgh']]
-#         # loop though board and create buttons with images
-#         for i in range(8):
-#             row = [sg.T(str(8 - i) + '   ', font='Any 13')]
-#             for j in range(8):
-#                 piece_image = self.images[psg_board[i][j]]
-#                 row.append(self.render_square(piece_image, key=(i, j), location=(i, j)))
-#             row.append(sg.T(str(8 - i) + '   ', font='Any 13'))
-#             board_layout.append(row)
-#         # add the labels across bottom of board
-#         board_layout.append([sg.T('     ')] + [sg.T('{}'.format(a), pad=((23, 27), 0), font='Any 13') for a in 'abcdefgh'])
-#
-#         # setup the controls on the right side of screen
-#         openings = (
-#             'Any', 'Defense', 'Attack', 'Trap', 'Gambit', 'Counter', 'Sicillian', 'English', 'French', 'Queen\'s openings',
-#             'King\'s Openings', 'Indian Openings')
-#
-#         board_controls = [[sg.RButton('New Game', key='New Game'), sg.RButton('Draw')],
-#                           [sg.RButton('Resign Game'), sg.RButton('Set FEN')],
-#                           [sg.RButton('Player Odds'), sg.RButton('Training')],
-#                           [sg.Drop(openings), sg.Text('Opening/Style')],
-#                           [sg.CBox('Play As White', key='_white_')],
-#                           [sg.Drop([2, 3, 4, 5, 6, 7, 8, 9, 10], size=(3, 1), key='_level_'), sg.Text('Difficulty Level')],
-#                           [sg.Text('Move List')],
-#                           [sg.Multiline([], do_not_clear=True, autoscroll=True, size=(15, 10), key='_movelist_')],
-#                           ]
-#
-#         # layouts for the tabs
-#         controls_layout = [[sg.Text('Performance Parameters', font='_ 20')],
-#                            [sg.T('Put stuff like AI engine tuning parms on this tab')]]
-#
-#         statistics_layout = [[sg.Text('Statistics', font=('_ 20'))],
-#                              [sg.T('Game statistics go here?')]]
-#
-#         board_tab = [[sg.Column(board_layout)]]
-#
-#         # the main window layout
-#         layout = [[sg.Menu(menu_def, tearoff=False)],
-#                   [sg.TabGroup([[sg.Tab('Board', board_tab),
-#                                  sg.Tab('Controls', controls_layout),
-#                                  sg.Tab('Statistics', statistics_layout)]], title_color='red'),
-#                    sg.Column(board_controls)],
-#                   [sg.Text('Click anywhere on board for next move', font='_ 14')]]
-#
-#         window = sg.Window('Chess',
-#                            default_button_element_size=(12, 1),
-#                            auto_size_buttons=False,
-#                            icon='kingb.ico').Layout(layout)
-#
-#         filename = sg.PopupGetFile('\n'.join(('To begin, set location of AI EXE file',
-#                                               'If you have not done so already, download the engine',
-#                                               'Download the StockFish Chess engine at: https://stockfishchess.org/download/')),
-#                                    file_types=(('Chess AI Engine EXE File', '*.exe'),))
-#         if filename is None:
-#             sys.exit()
-#         engine = chess.uci.popen_engine(filename)
-#         engine.uci()
-#         info_handler = chess.uci.InfoHandler()
-#         engine.info_handlers.append(info_handler)
-#
-#         board = chess.Board()
-#         move_count = 1
-#         move_state = move_from = move_to = 0
-#         # ---===--- Loop taking in user input --- #
-#         while not board.is_game_over():
-#
-#             if board.turn == chess.WHITE:
-#                 engine.position(board)
-#
-#                 # human_player(board)
-#                 move_state = 0
-#                 while True:
-#                     button, value = window.Read()
-#                     if button in (None, 'Exit'):
-#                         exit()
-#                     if button == 'New Game':
-#                         sg.Popup('You have to restart the program to start a new game... sorry....')
-#                         break
-#                         psg_board = copy.deepcopy(initial_board)
-#                         redraw_board(window, psg_board)
-#                         move_state = 0
-#                         break
-#                     level = value['_level_']
-#                     if type(button) is tuple:
-#                         if move_state == 0:
-#                             move_from = button
-#                             row, col = move_from
-#                             piece = psg_board[row][col]  # get the move-from piece
-#                             button_square = window.FindElement(key=(row, col))
-#                             button_square.Update(button_color=('white', 'red'))
-#                             move_state = 1
-#                         elif move_state == 1:
-#                             move_to = button
-#                             row, col = move_to
-#                             if move_to == move_from:  # cancelled move
-#                                 color = '#B58863' if (row + col) % 2 else '#F0D9B5'
-#                                 button_square.Update(button_color=('white', color))
-#                                 move_state = 0
-#                                 continue
-#
-#                             picked_move = '{}{}{}{}'.format('abcdefgh'[move_from[1]], 8 - move_from[0],
-#                                                             'abcdefgh'[move_to[1]], 8 - move_to[0])
-#
-#                             if picked_move in [str(move) for move in board.legal_moves]:
-#                                 board.push(chess.Move.from_uci(picked_move))
-#                             else:
-#                                 print('Illegal move')
-#                                 move_state = 0
-#                                 color = '#B58863' if (move_from[0] + move_from[1]) % 2 else '#F0D9B5'
-#                                 button_square.Update(button_color=('white', color))
-#                                 continue
-#
-#                             psg_board[move_from[0]][move_from[1]] = BLANK  # place blank where piece was
-#                             psg_board[row][col] = piece  # place piece in the move-to square
-#                             redraw_board(window, psg_board)
-#                             move_count += 1
-#
-#                             window.FindElement('_movelist_').Update(picked_move + '\n', append=True)
-#
-#                             break
-#             else:
-#                 engine.position(board)
-#                 best_move = engine.go(searchmoves=board.legal_moves, depth=level, movetime=(level * 100)).bestmove
-#                 move_str = str(best_move)
-#                 from_col = ord(move_str[0]) - ord('a')
-#                 from_row = 8 - int(move_str[1])
-#                 to_col = ord(move_str[2]) - ord('a')
-#                 to_row = 8 - int(move_str[3])
-#
-#                 window.FindElement('_movelist_').Update(move_str + '\n', append=True)
-#
-#                 piece = psg_board[from_row][from_col]
-#                 psg_board[from_row][from_col] = BLANK
-#                 psg_board[to_row][to_col] = piece
-#                 redraw_board(window, psg_board)
-#
-#                 board.push(best_move)
-#                 move_count += 1
-#         sg.Popup('Game over!', 'Thank you for playing')
-#
-#     # Download the StockFish Chess engine at: https://stockfishchess.org/download/
-#     # engine = chess.uci.popen_engine(r'E:\DownloadsE\stockfish-9-win\Windows\stockfish_9_x64.exe')
-#     # engine.uci()
-#     # info_handler = chess.uci.InfoHandler()
-#     # engine.info_handlers.append(info_handler)
-#     # level = 2
-#     # PlayGame()
-#
+########################################################################################################################
 
 
-#########################################################################################################################
-
-if __name__ == "__main__":
-    ffnn_keras = step_03.FFNNKeras(step_03.KerasModels.model_001,
-                                   step_02.BoardEncoder.Encode778,
-                                   step_02.ScoreNormalizer.normalize_001,
-                                   step_03.ModelVersion("ffnn_keras", 1, 778, 1, 10, "weights", 4))
-    ffnn_keras.c_load_weights("ffnn_keras_v004_000010_weights.h5")
-
-    ffnn_keras2 = step_03.FFNNKeras(step_03.KerasModels.model_004,
-                                    step_02.BoardEncoder.Encode778,
-                                    step_02.ScoreNormalizer.normalize_002,
-                                    step_03.ModelVersion("ffnn_keras", 4, 778, 2, 10, "weights", 5))
-    ffnn_keras2.c_load_weights("ffnn_keras_v005_000010_weights.h5")
-
+def init_engine(cpu_cores=1, analyse_time=0.01):
     engine_sf = step_01.CustomEngine(src_path=None, cp_score_max=8000, mate_score_max=10000,
                                      mate_score_difference=50, cpu_cores=1, hash_size_mb=16,
-                                     depth=20, analyse_time=0.1)
+                                     depth=20, analyse_time=0.01)
+    return engine_sf
 
-    engine_sf_analyse = step_01.CustomEngine(src_path=None, cp_score_max=8000, mate_score_max=10000,
-                                             mate_score_difference=50, cpu_cores=1, hash_size_mb=16,
-                                             depth=20, analyse_time=0.5)
 
-    chess_predict_1 = ChessPredict(ffnn_keras2.c_predict_board_1, ffnn_keras2.c_predict_board_n, to_maximize=True)
-    chess_predict_2 = ChessPredict(ffnn_keras.c_predict_board_1, ffnn_keras.c_predict_board_n, to_maximize=False)
+def play(player1_name: str, player2_name: str, game_type: str, model_weights_file: str, analyze_game: bool = False, clear_screen=False,
+         delay=0.0, ):
+    ffnn_keras, engine_sf, engine_predict = None, None, None
 
-    chess_predict_3 = ChessPredict(predict_move_1=engine_sf.predict_move)
-    chess_predict_4_analyse = ChessPredict(analyse_board=engine_sf_analyse.evaluate_normalized_board)
+    def init_model():
+        mv = step_03a.ModelVersion.create_obj(Path(model_weights_file).name)
+        if mv.model_generator == 4:
+            ffnn_keras = step_03a.FFNNBuilder.build_004(name_prefix='', version=1, callback=False, generate_model_image=False)
+        else:
+            ffnn_keras = step_03a.FFNNBuilder.build_005(name_prefix='', version=1, callback=False, generate_model_image=False)
+        ffnn_keras.c_load_weights(model_weights_file)
+        return ffnn_keras
 
-    ChessPlayCLI(player1_name="Player 1",
-                 player2_name="Player 2",
-                 player1_chess_predict=chess_predict_1,
-                 player2_chess_predict=chess_predict_2,
+    player1_chess_predict, player2_chess_predict = None, None
+    if game_type == 'mm':
+        ffnn_keras = init_model()
+        player1_chess_predict = ChessPredict(ffnn_keras.c_predict_board_1, ffnn_keras.c_predict_board_n, to_maximize=True)
+        player2_chess_predict = ChessPredict(ffnn_keras.c_predict_board_1, ffnn_keras.c_predict_board_n, to_maximize=False)
+    elif game_type == 'me':
+        ffnn_keras = init_model()
+        engine_sf = init_engine()
+        player1_chess_predict = ChessPredict(ffnn_keras.c_predict_board_1, ffnn_keras.c_predict_board_n, to_maximize=True)
+        player2_chess_predict = ChessPredict(predict_move_1=engine_sf.predict_move, to_maximize=False)
+    elif game_type == 'em':
+        ffnn_keras = init_model()
+        engine_sf = init_engine()
+        player1_chess_predict = ChessPredict(predict_move_1=engine_sf.predict_move, to_maximize=True)
+        player2_chess_predict = ChessPredict(ffnn_keras.c_predict_board_1, ffnn_keras.c_predict_board_n, to_maximize=False)
+    elif game_type == 'ee':
+        engine_sf = init_engine()
+        player1_chess_predict = ChessPredict(predict_move_1=engine_sf.predict_move, to_maximize=True)
+        player2_chess_predict = ChessPredict(predict_move_1=engine_sf.predict_move, to_maximize=False)
+
+    chess_predict_4_analyse = None
+    if analyze_game is True:
+        engine_predict = init_engine(cpu_cores=2, analyse_time=0.5);
+        chess_predict_4_analyse = ChessPredict(
+            analyse_board=engine_predict.evaluate_normalized_board
+        )
+
+    ChessPlayCLI(player1_name=player1_name,
+                 player2_name=player2_name,
+                 player1_chess_predict=player1_chess_predict,
+                 player2_chess_predict=player2_chess_predict,
                  game_analyzer=chess_predict_4_analyse,
-                 clear_screen=False,
-                 delay=1.0).play()
+                 clear_screen=clear_screen,
+                 delay=delay).play()
 
-    engine_sf.finish()
-    engine_sf_analyse.finish()
+    if engine_sf is None and engine_predict is None: return
+    print("Closing the connection with the engine...", flush=True)
+    if engine_sf is not None:
+        engine_sf.close()
+    if engine_predict is not None:
+        engine_predict.close()
+    print("Connection closed.", flush=True)
+
+
+def predict_move(input_dir: str, output_dir: str, move_dir: str, model_weights_file: str):
+    if output_dir is None:
+        output_dir = input_dir
+    Path(output_dir).mkdir(parents=True, exist_ok=True)
+    Path(move_dir).mkdir(parents=True, exist_ok=True)
+    if not Path(output_dir).exists():
+        print("ERROR: `output_dir` does not exists")
+        return
+    if not Path(move_dir).exists():
+        print("ERROR: `move_dir` does not exists")
+        return
+
+    ffnn_keras, player1_chess_predict, player2_chess_predict = None, None, None
+    if Path(model_weights_file).exists() and Path(model_weights_file).is_file():
+        ffnn_keras = step_03a.FFNNBuilder.build(Path(model_weights_file).name)
+        player1_chess_predict = ChessPredict(ffnn_keras.c_predict_board_1, ffnn_keras.c_predict_board_n, to_maximize=True)
+        player2_chess_predict = ChessPredict(ffnn_keras.c_predict_board_1, ffnn_keras.c_predict_board_n, to_maximize=False)
+    else:
+        print(f"ERROR: Invalid model_weights_file={model_weights_file}", flush=True)
+        return
+
+    for i in tqdm(glob.glob(f"{Path(input_dir)}/*.csv")):
+        boards = pd.read_csv(i, header=None)
+        result_move_uci: List = []
+        result_move_alg: List = []
+        result_score: List = []
+        for j in tqdm(boards[0]):
+            try:
+                j = chess.Board(j)
+            except Exception as e:
+                print(f"ERROR: parsing error: {j}, {e}")
+                continue
+            if j.turn:
+                move_selected, move_score = player1_chess_predict.predict_best_move(j)
+            else:
+                move_selected, move_score = player2_chess_predict.predict_best_move(j)
+            result_move_uci.append(str(move_selected))
+            result_move_alg.append(j.san(move_selected))
+            result_score.append(str(move_score))
+        boards['move_uci'] = result_move_uci
+        boards['move_alg'] = result_move_alg
+        boards['score'] = result_score
+        boards.to_csv(f"{Path(output_dir) / Path(i).stem}_processed.csv", index=False)
+        print(f"Successfully processes: '{Path(output_dir) / Path(i).stem}_processed.csv'")
+        shutil.move(src=i, dst=move_dir)
+
+
+def iterate_moves(moves: List[str], analyze_game: bool, clear_screen: bool, delay: float):
+    chess_predict_4_analyse = None
+    flush_str = "\033c" if clear_screen else ''
+    current_board = chess.Board()
+
+    if analyze_game:
+        engine_sf = init_engine()
+        chess_predict_4_analyse = ChessPredict(
+            analyse_board=step_01.CustomEngine(
+                src_path=None, cp_score_max=8000, mate_score_max=10000,
+                mate_score_difference=50, cpu_cores=1, hash_size_mb=16,
+                depth=20, analyse_time=0.5
+            ).evaluate_normalized_board
+        )
+
+    for mov_i in moves:
+        if chess.Move.from_uci(mov_i) in current_board.legal_moves:
+            current_board.push(chess.Move.from_uci(mov_i))
+        else:
+            print("ERROR: invalid move, exiting the program")
+            return
+        print(ChessPlayCLI.pretty_board(current_board, clear_screen))
+        if chess_predict_4_analyse is not None:
+            print(f"\nGame analysis[from white's perspective] = {chess_predict_4_analyse.analyse_board(current_board)}")
+        time.sleep(delay)
+        # print(flush_str)
+
+
+if __name__ == "__main__":
+    from docopt import docopt
+
+    doc_string = '''
+    Usage:
+        step_04_play.py play [--player1_name=NAME] [--player2_name=NAME] --game_type=TYPE [--model_weights_file=PATH] [--analyze_game] [--clear_screen] [--delay=SECONDS]
+        step_04_play.py predict_move --input_dir=PATH [--output_dir=PATH] --move_dir=PATH --model_weights_file=PATH
+        step_04_play.py iterate_moves --moves=MOVESLIST [--analyze_game] [--clear_screen] [--delay=SECONDS]
+        step_04_play.py (-h | --help)
+        step_04_play.py --version
+
+    Options:
+        --player1_name=NAME     Player 1 name [default: Player1]
+        --player2_name=NAME     Player 2 name [default: Player2]
+        --game_type=TYPE        Type of the game to be played (TYPE can be: mm, me, em, ee)
+        --model_weights_file=PATH  Path to the neural network model, required if --game_type is either mm, me or em
+        --analyze_game          Whether to use stockfish to analyze the game or not ?
+        --clear_screen          Whether to clear the terminal output after each move or not ?
+        --delay=SECONDS         Number of seconds the game should pause after each move [default: 0.0]
+        
+        --input_dir=PATH        Path to directory which has CSV files containing board states to predict move
+        --output_dir=PATH       Path to directory where results shall be stored, default is input_dir
+        --move_dir=PATH         Path to directory where processed files shall be moved
+
+        -h --help               Show this
+        --version               Show version
+    '''
+    arguments = docopt(doc_string, argv=None, help=True, version=f"{cs.VERSION} - Game play", options_first=False)
+    # arguments = eval("""{'--analyze_game': False,
+    #  '--clear_screen': False,
+    #  '--delay': '1.0',
+    #  '--game_type': 'ee',
+    #  '--help': False,
+    #  '--model_weights_file': None,
+    #  '--player1_name': 'Player1',
+    #  '--player2_name': 'Player2',
+    #  '--version': False}
+    # """)
+
+    print("\n\n", arguments, "\n\n", sep="")
+    if arguments['play']:
+        play(
+            arguments['--player1_name'],
+            arguments['--player2_name'],
+            arguments['--game_type'],
+            arguments['--model_weights_file'],
+            arguments['--analyze_game'],
+            arguments['--clear_screen'],
+            float(arguments['--delay']),
+        )
+    elif arguments['predict_move']:
+        predict_move(arguments['--input_dir'], arguments['--output_dir'], arguments['--move_dir'], arguments['--model_weights_file'])
+    elif arguments['iterate_moves']:
+        iterate_moves(eval(arguments['--moves']), arguments['--analyze_game'], arguments['--clear_screen'], float(arguments['--delay']))
+
+    '''
+    Example:
+        python step_04_play.py --game_type=ee --delay=1.0 --model_weights_file="/home/student/Desktop/fenil_pc/Chess-Kesari-Models/ffnn_keras-mg005-be00778-sn003-ep00127-weights-v032.h5"
+
+        python step_04_play.py iterate_moves --moves="['e2e4', 'd7d5', 'e4d5', 'd8d5', 'g1f3', 'g8f6', 'd2d4', 'd5e4', 'f1e2', 'c8f5', 'e1g1', 'e4c2', 'b1c3', 'c2d1', 'g2g4', 'd1c2', 'c3d5', 'f5g4', 'd5f6', 'g7f6', 'a2a4', 'c2e2', 'c1e3', 'g4f3', 'f1b1', 'h8g8', 'e3g5', 'g8g5']" #--analyze_game --clear_screen --delay=1.0
+    '''
+
+    # fire.Fire(play)
