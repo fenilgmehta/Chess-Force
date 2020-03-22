@@ -1,0 +1,369 @@
+# TRAINING LOG 5 - 124 epochs (+4 epochs)
+
+(chess) ➜  Chess-Kesari git:(master) ✗ cd code
+(chess) ➜  code git:(master) ✗ BASE_PATH="/home/student/Desktop/fenil_pc/aggregated output 03/kingbase2019"
+
+# BASE_PATH="/home/student/Desktop/fenil_pc/aggregated output 03/kaufman"
+
+PGN_PATH="${BASE_PATH}/01_pgn_data"
+CSV_PATH="${BASE_PATH}/02_csv_data"
+CSV_SCORES_PATH="${BASE_PATH}/03_csv_score_data"
+CSV_SCORES_PATH_CONVERTED="${BASE_PATH}/03_csv_score_data_converted"
+PKL_PATH="${BASE_PATH}/04_pkl_data"
+PKL_PATH_TRAINED="${BASE_PATH}/04_pkl_data_trained"
+
+(chess) ➜  code git:(master) ✗ SAVED_WEIGHTS_FILE="../../Chess-Kesari-Models/ffnn_keras-mg005-be00778-sn003-ep00001-weights-v001.h5"
+MODEL_NAME_PREFIX="ffnn_keras"
+EPOCHS=4
+
+(chess) ➜  code git:(master) ✗ python step_03b_train.py                                \
+    --action train                                      \
+    --gpu_id=0                                          \
+    --model_version=5                                   \
+    --version_number=1                                  \
+    --epochs=${EPOCHS}                                  \
+    --batch_size=65536                                  \
+    --validation_split=0.2                              \
+    --generate_model_image=False                        \
+    --input_dir="${PKL_PATH}"                           \
+    --move_dir="${PKL_PATH_TRAINED}"                    \
+    --file_suffix="pkl"                                 \
+    --y_normalizer="normalize_003"                      \
+    --callback=False                                    \
+    --name_prefix="${MODEL_NAME_PREFIX}"                \
+    --auto_load_new=True                                \
+    --saved_weights_file="${SAVED_WEIGHTS_FILE}"        \
+    && mv "${PKL_PATH_TRAINED}/"*.pkl "${PKL_PATH}"
+
+
+
+Namespace(action='train', auto_load_new=True, batch_size=65536, callback=False, epochs=4, file_suffix='pkl', generate_model_image=False, gpu_id=0, input_dir='/home/student/Desktop/fenil_pc/aggregated output 03/kingbase2019/04_pkl_data', model_version=5, move_dir='/home/student/Desktop/fenil_pc/aggregated output 03/kingbase2019/04_pkl_data_trained', name_prefix='ffnn_keras', saved_weights_file='../../Chess-Kesari-Models/ffnn_keras-mg005-be00778-sn003-ep00001-weights-v001.h5', validation_split=0.2, version_number=1, y_normalizer='normalize_003')
+
+
+INFO: auto_load_new: Trying
+INFO: auto_load_new: loading: '../../Chess-Kesari-Models/ffnn_keras-mg005-be00778-sn003-ep00120-weights-v096.h5'
+Model weights successfully loaded: ffnn_keras-mg005-be00778-sn003-ep00120-weights-v096.h5
+INFO: auto_load_new: Model loaded :)
+
+File: z__r_B20-B49__aa-be00778.pkl:   0%|                                                                                                                                             | 0/32 [00:00<?, ?it/s]Train on 799999 samples, validate on 200000 samples
+Epoch 1/4
+799999/799999 - 10s - loss: 0.0352 - mse: 0.0352 - mae: 0.1360 - val_loss: 0.0400 - val_mse: 0.0400 - val_mae: 0.1386
+Epoch 2/4
+799999/799999 - 9s - loss: 0.0318 - mse: 0.0318 - mae: 0.1254 - val_loss: 0.0383 - val_mse: 0.0383 - val_mae: 0.1343
+Epoch 3/4
+799999/799999 - 9s - loss: 0.0301 - mse: 0.0301 - mae: 0.1215 - val_loss: 0.0377 - val_mse: 0.0377 - val_mae: 0.1338
+Epoch 4/4
+799999/799999 - 8s - loss: 0.0290 - mse: 0.0290 - mae: 0.1188 - val_loss: 0.0372 - val_mse: 0.0372 - val_mae: 0.1320
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00124-weights-v097.h5
+File: z__r_A40-A79__aa-be00778.pkl:   3%|████▏                                                                                                                                | 1/32 [00:43<22:26, 43.44s/it]Train on 799999 samples, validate on 200000 samples
+Epoch 1/4
+799999/799999 - 9s - loss: 0.0326 - mse: 0.0326 - mae: 0.1245 - val_loss: 0.0430 - val_mse: 0.0430 - val_mae: 0.1408
+Epoch 2/4
+799999/799999 - 9s - loss: 0.0310 - mse: 0.0310 - mae: 0.1215 - val_loss: 0.0426 - val_mse: 0.0426 - val_mae: 0.1385
+Epoch 3/4
+799999/799999 - 9s - loss: 0.0296 - mse: 0.0296 - mae: 0.1186 - val_loss: 0.0427 - val_mse: 0.0427 - val_mae: 0.1390
+Epoch 4/4
+799999/799999 - 8s - loss: 0.0284 - mse: 0.0284 - mae: 0.1161 - val_loss: 0.0428 - val_mse: 0.0428 - val_mae: 0.1382
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00124-weights-v098.h5
+File: z__r_C00-C99__ad-be00778.pkl:   6%|████████▎                                                                                                                            | 2/32 [01:26<21:41, 43.37s/it]Train on 800000 samples, validate on 200000 samples
+Epoch 1/4
+800000/800000 - 9s - loss: 0.0294 - mse: 0.0294 - mae: 0.1214 - val_loss: 0.0365 - val_mse: 0.0365 - val_mae: 0.1341
+Epoch 2/4
+800000/800000 - 9s - loss: 0.0280 - mse: 0.0280 - mae: 0.1184 - val_loss: 0.0359 - val_mse: 0.0359 - val_mae: 0.1319
+Epoch 3/4
+800000/800000 - 9s - loss: 0.0267 - mse: 0.0267 - mae: 0.1156 - val_loss: 0.0354 - val_mse: 0.0354 - val_mae: 0.1312
+Epoch 4/4
+800000/800000 - 8s - loss: 0.0256 - mse: 0.0256 - mae: 0.1128 - val_loss: 0.0351 - val_mse: 0.0351 - val_mae: 0.1308
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00124-weights-v099.h5
+File: z__r_E00-E99__aa-be00778.pkl:   9%|████████████▍                                                                                                                        | 3/32 [02:09<20:55, 43.29s/it]Train on 799999 samples, validate on 200000 samples
+Epoch 1/4
+799999/799999 - 9s - loss: 0.0189 - mse: 0.0189 - mae: 0.0954 - val_loss: 0.0270 - val_mse: 0.0270 - val_mae: 0.1112
+Epoch 2/4
+799999/799999 - 9s - loss: 0.0173 - mse: 0.0173 - mae: 0.0907 - val_loss: 0.0263 - val_mse: 0.0263 - val_mae: 0.1085
+Epoch 3/4
+799999/799999 - 9s - loss: 0.0160 - mse: 0.0160 - mae: 0.0874 - val_loss: 0.0258 - val_mse: 0.0258 - val_mae: 0.1070
+Epoch 4/4
+799999/799999 - 8s - loss: 0.0151 - mse: 0.0151 - mae: 0.0846 - val_loss: 0.0254 - val_mse: 0.0254 - val_mae: 0.1059
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00124-weights-v100.h5
+File: z__r_A80-A99__aa-be00778.pkl:  12%|████████████████▋                                                                                                                    | 4/32 [02:52<20:11, 43.25s/it]Train on 410995 samples, validate on 102749 samples
+Epoch 1/4
+410995/410995 - 5s - loss: 0.0321 - mse: 0.0321 - mae: 0.1228 - val_loss: 0.0466 - val_mse: 0.0466 - val_mae: 0.1469
+Epoch 2/4
+410995/410995 - 4s - loss: 0.0301 - mse: 0.0301 - mae: 0.1197 - val_loss: 0.0456 - val_mse: 0.0456 - val_mae: 0.1429
+Epoch 3/4
+410995/410995 - 4s - loss: 0.0285 - mse: 0.0285 - mae: 0.1154 - val_loss: 0.0449 - val_mse: 0.0449 - val_mae: 0.1429
+Epoch 4/4
+410995/410995 - 4s - loss: 0.0271 - mse: 0.0271 - mae: 0.1130 - val_loss: 0.0448 - val_mse: 0.0448 - val_mae: 0.1418
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00124-weights-v101.h5
+File: z__r_B20-B49__ad-be00778.pkl:  16%|████████████████████▊                                                                                                                | 5/32 [03:17<16:58, 37.70s/it]Train on 294961 samples, validate on 73741 samples
+Epoch 1/4
+294961/294961 - 4s - loss: 0.0314 - mse: 0.0314 - mae: 0.1232 - val_loss: 0.0237 - val_mse: 0.0237 - val_mae: 0.1091
+Epoch 2/4
+294961/294961 - 3s - loss: 0.0304 - mse: 0.0304 - mae: 0.1220 - val_loss: 0.0236 - val_mse: 0.0236 - val_mae: 0.1084
+Epoch 3/4
+294961/294961 - 3s - loss: 0.0292 - mse: 0.0292 - mae: 0.1187 - val_loss: 0.0234 - val_mse: 0.0234 - val_mae: 0.1078
+Epoch 4/4
+294961/294961 - 3s - loss: 0.0281 - mse: 0.0281 - mae: 0.1168 - val_loss: 0.0229 - val_mse: 0.0229 - val_mae: 0.1065
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00124-weights-v102.h5
+File: z__r_D00-D99__ac-be00778.pkl:  19%|████████████████████████▉                                                                                                            | 6/32 [03:36<13:56, 32.17s/it]Train on 800000 samples, validate on 200000 samples
+Epoch 1/4
+800000/800000 - 9s - loss: 0.0222 - mse: 0.0222 - mae: 0.1041 - val_loss: 0.0269 - val_mse: 0.0269 - val_mae: 0.1122
+Epoch 2/4
+800000/800000 - 9s - loss: 0.0208 - mse: 0.0208 - mae: 0.1006 - val_loss: 0.0264 - val_mse: 0.0264 - val_mae: 0.1107
+Epoch 3/4
+800000/800000 - 9s - loss: 0.0198 - mse: 0.0198 - mae: 0.0977 - val_loss: 0.0261 - val_mse: 0.0261 - val_mae: 0.1097
+Epoch 4/4
+800000/800000 - 8s - loss: 0.0190 - mse: 0.0190 - mae: 0.0958 - val_loss: 0.0259 - val_mse: 0.0259 - val_mae: 0.1091
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00124-weights-v103.h5
+File: z__r_D00-D99__ad-be00778.pkl:  22%|█████████████████████████████                                                                                                        | 7/32 [04:20<14:46, 35.46s/it]Train on 800000 samples, validate on 200000 samples
+Epoch 1/4
+800000/800000 - 9s - loss: 0.0212 - mse: 0.0212 - mae: 0.1012 - val_loss: 0.0344 - val_mse: 0.0344 - val_mae: 0.1238
+Epoch 2/4
+800000/800000 - 9s - loss: 0.0201 - mse: 0.0201 - mae: 0.0986 - val_loss: 0.0342 - val_mse: 0.0342 - val_mae: 0.1230
+Epoch 3/4
+800000/800000 - 9s - loss: 0.0191 - mse: 0.0191 - mae: 0.0961 - val_loss: 0.0341 - val_mse: 0.0341 - val_mae: 0.1222
+Epoch 4/4
+800000/800000 - 8s - loss: 0.0182 - mse: 0.0182 - mae: 0.0939 - val_loss: 0.0341 - val_mse: 0.0341 - val_mae: 0.1226
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00124-weights-v104.h5
+File: z__r_B50-B99__aa-be00778.pkl:  25%|█████████████████████████████████▎                                                                                                   | 8/32 [05:03<15:06, 37.76s/it]Train on 799999 samples, validate on 200000 samples
+Epoch 1/4
+799999/799999 - 9s - loss: 0.0344 - mse: 0.0344 - mae: 0.1306 - val_loss: 0.0396 - val_mse: 0.0396 - val_mae: 0.1374
+Epoch 2/4
+799999/799999 - 9s - loss: 0.0321 - mse: 0.0321 - mae: 0.1261 - val_loss: 0.0384 - val_mse: 0.0384 - val_mae: 0.1360
+Epoch 3/4
+799999/799999 - 9s - loss: 0.0305 - mse: 0.0305 - mae: 0.1228 - val_loss: 0.0376 - val_mse: 0.0376 - val_mae: 0.1344
+Epoch 4/4
+799999/799999 - 8s - loss: 0.0293 - mse: 0.0293 - mae: 0.1202 - val_loss: 0.0371 - val_mse: 0.0371 - val_mae: 0.1329
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00124-weights-v105.h5
+File: z__r_C00-C99__ab-be00778.pkl:  28%|█████████████████████████████████████▍                                                                                               | 9/32 [05:46<15:06, 39.42s/it]Train on 800000 samples, validate on 200000 samples
+Epoch 1/4
+800000/800000 - 9s - loss: 0.0323 - mse: 0.0323 - mae: 0.1268 - val_loss: 0.0346 - val_mse: 0.0346 - val_mae: 0.1301
+Epoch 2/4
+800000/800000 - 9s - loss: 0.0309 - mse: 0.0309 - mae: 0.1240 - val_loss: 0.0337 - val_mse: 0.0337 - val_mae: 0.1267
+Epoch 3/4
+800000/800000 - 9s - loss: 0.0295 - mse: 0.0295 - mae: 0.1208 - val_loss: 0.0332 - val_mse: 0.0332 - val_mae: 0.1270
+Epoch 4/4
+800000/800000 - 8s - loss: 0.0285 - mse: 0.0285 - mae: 0.1188 - val_loss: 0.0327 - val_mse: 0.0327 - val_mae: 0.1243
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00124-weights-v106.h5
+File: z__r_A00-A39__ac-be00778.pkl:  31%|█████████████████████████████████████████▎                                                                                          | 10/32 [06:29<14:50, 40.49s/it]Train on 800000 samples, validate on 200000 samples
+Epoch 1/4
+800000/800000 - 9s - loss: 0.0320 - mse: 0.0320 - mae: 0.1256 - val_loss: 0.0429 - val_mse: 0.0429 - val_mae: 0.1427
+Epoch 2/4
+800000/800000 - 9s - loss: 0.0303 - mse: 0.0303 - mae: 0.1223 - val_loss: 0.0425 - val_mse: 0.0425 - val_mae: 0.1425
+Epoch 3/4
+800000/800000 - 9s - loss: 0.0289 - mse: 0.0289 - mae: 0.1193 - val_loss: 0.0423 - val_mse: 0.0423 - val_mae: 0.1403
+Epoch 4/4
+800000/800000 - 8s - loss: 0.0277 - mse: 0.0277 - mae: 0.1167 - val_loss: 0.0423 - val_mse: 0.0423 - val_mae: 0.1381
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00124-weights-v107.h5
+File: z__r_B50-B99__ab-be00778.pkl:  34%|█████████████████████████████████████████████▍                                                                                      | 11/32 [07:12<14:26, 41.27s/it]Train on 800000 samples, validate on 200000 samples
+Epoch 1/4
+800000/800000 - 9s - loss: 0.0345 - mse: 0.0345 - mae: 0.1309 - val_loss: 0.0381 - val_mse: 0.0381 - val_mae: 0.1370
+Epoch 2/4
+800000/800000 - 9s - loss: 0.0328 - mse: 0.0328 - mae: 0.1274 - val_loss: 0.0374 - val_mse: 0.0374 - val_mae: 0.1345
+Epoch 3/4
+800000/800000 - 9s - loss: 0.0312 - mse: 0.0312 - mae: 0.1243 - val_loss: 0.0369 - val_mse: 0.0369 - val_mae: 0.1335
+Epoch 4/4
+800000/800000 - 8s - loss: 0.0300 - mse: 0.0300 - mae: 0.1218 - val_loss: 0.0364 - val_mse: 0.0364 - val_mae: 0.1309
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00124-weights-v108.h5
+File: z__r_E00-E99__ab-be00778.pkl:  38%|█████████████████████████████████████████████████▌                                                                                  | 12/32 [07:55<13:56, 41.82s/it]Train on 548437 samples, validate on 137110 samples
+Epoch 1/4
+548437/548437 - 6s - loss: 0.0206 - mse: 0.0206 - mae: 0.0993 - val_loss: 0.0323 - val_mse: 0.0323 - val_mae: 0.1199
+Epoch 2/4
+548437/548437 - 6s - loss: 0.0189 - mse: 0.0189 - mae: 0.0946 - val_loss: 0.0321 - val_mse: 0.0321 - val_mae: 0.1182
+Epoch 3/4
+548437/548437 - 6s - loss: 0.0175 - mse: 0.0175 - mae: 0.0910 - val_loss: 0.0317 - val_mse: 0.0317 - val_mae: 0.1158
+Epoch 4/4
+548437/548437 - 6s - loss: 0.0163 - mse: 0.0163 - mae: 0.0877 - val_loss: 0.0313 - val_mse: 0.0313 - val_mae: 0.1153
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00124-weights-v109.h5
+File: z__r_B20-B49__ac-be00778.pkl:  41%|█████████████████████████████████████████████████████▋                                                                              | 13/32 [08:26<12:14, 38.66s/it]Train on 800000 samples, validate on 200000 samples
+Epoch 1/4
+800000/800000 - 9s - loss: 0.0328 - mse: 0.0328 - mae: 0.1267 - val_loss: 0.0407 - val_mse: 0.0407 - val_mae: 0.1403
+Epoch 2/4
+800000/800000 - 9s - loss: 0.0307 - mse: 0.0307 - mae: 0.1228 - val_loss: 0.0399 - val_mse: 0.0399 - val_mae: 0.1368
+Epoch 3/4
+800000/800000 - 9s - loss: 0.0292 - mse: 0.0292 - mae: 0.1195 - val_loss: 0.0397 - val_mse: 0.0397 - val_mae: 0.1375
+Epoch 4/4
+800000/800000 - 8s - loss: 0.0280 - mse: 0.0280 - mae: 0.1169 - val_loss: 0.0396 - val_mse: 0.0396 - val_mae: 0.1348
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00124-weights-v110.h5
+File: z__r_B00-B19__ab-be00778.pkl:  44%|█████████████████████████████████████████████████████████▊                                                                          | 14/32 [09:10<12:00, 40.01s/it]Train on 800000 samples, validate on 200000 samples
+Epoch 1/4
+800000/800000 - 9s - loss: 0.0330 - mse: 0.0330 - mae: 0.1253 - val_loss: 0.0435 - val_mse: 0.0435 - val_mae: 0.1419
+Epoch 2/4
+800000/800000 - 9s - loss: 0.0312 - mse: 0.0312 - mae: 0.1218 - val_loss: 0.0432 - val_mse: 0.0432 - val_mae: 0.1418
+Epoch 3/4
+800000/800000 - 9s - loss: 0.0296 - mse: 0.0296 - mae: 0.1188 - val_loss: 0.0432 - val_mse: 0.0432 - val_mae: 0.1383
+Epoch 4/4
+800000/800000 - 8s - loss: 0.0283 - mse: 0.0283 - mae: 0.1156 - val_loss: 0.0433 - val_mse: 0.0433 - val_mae: 0.1394
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00124-weights-v111.h5
+File: z__r_C00-C99__aa-be00778.pkl:  47%|█████████████████████████████████████████████████████████████▉                                                                      | 15/32 [09:53<11:35, 40.93s/it]Train on 799999 samples, validate on 200000 samples
+Epoch 1/4
+799999/799999 - 9s - loss: 0.0326 - mse: 0.0326 - mae: 0.1277 - val_loss: 0.0344 - val_mse: 0.0344 - val_mae: 0.1297
+Epoch 2/4
+799999/799999 - 9s - loss: 0.0310 - mse: 0.0310 - mae: 0.1245 - val_loss: 0.0338 - val_mse: 0.0338 - val_mae: 0.1283
+Epoch 3/4
+799999/799999 - 9s - loss: 0.0295 - mse: 0.0295 - mae: 0.1212 - val_loss: 0.0335 - val_mse: 0.0335 - val_mae: 0.1275
+Epoch 4/4
+799999/799999 - 8s - loss: 0.0283 - mse: 0.0283 - mae: 0.1186 - val_loss: 0.0333 - val_mse: 0.0333 - val_mae: 0.1270
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00124-weights-v112.h5
+File: z__r_C00-C99__ae-be00778.pkl:  50%|██████████████████████████████████████████████████████████████████                                                                  | 16/32 [10:36<11:07, 41.69s/it]Train on 620521 samples, validate on 155131 samples
+Epoch 1/4
+620521/620521 - 7s - loss: 0.0283 - mse: 0.0283 - mae: 0.1193 - val_loss: 0.0424 - val_mse: 0.0424 - val_mae: 0.1419
+Epoch 2/4
+620521/620521 - 7s - loss: 0.0269 - mse: 0.0269 - mae: 0.1160 - val_loss: 0.0424 - val_mse: 0.0424 - val_mae: 0.1413
+Epoch 3/4
+620521/620521 - 7s - loss: 0.0256 - mse: 0.0256 - mae: 0.1130 - val_loss: 0.0424 - val_mse: 0.0424 - val_mae: 0.1412
+Epoch 4/4
+620521/620521 - 7s - loss: 0.0244 - mse: 0.0244 - mae: 0.1101 - val_loss: 0.0425 - val_mse: 0.0425 - val_mae: 0.1408
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00124-weights-v113.h5
+File: z__r_B20-B49__ab-be00778.pkl:  53%|██████████████████████████████████████████████████████████████████████▏                                                             | 17/32 [11:11<09:54, 39.60s/it]Train on 800000 samples, validate on 200000 samples
+Epoch 1/4
+800000/800000 - 9s - loss: 0.0329 - mse: 0.0329 - mae: 0.1273 - val_loss: 0.0381 - val_mse: 0.0381 - val_mae: 0.1350
+Epoch 2/4
+800000/800000 - 9s - loss: 0.0312 - mse: 0.0312 - mae: 0.1236 - val_loss: 0.0374 - val_mse: 0.0374 - val_mae: 0.1340
+Epoch 3/4
+800000/800000 - 9s - loss: 0.0298 - mse: 0.0298 - mae: 0.1208 - val_loss: 0.0368 - val_mse: 0.0368 - val_mae: 0.1314
+Epoch 4/4
+800000/800000 - 8s - loss: 0.0287 - mse: 0.0287 - mae: 0.1182 - val_loss: 0.0364 - val_mse: 0.0364 - val_mae: 0.1291
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00124-weights-v114.h5
+File: z__r_A00-A39__aa-be00778.pkl:  56%|██████████████████████████████████████████████████████████████████████████▎                                                         | 18/32 [11:54<09:29, 40.67s/it]Train on 799999 samples, validate on 200000 samples
+Epoch 1/4
+799999/799999 - 9s - loss: 0.0307 - mse: 0.0307 - mae: 0.1219 - val_loss: 0.0416 - val_mse: 0.0416 - val_mae: 0.1412
+Epoch 2/4
+799999/799999 - 9s - loss: 0.0292 - mse: 0.0292 - mae: 0.1190 - val_loss: 0.0412 - val_mse: 0.0412 - val_mae: 0.1393
+Epoch 3/4
+799999/799999 - 9s - loss: 0.0278 - mse: 0.0278 - mae: 0.1162 - val_loss: 0.0412 - val_mse: 0.0412 - val_mae: 0.1379
+Epoch 4/4
+799999/799999 - 8s - loss: 0.0268 - mse: 0.0268 - mae: 0.1136 - val_loss: 0.0413 - val_mse: 0.0413 - val_mae: 0.1372
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00124-weights-v115.h5
+File: z__r_B50-B99__ac-be00778.pkl:  59%|██████████████████████████████████████████████████████████████████████████████▍                                                     | 19/32 [12:37<08:56, 41.30s/it]Train on 35924 samples, validate on 8981 samples
+Epoch 1/4
+35924/35924 - 0s - loss: 0.0320 - mse: 0.0320 - mae: 0.1259 - val_loss: 0.0394 - val_mse: 0.0394 - val_mae: 0.1395
+Epoch 2/4
+35924/35924 - 0s - loss: 0.0322 - mse: 0.0322 - mae: 0.1280 - val_loss: 0.0392 - val_mse: 0.0392 - val_mae: 0.1406
+Epoch 3/4
+35924/35924 - 0s - loss: 0.0318 - mse: 0.0318 - mae: 0.1285 - val_loss: 0.0390 - val_mse: 0.0390 - val_mae: 0.1380
+Epoch 4/4
+35924/35924 - 0s - loss: 0.0309 - mse: 0.0309 - mae: 0.1249 - val_loss: 0.0388 - val_mse: 0.0388 - val_mae: 0.1355
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00124-weights-v116.h5
+File: z__r_A40-A79__ab-be00778.pkl:  62%|██████████████████████████████████████████████████████████████████████████████████▌                                                 | 20/32 [12:44<06:11, 30.97s/it]Train on 800000 samples, validate on 200000 samples
+Epoch 1/4
+800000/800000 - 9s - loss: 0.0320 - mse: 0.0320 - mae: 0.1231 - val_loss: 0.0423 - val_mse: 0.0423 - val_mae: 0.1383
+Epoch 2/4
+800000/800000 - 9s - loss: 0.0304 - mse: 0.0304 - mae: 0.1198 - val_loss: 0.0419 - val_mse: 0.0419 - val_mae: 0.1365
+Epoch 3/4
+800000/800000 - 9s - loss: 0.0288 - mse: 0.0288 - mae: 0.1167 - val_loss: 0.0420 - val_mse: 0.0420 - val_mae: 0.1367
+Epoch 4/4
+800000/800000 - 8s - loss: 0.0276 - mse: 0.0276 - mae: 0.1140 - val_loss: 0.0421 - val_mse: 0.0421 - val_mae: 0.1358
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00124-weights-v117.h5
+File: z__r_B00-B19__ac-be00778.pkl:  66%|██████████████████████████████████████████████████████████████████████████████████████▋                                             | 21/32 [13:27<06:22, 34.74s/it]Train on 722848 samples, validate on 180713 samples
+Epoch 1/4
+722848/722848 - 8s - loss: 0.0313 - mse: 0.0313 - mae: 0.1221 - val_loss: 0.0447 - val_mse: 0.0447 - val_mae: 0.1414
+Epoch 2/4
+722848/722848 - 8s - loss: 0.0299 - mse: 0.0299 - mae: 0.1192 - val_loss: 0.0448 - val_mse: 0.0448 - val_mae: 0.1422
+Epoch 3/4
+722848/722848 - 8s - loss: 0.0286 - mse: 0.0286 - mae: 0.1166 - val_loss: 0.0448 - val_mse: 0.0448 - val_mae: 0.1432
+Epoch 4/4
+722848/722848 - 8s - loss: 0.0275 - mse: 0.0275 - mae: 0.1141 - val_loss: 0.0450 - val_mse: 0.0450 - val_mae: 0.1424
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00124-weights-v118.h5
+File: z__r_D00-D99__aa-be00778.pkl:  69%|██████████████████████████████████████████████████████████████████████████████████████████▊                                         | 22/32 [14:07<06:02, 36.24s/it]Train on 799999 samples, validate on 200000 samples
+Epoch 1/4
+799999/799999 - 9s - loss: 0.0275 - mse: 0.0275 - mae: 0.1165 - val_loss: 0.0344 - val_mse: 0.0344 - val_mae: 0.1283
+Epoch 2/4
+799999/799999 - 9s - loss: 0.0261 - mse: 0.0261 - mae: 0.1132 - val_loss: 0.0337 - val_mse: 0.0337 - val_mae: 0.1270
+Epoch 3/4
+799999/799999 - 9s - loss: 0.0248 - mse: 0.0248 - mae: 0.1102 - val_loss: 0.0331 - val_mse: 0.0331 - val_mae: 0.1248
+Epoch 4/4
+799999/799999 - 8s - loss: 0.0237 - mse: 0.0237 - mae: 0.1077 - val_loss: 0.0327 - val_mse: 0.0327 - val_mae: 0.1229
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00124-weights-v119.h5
+File: z__r_A00-A39__ad-be00778.pkl:  72%|██████████████████████████████████████████████████████████████████████████████████████████████▉                                     | 23/32 [14:51<05:46, 38.49s/it]Train on 800000 samples, validate on 200000 samples
+Epoch 1/4
+800000/800000 - 9s - loss: 0.0323 - mse: 0.0323 - mae: 0.1254 - val_loss: 0.0400 - val_mse: 0.0400 - val_mae: 0.1374
+Epoch 2/4
+800000/800000 - 9s - loss: 0.0305 - mse: 0.0305 - mae: 0.1222 - val_loss: 0.0396 - val_mse: 0.0396 - val_mae: 0.1367
+Epoch 3/4
+800000/800000 - 9s - loss: 0.0290 - mse: 0.0290 - mae: 0.1190 - val_loss: 0.0396 - val_mse: 0.0396 - val_mae: 0.1359
+Epoch 4/4
+800000/800000 - 9s - loss: 0.0278 - mse: 0.0278 - mae: 0.1164 - val_loss: 0.0396 - val_mse: 0.0396 - val_mae: 0.1361
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00124-weights-v120.h5
+File: z__r_D00-D99__ae-be00778.pkl:  75%|███████████████████████████████████████████████████████████████████████████████████████████████████                                 | 24/32 [15:34<05:20, 40.03s/it]Train on 800000 samples, validate on 200000 samples
+Epoch 1/4
+800000/800000 - 9s - loss: 0.0239 - mse: 0.0239 - mae: 0.1082 - val_loss: 0.0289 - val_mse: 0.0289 - val_mae: 0.1156
+Epoch 2/4
+800000/800000 - 9s - loss: 0.0218 - mse: 0.0218 - mae: 0.1031 - val_loss: 0.0281 - val_mse: 0.0281 - val_mae: 0.1134
+Epoch 3/4
+800000/800000 - 9s - loss: 0.0204 - mse: 0.0204 - mae: 0.0993 - val_loss: 0.0276 - val_mse: 0.0276 - val_mae: 0.1127
+Epoch 4/4
+800000/800000 - 8s - loss: 0.0191 - mse: 0.0191 - mae: 0.0961 - val_loss: 0.0272 - val_mse: 0.0272 - val_mae: 0.1111
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00124-weights-v121.h5
+File: z__r_A00-A39__ab-be00778.pkl:  78%|███████████████████████████████████████████████████████████████████████████████████████████████████████▏                            | 25/32 [16:18<04:47, 41.10s/it]Train on 800000 samples, validate on 200000 samples
+Epoch 1/4
+800000/800000 - 9s - loss: 0.0329 - mse: 0.0329 - mae: 0.1268 - val_loss: 0.0417 - val_mse: 0.0417 - val_mae: 0.1412
+Epoch 2/4
+800000/800000 - 9s - loss: 0.0306 - mse: 0.0306 - mae: 0.1226 - val_loss: 0.0406 - val_mse: 0.0406 - val_mae: 0.1382
+Epoch 3/4
+800000/800000 - 9s - loss: 0.0290 - mse: 0.0290 - mae: 0.1193 - val_loss: 0.0407 - val_mse: 0.0407 - val_mae: 0.1372
+Epoch 4/4
+800000/800000 - 8s - loss: 0.0278 - mse: 0.0278 - mae: 0.1165 - val_loss: 0.0409 - val_mse: 0.0409 - val_mae: 0.1380
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00124-weights-v122.h5
+File: z__r_A40-A79__ac-be00778.pkl:  81%|███████████████████████████████████████████████████████████████████████████████████████████████████████████▎                        | 26/32 [17:01<04:10, 41.80s/it]Train on 639114 samples, validate on 159779 samples
+Epoch 1/4
+639114/639114 - 7s - loss: 0.0321 - mse: 0.0321 - mae: 0.1229 - val_loss: 0.0422 - val_mse: 0.0422 - val_mae: 0.1382
+Epoch 2/4
+639114/639114 - 7s - loss: 0.0306 - mse: 0.0306 - mae: 0.1197 - val_loss: 0.0419 - val_mse: 0.0419 - val_mae: 0.1356
+Epoch 3/4
+639114/639114 - 7s - loss: 0.0292 - mse: 0.0292 - mae: 0.1169 - val_loss: 0.0418 - val_mse: 0.0418 - val_mae: 0.1370
+Epoch 4/4
+639114/639114 - 7s - loss: 0.0280 - mse: 0.0280 - mae: 0.1140 - val_loss: 0.0418 - val_mse: 0.0418 - val_mae: 0.1361
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00124-weights-v123.h5
+File: z__r_D00-D99__ab-be00778.pkl:  84%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████▍                    | 27/32 [17:37<03:20, 40.02s/it]Train on 800000 samples, validate on 200000 samples
+Epoch 1/4
+800000/800000 - 9s - loss: 0.0256 - mse: 0.0256 - mae: 0.1119 - val_loss: 0.0323 - val_mse: 0.0323 - val_mae: 0.1247
+Epoch 2/4
+800000/800000 - 9s - loss: 0.0242 - mse: 0.0242 - mae: 0.1087 - val_loss: 0.0318 - val_mse: 0.0318 - val_mae: 0.1223
+Epoch 3/4
+800000/800000 - 9s - loss: 0.0229 - mse: 0.0229 - mae: 0.1056 - val_loss: 0.0314 - val_mse: 0.0314 - val_mae: 0.1206
+Epoch 4/4
+800000/800000 - 9s - loss: 0.0219 - mse: 0.0219 - mae: 0.1031 - val_loss: 0.0310 - val_mse: 0.0310 - val_mae: 0.1194
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00124-weights-v124.h5
+File: z__r_A00-A39__ae-be00778.pkl:  88%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████▌                | 28/32 [18:21<02:44, 41.01s/it]Train on 553428 samples, validate on 138357 samples
+Epoch 1/4
+553428/553428 - 6s - loss: 0.0316 - mse: 0.0316 - mae: 0.1241 - val_loss: 0.0397 - val_mse: 0.0397 - val_mae: 0.1324
+Epoch 2/4
+553428/553428 - 6s - loss: 0.0300 - mse: 0.0300 - mae: 0.1204 - val_loss: 0.0389 - val_mse: 0.0389 - val_mae: 0.1328
+Epoch 3/4
+553428/553428 - 6s - loss: 0.0287 - mse: 0.0287 - mae: 0.1176 - val_loss: 0.0387 - val_mse: 0.0387 - val_mae: 0.1319
+Epoch 4/4
+553428/553428 - 6s - loss: 0.0274 - mse: 0.0274 - mae: 0.1149 - val_loss: 0.0386 - val_mse: 0.0386 - val_mae: 0.1315
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00124-weights-v125.h5
+File: z__r_D00-D99__af-be00778.pkl:  91%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████▋            | 29/32 [18:52<01:54, 38.26s/it]Train on 196335 samples, validate on 49084 samples
+Epoch 1/4
+196335/196335 - 2s - loss: 0.0247 - mse: 0.0247 - mae: 0.1104 - val_loss: 0.0376 - val_mse: 0.0376 - val_mae: 0.1300
+Epoch 2/4
+196335/196335 - 2s - loss: 0.0243 - mse: 0.0243 - mae: 0.1093 - val_loss: 0.0375 - val_mse: 0.0375 - val_mae: 0.1294
+Epoch 3/4
+196335/196335 - 2s - loss: 0.0235 - mse: 0.0235 - mae: 0.1072 - val_loss: 0.0374 - val_mse: 0.0374 - val_mae: 0.1293
+Epoch 4/4
+196335/196335 - 2s - loss: 0.0227 - mse: 0.0227 - mae: 0.1053 - val_loss: 0.0374 - val_mse: 0.0374 - val_mae: 0.1300
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00124-weights-v126.h5
+File: z__r_C00-C99__ac-be00778.pkl:  94%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████▊        | 30/32 [19:07<01:02, 31.15s/it]Train on 800000 samples, validate on 200000 samples
+Epoch 1/4
+800000/800000 - 9s - loss: 0.0319 - mse: 0.0319 - mae: 0.1265 - val_loss: 0.0335 - val_mse: 0.0335 - val_mae: 0.1279
+Epoch 2/4
+800000/800000 - 9s - loss: 0.0301 - mse: 0.0301 - mae: 0.1226 - val_loss: 0.0327 - val_mse: 0.0327 - val_mae: 0.1260
+Epoch 3/4
+800000/800000 - 9s - loss: 0.0286 - mse: 0.0286 - mae: 0.1194 - val_loss: 0.0322 - val_mse: 0.0322 - val_mae: 0.1245
+Epoch 4/4
+800000/800000 - 8s - loss: 0.0274 - mse: 0.0274 - mae: 0.1166 - val_loss: 0.0318 - val_mse: 0.0318 - val_mae: 0.1242
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00124-weights-v127.h5
+File: z__r_B00-B19__aa-be00778.pkl:  97%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████▉    | 31/32 [19:50<00:34, 34.85s/it]Train on 799999 samples, validate on 200000 samples
+Epoch 1/4
+799999/799999 - 9s - loss: 0.0344 - mse: 0.0344 - mae: 0.1283 - val_loss: 0.0436 - val_mse: 0.0436 - val_mae: 0.1431
+Epoch 2/4
+799999/799999 - 9s - loss: 0.0323 - mse: 0.0323 - mae: 0.1243 - val_loss: 0.0431 - val_mse: 0.0431 - val_mae: 0.1418
+Epoch 3/4
+799999/799999 - 9s - loss: 0.0308 - mse: 0.0308 - mae: 0.1211 - val_loss: 0.0432 - val_mse: 0.0432 - val_mae: 0.1429
+Epoch 4/4
+799999/799999 - 8s - loss: 0.0293 - mse: 0.0293 - mae: 0.1184 - val_loss: 0.0433 - val_mse: 0.0433 - val_mae: 0.1398
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00124-weights-v128.h5
+File: z__r_B00-B19__aa-be00778.pkl: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 32/32 [20:34<00:00, 38.59s/it]
+(chess) ➜  code git:(master) ✗ 

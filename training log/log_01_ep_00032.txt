@@ -1,0 +1,1026 @@
+# TRAINING LOG 1 - 32 epochs (+32 epochs)
+
+(chess) ➜  code git:(master) ✗ BASE_PATH="/home/student/Desktop/fenil_pc/aggregated output 03/kingbase2019"
+(chess) ➜  code git:(master) ✗ 
+(chess) ➜  code git:(master) ✗ # BASE_PATH="/home/student/Desktop/fenil_pc/aggregated output 03/kaufman"
+(chess) ➜  code git:(master) ✗ 
+(chess) ➜  code git:(master) ✗ PGN_PATH="${BASE_PATH}/01_pgn_data"
+(chess) ➜  code git:(master) ✗ CSV_PATH="${BASE_PATH}/02_csv_data"
+(chess) ➜  code git:(master) ✗ CSV_SCORES_PATH="${BASE_PATH}/03_csv_score_data"
+(chess) ➜  code git:(master) ✗ CSV_SCORES_PATH_CONVERTED="${BASE_PATH}/03_csv_score_data_converted"
+(chess) ➜  code git:(master) ✗ PKL_PATH="${BASE_PATH}/04_pkl_data"
+(chess) ➜  code git:(master) ✗ PKL_PATH_TRAINED="${BASE_PATH}/04_pkl_data_trained"
+(chess) ➜  code git:(master) ✗ 
+(chess) ➜  code git:(master) ✗ SAVED_WEIGHTS_FILE="../../Chess-Kesari-Models/ffnn_keras-mg005-be00778-sn003-ep00001-weights-v001.h5"
+(chess) ➜  code git:(master) ✗ MODEL_NAME_PREFIX="ffnn_keras"
+(chess) ➜  code git:(master) ✗ EPOCHS=1
+(chess) ➜  code git:(master) ✗ python step_03b_train.py                                \
+>     --action train                                      \
+>     --gpu_id=0                                          \
+>     --model_version=5                                   \
+>     --version_number=1                                  \
+>     --epochs=${EPOCHS}                                  \
+>     --batch_size=8192                                   \
+>     --validation_split=0.2                              \
+>     --generate_model_image=False                        \
+>     --input_dir="${PKL_PATH}"                           \
+>     --move_dir="${PKL_PATH_TRAINED}"                    \
+>     --file_suffix="pkl"                                 \
+>     --y_normalizer="normalize_003"                      \
+>     --callback=False                                    \
+>     --name_prefix="${MODEL_NAME_PREFIX}"                \
+>     --auto_load_new=True                                \
+>     --saved_weights_file="${SAVED_WEIGHTS_FILE}"        \
+>     && mv "${PKL_PATH_TRAINED}/"*.pkl "${PKL_PATH}"
+
+
+
+Namespace(action='train', auto_load_new=True, batch_size=8192, callback=False, epochs=1, file_suffix='pkl', generate_model_image=False, gpu_id=0, input_dir='/home/student/Desktop/fenil_pc/aggregated output 03/kingbase2019/04_pkl_data', model_version=5, move_dir='/home/student/Desktop/fenil_pc/aggregated output 03/kingbase2019/04_pkl_data_trained', name_prefix='ffnn_keras', saved_weights_file='../../Chess-Kesari-Models/ffnn_keras-mg005-be00778-sn003-ep00001-weights-v001.h5', validation_split=0.2, version_number=1, y_normalizer='normalize_003')
+
+
+INFO: auto_load_new: Trying
+INFO: auto_load_new: loading: '../../Chess-Kesari-Models/ffnn_keras-mg005-be00778-sn003-ep00026-weights-v223.h5'
+Model weights successfully loaded: ffnn_keras-mg005-be00778-sn003-ep00026-weights-v223.h5
+INFO: auto_load_new: Model loaded :)
+File: z__r_A00-A39__aa-be00778.pkl:   0%|                                                                             | 0/32 [00:00<?, ?it/s]Train on 799999 samples, validate on 200000 samples
+799999/799999 - 9s - loss: 0.0278 - mse: 0.0278 - mae: 0.1156 - val_loss: 0.0420 - val_mse: 0.0420 - val_mae: 0.1404
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00027-weights-v001.h5
+File: z__r_A00-A39__ab-be00778.pkl:   3%|██▏                                                                  | 1/32 [00:17<09:11, 17.79s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0283 - mse: 0.0283 - mae: 0.1174 - val_loss: 0.0428 - val_mse: 0.0428 - val_mae: 0.1406
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00027-weights-v002.h5
+File: z__r_A00-A39__ac-be00778.pkl:   6%|████▎                                                                | 2/32 [00:34<08:47, 17.60s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0280 - mse: 0.0280 - mae: 0.1168 - val_loss: 0.0423 - val_mse: 0.0423 - val_mae: 0.1398
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00027-weights-v003.h5
+File: z__r_A00-A39__ad-be00778.pkl:   9%|██████▍                                                              | 3/32 [00:52<08:25, 17.44s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0276 - mse: 0.0276 - mae: 0.1155 - val_loss: 0.0406 - val_mse: 0.0406 - val_mae: 0.1367
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00027-weights-v004.h5
+File: z__r_A00-A39__ae-be00778.pkl:  12%|████████▋                                                            | 4/32 [01:09<08:11, 17.54s/it]Train on 553428 samples, validate on 138357 samples
+553428/553428 - 6s - loss: 0.0278 - mse: 0.0278 - mae: 0.1154 - val_loss: 0.0389 - val_mse: 0.0389 - val_mae: 0.1338
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00027-weights-v005.h5
+File: z__r_A40-A79__aa-be00778.pkl:  16%|██████████▊                                                          | 5/32 [01:23<07:21, 16.33s/it]Train on 799999 samples, validate on 200000 samples
+799999/799999 - 9s - loss: 0.0285 - mse: 0.0285 - mae: 0.1159 - val_loss: 0.0446 - val_mse: 0.0446 - val_mae: 0.1414
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00027-weights-v006.h5
+File: z__r_A40-A79__ab-be00778.pkl:  19%|████████████▉                                                        | 6/32 [01:40<07:11, 16.61s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0281 - mse: 0.0281 - mae: 0.1147 - val_loss: 0.0437 - val_mse: 0.0437 - val_mae: 0.1379
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00027-weights-v007.h5
+File: z__r_A40-A79__ac-be00778.pkl:  22%|███████████████                                                      | 7/32 [01:57<06:58, 16.72s/it]Train on 639114 samples, validate on 159779 samples
+639114/639114 - 7s - loss: 0.0282 - mse: 0.0282 - mae: 0.1141 - val_loss: 0.0429 - val_mse: 0.0429 - val_mae: 0.1361
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00027-weights-v008.h5
+File: z__r_A80-A99__aa-be00778.pkl:  25%|█████████████████▎                                                   | 8/32 [02:12<06:27, 16.15s/it]Train on 410995 samples, validate on 102749 samples
+410995/410995 - 4s - loss: 0.0302 - mse: 0.0302 - mae: 0.1198 - val_loss: 0.0448 - val_mse: 0.0448 - val_mae: 0.1427
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00027-weights-v009.h5
+File: z__r_B00-B19__aa-be00778.pkl:  28%|███████████████████▍                                                 | 9/32 [02:23<05:38, 14.71s/it]Train on 799999 samples, validate on 200000 samples
+799999/799999 - 9s - loss: 0.0289 - mse: 0.0289 - mae: 0.1172 - val_loss: 0.0464 - val_mse: 0.0464 - val_mae: 0.1471
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00027-weights-v010.h5
+File: z__r_B00-B19__ab-be00778.pkl:  31%|█████████████████████▎                                              | 10/32 [02:40<05:40, 15.46s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0285 - mse: 0.0285 - mae: 0.1158 - val_loss: 0.0437 - val_mse: 0.0437 - val_mae: 0.1407
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00027-weights-v011.h5
+File: z__r_B00-B19__ac-be00778.pkl:  34%|███████████████████████▍                                            | 11/32 [02:58<05:37, 16.06s/it]Train on 722848 samples, validate on 180713 samples
+722848/722848 - 8s - loss: 0.0282 - mse: 0.0282 - mae: 0.1153 - val_loss: 0.0456 - val_mse: 0.0456 - val_mae: 0.1434
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00027-weights-v012.h5
+File: z__r_B20-B49__aa-be00778.pkl:  38%|█████████████████████████▌                                          | 12/32 [03:14<05:20, 16.00s/it]Train on 799999 samples, validate on 200000 samples
+799999/799999 - 9s - loss: 0.0302 - mse: 0.0302 - mae: 0.1212 - val_loss: 0.0341 - val_mse: 0.0341 - val_mae: 0.1263
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00027-weights-v013.h5
+File: z__r_B20-B49__ab-be00778.pkl:  41%|███████████████████████████▋                                        | 13/32 [03:31<05:10, 16.36s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0301 - mse: 0.0301 - mae: 0.1211 - val_loss: 0.0341 - val_mse: 0.0341 - val_mae: 0.1270
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00027-weights-v014.h5
+File: z__r_B20-B49__ac-be00778.pkl:  44%|█████████████████████████████▊                                      | 14/32 [03:48<04:57, 16.55s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0292 - mse: 0.0292 - mae: 0.1191 - val_loss: 0.0397 - val_mse: 0.0397 - val_mae: 0.1363
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00027-weights-v015.h5
+File: z__r_B20-B49__ad-be00778.pkl:  47%|███████████████████████████████▉                                    | 15/32 [04:05<04:43, 16.67s/it]Train on 294961 samples, validate on 73741 samples
+294961/294961 - 3s - loss: 0.0266 - mse: 0.0266 - mae: 0.1133 - val_loss: 0.0187 - val_mse: 0.0187 - val_mae: 0.0931
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00027-weights-v016.h5
+File: z__r_B50-B99__aa-be00778.pkl:  50%|██████████████████████████████████                                  | 16/32 [04:14<03:52, 14.55s/it]Train on 799999 samples, validate on 200000 samples
+799999/799999 - 9s - loss: 0.0322 - mse: 0.0322 - mae: 0.1262 - val_loss: 0.0344 - val_mse: 0.0344 - val_mae: 0.1281
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00027-weights-v017.h5
+File: z__r_B50-B99__ab-be00778.pkl:  53%|████████████████████████████████████▏                               | 17/32 [04:32<03:50, 15.35s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0305 - mse: 0.0305 - mae: 0.1221 - val_loss: 0.0334 - val_mse: 0.0334 - val_mae: 0.1266
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00027-weights-v018.h5
+File: z__r_B50-B99__ac-be00778.pkl:  56%|██████████████████████████████████████▎                             | 18/32 [04:49<03:43, 15.93s/it]Train on 35924 samples, validate on 8981 samples
+35924/35924 - 0s - loss: 0.0310 - mse: 0.0310 - mae: 0.1239 - val_loss: 0.0368 - val_mse: 0.0368 - val_mae: 0.1320
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00027-weights-v019.h5
+File: z__r_C00-C99__aa-be00778.pkl:  59%|████████████████████████████████████████▍                           | 19/32 [04:55<02:47, 12.87s/it]Train on 799999 samples, validate on 200000 samples
+799999/799999 - 9s - loss: 0.0309 - mse: 0.0309 - mae: 0.1242 - val_loss: 0.0338 - val_mse: 0.0338 - val_mae: 0.1271
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00027-weights-v020.h5
+File: z__r_C00-C99__ab-be00778.pkl:  62%|██████████████████████████████████████████▌                         | 20/32 [05:12<02:49, 14.16s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0295 - mse: 0.0295 - mae: 0.1208 - val_loss: 0.0310 - val_mse: 0.0310 - val_mae: 0.1227
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00027-weights-v021.h5
+File: z__r_C00-C99__ac-be00778.pkl:  66%|████████████████████████████████████████████▋                       | 21/32 [05:29<02:44, 14.99s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0286 - mse: 0.0286 - mae: 0.1191 - val_loss: 0.0308 - val_mse: 0.0308 - val_mae: 0.1221
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00027-weights-v022.h5
+File: z__r_C00-C99__ad-be00778.pkl:  69%|██████████████████████████████████████████████▊                     | 22/32 [05:46<02:35, 15.59s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0282 - mse: 0.0282 - mae: 0.1185 - val_loss: 0.0334 - val_mse: 0.0334 - val_mae: 0.1270
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00027-weights-v023.h5
+File: z__r_C00-C99__ae-be00778.pkl:  72%|████████████████████████████████████████████████▉                   | 23/32 [06:03<02:24, 16.00s/it]Train on 620521 samples, validate on 155131 samples
+620521/620521 - 7s - loss: 0.0265 - mse: 0.0265 - mae: 0.1147 - val_loss: 0.0423 - val_mse: 0.0423 - val_mae: 0.1409
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00027-weights-v024.h5
+File: z__r_D00-D99__aa-be00778.pkl:  75%|███████████████████████████████████████████████████                 | 24/32 [06:17<02:04, 15.57s/it]Train on 799999 samples, validate on 200000 samples
+799999/799999 - 9s - loss: 0.0268 - mse: 0.0268 - mae: 0.1151 - val_loss: 0.0309 - val_mse: 0.0309 - val_mae: 0.1220
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00027-weights-v025.h5
+File: z__r_D00-D99__ab-be00778.pkl:  78%|█████████████████████████████████████████████████████▏              | 25/32 [06:35<01:52, 16.08s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0258 - mse: 0.0258 - mae: 0.1124 - val_loss: 0.0306 - val_mse: 0.0306 - val_mae: 0.1206
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00027-weights-v026.h5
+File: z__r_D00-D99__ac-be00778.pkl:  81%|███████████████████████████████████████████████████████▎            | 26/32 [06:52<01:38, 16.34s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0251 - mse: 0.0251 - mae: 0.1107 - val_loss: 0.0289 - val_mse: 0.0289 - val_mae: 0.1157
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00027-weights-v027.h5
+File: z__r_D00-D99__ad-be00778.pkl:  84%|█████████████████████████████████████████████████████████▍          | 27/32 [07:09<01:22, 16.53s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0247 - mse: 0.0247 - mae: 0.1100 - val_loss: 0.0345 - val_mse: 0.0345 - val_mae: 0.1250
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00027-weights-v028.h5
+File: z__r_D00-D99__ae-be00778.pkl:  88%|███████████████████████████████████████████████████████████▌        | 28/32 [07:26<01:06, 16.68s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0253 - mse: 0.0253 - mae: 0.1116 - val_loss: 0.0287 - val_mse: 0.0287 - val_mae: 0.1161
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00027-weights-v029.h5
+File: z__r_D00-D99__af-be00778.pkl:  91%|█████████████████████████████████████████████████████████████▋      | 29/32 [07:42<00:50, 16.73s/it]Train on 196335 samples, validate on 49084 samples
+196335/196335 - 2s - loss: 0.0270 - mse: 0.0270 - mae: 0.1157 - val_loss: 0.0369 - val_mse: 0.0369 - val_mae: 0.1308
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00027-weights-v030.h5
+File: z__r_E00-E99__aa-be00778.pkl:  94%|███████████████████████████████████████████████████████████████▊    | 30/32 [07:51<00:28, 14.16s/it]Train on 799999 samples, validate on 200000 samples
+799999/799999 - 9s - loss: 0.0240 - mse: 0.0240 - mae: 0.1079 - val_loss: 0.0275 - val_mse: 0.0275 - val_mae: 0.1131
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00027-weights-v031.h5
+File: z__r_E00-E99__ab-be00778.pkl:  97%|█████████████████████████████████████████████████████████████████▉  | 31/32 [08:08<00:15, 15.05s/it]Train on 548437 samples, validate on 137110 samples
+548437/548437 - 6s - loss: 0.0239 - mse: 0.0239 - mae: 0.1076 - val_loss: 0.0312 - val_mse: 0.0312 - val_mae: 0.1185
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00027-weights-v032.h5
+File: z__r_E00-E99__ab-be00778.pkl: 100%|████████████████████████████████████████████████████████████████████| 32/32 [08:21<00:00, 15.69s/it]
+(chess) ➜  code git:(master) ✗ 
+(chess) ➜  code git:(master) ✗ python step_03b_train.py                                \
+    --action train                                      \
+    --gpu_id=0                                          \
+    --model_version=5                                   \
+    --version_number=1                                  \
+    --epochs=${EPOCHS}                                  \
+    --batch_size=8192                                   \
+    --validation_split=0.2                              \
+    --generate_model_image=False                        \
+    --input_dir="${PKL_PATH}"                           \
+    --move_dir="${PKL_PATH_TRAINED}"                    \
+    --file_suffix="pkl"                                 \
+    --y_normalizer="normalize_003"                      \
+    --callback=False                                    \
+    --name_prefix="${MODEL_NAME_PREFIX}"                \
+    --auto_load_new=True                                \
+    --saved_weights_file="${SAVED_WEIGHTS_FILE}"        \
+    && mv "${PKL_PATH_TRAINED}/"*.pkl "${PKL_PATH}"
+
+
+Namespace(action='train', auto_load_new=True, batch_size=8192, callback=False, epochs=1, file_suffix='pkl', generate_model_image=False, gpu_id=0, input_dir='/home/student/Desktop/fenil_pc/aggregated output 03/kingbase2019/04_pkl_data', model_version=5, move_dir='/home/student/Desktop/fenil_pc/aggregated output 03/kingbase2019/04_pkl_data_trained', name_prefix='ffnn_keras', saved_weights_file='../../Chess-Kesari-Models/ffnn_keras-mg005-be00778-sn003-ep00001-weights-v001.h5', validation_split=0.2, version_number=1, y_normalizer='normalize_003')
+
+
+INFO: auto_load_new: Trying
+INFO: auto_load_new: loading: '../../Chess-Kesari-Models/ffnn_keras-mg005-be00778-sn003-ep00027-weights-v032.h5'
+Model weights successfully loaded: ffnn_keras-mg005-be00778-sn003-ep00027-weights-v032.h5
+INFO: auto_load_new: Model loaded :)
+
+File: z__r_A00-A39__aa-be00778.pkl:   0%|                                                                             | 0/32 [00:00<?, ?it/s]Train on 799999 samples, validate on 200000 samples
+799999/799999 - 10s - loss: 0.0267 - mse: 0.0267 - mae: 0.1134 - val_loss: 0.0420 - val_mse: 0.0420 - val_mae: 0.1396
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00028-weights-v001.h5
+File: z__r_A00-A39__ab-be00778.pkl:   3%|██▏                                                                  | 1/32 [00:18<09:19, 18.06s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0266 - mse: 0.0266 - mae: 0.1138 - val_loss: 0.0427 - val_mse: 0.0427 - val_mae: 0.1400
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00028-weights-v002.h5
+File: z__r_A00-A39__ac-be00778.pkl:   6%|████▎                                                                | 2/32 [00:35<08:51, 17.73s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0261 - mse: 0.0261 - mae: 0.1126 - val_loss: 0.0424 - val_mse: 0.0424 - val_mae: 0.1387
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00028-weights-v003.h5
+File: z__r_A00-A39__ad-be00778.pkl:   9%|██████▍                                                              | 3/32 [00:52<08:28, 17.52s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0257 - mse: 0.0257 - mae: 0.1114 - val_loss: 0.0409 - val_mse: 0.0409 - val_mae: 0.1362
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00028-weights-v004.h5
+File: z__r_A00-A39__ae-be00778.pkl:  12%|████████▋                                                            | 4/32 [01:09<08:06, 17.38s/it]Train on 553428 samples, validate on 138357 samples
+553428/553428 - 6s - loss: 0.0259 - mse: 0.0259 - mae: 0.1113 - val_loss: 0.0390 - val_mse: 0.0390 - val_mae: 0.1332
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00028-weights-v005.h5
+File: z__r_A40-A79__aa-be00778.pkl:  16%|██████████▊                                                          | 5/32 [01:22<07:18, 16.24s/it]Train on 799999 samples, validate on 200000 samples
+799999/799999 - 9s - loss: 0.0266 - mse: 0.0266 - mae: 0.1116 - val_loss: 0.0449 - val_mse: 0.0449 - val_mae: 0.1407
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00028-weights-v006.h5
+File: z__r_A40-A79__ab-be00778.pkl:  19%|████████████▉                                                        | 6/32 [01:40<07:12, 16.63s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0260 - mse: 0.0260 - mae: 0.1100 - val_loss: 0.0442 - val_mse: 0.0442 - val_mae: 0.1398
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00028-weights-v007.h5
+File: z__r_A40-A79__ac-be00778.pkl:  22%|███████████████                                                      | 7/32 [01:57<06:58, 16.75s/it]Train on 639114 samples, validate on 159779 samples
+639114/639114 - 7s - loss: 0.0264 - mse: 0.0264 - mae: 0.1102 - val_loss: 0.0429 - val_mse: 0.0429 - val_mae: 0.1419
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00028-weights-v008.h5
+File: z__r_A80-A99__aa-be00778.pkl:  25%|█████████████████▎                                                   | 8/32 [02:12<06:30, 16.25s/it]Train on 410995 samples, validate on 102749 samples
+410995/410995 - 5s - loss: 0.0284 - mse: 0.0284 - mae: 0.1160 - val_loss: 0.0460 - val_mse: 0.0460 - val_mae: 0.1460
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00028-weights-v009.h5
+File: z__r_B00-B19__aa-be00778.pkl:  28%|███████████████████▍                                                 | 9/32 [02:23<05:41, 14.84s/it]Train on 799999 samples, validate on 200000 samples
+799999/799999 - 9s - loss: 0.0271 - mse: 0.0271 - mae: 0.1133 - val_loss: 0.0464 - val_mse: 0.0464 - val_mae: 0.1446
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00028-weights-v010.h5
+File: z__r_B00-B19__ab-be00778.pkl:  31%|█████████████████████▎                                              | 10/32 [02:41<05:43, 15.60s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0268 - mse: 0.0268 - mae: 0.1121 - val_loss: 0.0435 - val_mse: 0.0435 - val_mae: 0.1378
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00028-weights-v011.h5
+File: z__r_B00-B19__ac-be00778.pkl:  34%|███████████████████████▍                                            | 11/32 [02:58<05:37, 16.07s/it]Train on 722848 samples, validate on 180713 samples
+722848/722848 - 8s - loss: 0.0265 - mse: 0.0265 - mae: 0.1113 - val_loss: 0.0463 - val_mse: 0.0463 - val_mae: 0.1429
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00028-weights-v012.h5
+File: z__r_B20-B49__aa-be00778.pkl:  38%|█████████████████████████▌                                          | 12/32 [03:14<05:21, 16.05s/it]Train on 799999 samples, validate on 200000 samples
+799999/799999 - 9s - loss: 0.0283 - mse: 0.0283 - mae: 0.1171 - val_loss: 0.0335 - val_mse: 0.0335 - val_mae: 0.1251
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00028-weights-v013.h5
+File: z__r_B20-B49__ab-be00778.pkl:  41%|███████████████████████████▋                                        | 13/32 [03:32<05:14, 16.54s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0283 - mse: 0.0283 - mae: 0.1173 - val_loss: 0.0334 - val_mse: 0.0334 - val_mae: 0.1247
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00028-weights-v014.h5
+File: z__r_B20-B49__ac-be00778.pkl:  44%|█████████████████████████████▊                                      | 14/32 [03:49<05:01, 16.74s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0275 - mse: 0.0275 - mae: 0.1155 - val_loss: 0.0392 - val_mse: 0.0392 - val_mae: 0.1349
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00028-weights-v015.h5
+File: z__r_B20-B49__ad-be00778.pkl:  47%|███████████████████████████████▉                                    | 15/32 [04:06<04:47, 16.92s/it]Train on 294961 samples, validate on 73741 samples
+294961/294961 - 3s - loss: 0.0252 - mse: 0.0252 - mae: 0.1100 - val_loss: 0.0184 - val_mse: 0.0184 - val_mae: 0.0945
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00028-weights-v016.h5
+File: z__r_B50-B99__aa-be00778.pkl:  50%|██████████████████████████████████                                  | 16/32 [04:16<03:55, 14.75s/it]Train on 799999 samples, validate on 200000 samples
+799999/799999 - 9s - loss: 0.0304 - mse: 0.0304 - mae: 0.1224 - val_loss: 0.0333 - val_mse: 0.0333 - val_mae: 0.1258
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00028-weights-v017.h5
+File: z__r_B50-B99__ab-be00778.pkl:  53%|████████████████████████████████████▏                               | 17/32 [04:33<03:53, 15.53s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0291 - mse: 0.0291 - mae: 0.1192 - val_loss: 0.0330 - val_mse: 0.0330 - val_mae: 0.1244
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00028-weights-v018.h5
+File: z__r_B50-B99__ac-be00778.pkl:  56%|██████████████████████████████████████▎                             | 18/32 [04:51<03:44, 16.07s/it]Train on 35924 samples, validate on 8981 samples
+35924/35924 - 0s - loss: 0.0311 - mse: 0.0311 - mae: 0.1235 - val_loss: 0.0368 - val_mse: 0.0368 - val_mae: 0.1343
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00028-weights-v019.h5
+File: z__r_C00-C99__aa-be00778.pkl:  59%|████████████████████████████████████████▍                           | 19/32 [04:56<02:48, 12.95s/it]Train on 799999 samples, validate on 200000 samples
+799999/799999 - 9s - loss: 0.0294 - mse: 0.0294 - mae: 0.1208 - val_loss: 0.0326 - val_mse: 0.0326 - val_mae: 0.1263
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00028-weights-v020.h5
+File: z__r_C00-C99__ab-be00778.pkl:  62%|██████████████████████████████████████████▌                         | 20/32 [05:14<02:51, 14.29s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0284 - mse: 0.0284 - mae: 0.1182 - val_loss: 0.0303 - val_mse: 0.0303 - val_mae: 0.1204
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00028-weights-v021.h5
+File: z__r_C00-C99__ac-be00778.pkl:  66%|████████████████████████████████████████████▋                       | 21/32 [05:31<02:46, 15.17s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0275 - mse: 0.0275 - mae: 0.1168 - val_loss: 0.0300 - val_mse: 0.0300 - val_mae: 0.1188
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00028-weights-v022.h5
+File: z__r_C00-C99__ad-be00778.pkl:  69%|██████████████████████████████████████████████▊                     | 22/32 [05:48<02:38, 15.84s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0272 - mse: 0.0272 - mae: 0.1161 - val_loss: 0.0334 - val_mse: 0.0334 - val_mae: 0.1270
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00028-weights-v023.h5
+File: z__r_C00-C99__ae-be00778.pkl:  72%|████████████████████████████████████████████████▉                   | 23/32 [06:05<02:26, 16.23s/it]Train on 620521 samples, validate on 155131 samples
+620521/620521 - 7s - loss: 0.0256 - mse: 0.0256 - mae: 0.1126 - val_loss: 0.0427 - val_mse: 0.0427 - val_mae: 0.1409
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00028-weights-v024.h5
+File: z__r_D00-D99__aa-be00778.pkl:  75%|███████████████████████████████████████████████████                 | 24/32 [06:20<02:06, 15.78s/it]Train on 799999 samples, validate on 200000 samples
+799999/799999 - 9s - loss: 0.0260 - mse: 0.0260 - mae: 0.1134 - val_loss: 0.0308 - val_mse: 0.0308 - val_mae: 0.1218
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00028-weights-v025.h5
+File: z__r_D00-D99__ab-be00778.pkl:  78%|█████████████████████████████████████████████████████▏              | 25/32 [06:38<01:54, 16.35s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0251 - mse: 0.0251 - mae: 0.1110 - val_loss: 0.0305 - val_mse: 0.0305 - val_mae: 0.1198
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00028-weights-v026.h5
+File: z__r_D00-D99__ac-be00778.pkl:  81%|███████████████████████████████████████████████████████▎            | 26/32 [06:55<01:39, 16.64s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0247 - mse: 0.0247 - mae: 0.1099 - val_loss: 0.0284 - val_mse: 0.0284 - val_mae: 0.1157
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00028-weights-v027.h5
+File: z__r_D00-D99__ad-be00778.pkl:  84%|█████████████████████████████████████████████████████████▍          | 27/32 [07:12<01:23, 16.79s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0244 - mse: 0.0244 - mae: 0.1094 - val_loss: 0.0345 - val_mse: 0.0345 - val_mae: 0.1260
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00028-weights-v028.h5
+File: z__r_D00-D99__ae-be00778.pkl:  88%|███████████████████████████████████████████████████████████▌        | 28/32 [07:30<01:07, 16.96s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0250 - mse: 0.0250 - mae: 0.1109 - val_loss: 0.0284 - val_mse: 0.0284 - val_mae: 0.1161
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00028-weights-v029.h5
+File: z__r_D00-D99__af-be00778.pkl:  91%|█████████████████████████████████████████████████████████████▋      | 29/32 [07:47<00:51, 17.07s/it]Train on 196335 samples, validate on 49084 samples
+196335/196335 - 2s - loss: 0.0267 - mse: 0.0267 - mae: 0.1150 - val_loss: 0.0371 - val_mse: 0.0371 - val_mae: 0.1303
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00028-weights-v030.h5
+File: z__r_E00-E99__aa-be00778.pkl:  94%|███████████████████████████████████████████████████████████████▊    | 30/32 [07:55<00:28, 14.40s/it]Train on 799999 samples, validate on 200000 samples
+799999/799999 - 10s - loss: 0.0236 - mse: 0.0236 - mae: 0.1072 - val_loss: 0.0274 - val_mse: 0.0274 - val_mae: 0.1135
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00028-weights-v031.h5
+File: z__r_E00-E99__ab-be00778.pkl:  97%|█████████████████████████████████████████████████████████████████▉  | 31/32 [08:14<00:15, 15.67s/it]Train on 548437 samples, validate on 137110 samples
+548437/548437 - 7s - loss: 0.0239 - mse: 0.0239 - mae: 0.1076 - val_loss: 0.0314 - val_mse: 0.0314 - val_mae: 0.1205
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00028-weights-v032.h5
+File: z__r_E00-E99__ab-be00778.pkl: 100%|████████████████████████████████████████████████████████████████████| 32/32 [08:28<00:00, 15.89s/it]
+(chess) ➜  code git:(master) ✗ python step_03b_train.py                                \
+    --action train                                      \
+    --gpu_id=0                                          \
+    --model_version=5                                   \
+    --version_number=1                                  \
+    --epochs=${EPOCHS}                                  \
+    --batch_size=8192                                   \
+    --validation_split=0.2                              \
+    --generate_model_image=False                        \
+    --input_dir="${PKL_PATH}"                           \
+    --move_dir="${PKL_PATH_TRAINED}"                    \
+    --file_suffix="pkl"                                 \
+    --y_normalizer="normalize_003"                      \
+    --callback=False                                    \
+    --name_prefix="${MODEL_NAME_PREFIX}"                \
+    --auto_load_new=True                                \
+    --saved_weights_file="${SAVED_WEIGHTS_FILE}"        \
+    && mv "${PKL_PATH_TRAINED}/"*.pkl "${PKL_PATH}"
+
+
+Namespace(action='train', auto_load_new=True, batch_size=8192, callback=False, epochs=1, file_suffix='pkl', generate_model_image=False, gpu_id=0, input_dir='/home/student/Desktop/fenil_pc/aggregated output 03/kingbase2019/04_pkl_data', model_version=5, move_dir='/home/student/Desktop/fenil_pc/aggregated output 03/kingbase2019/04_pkl_data_trained', name_prefix='ffnn_keras', saved_weights_file='../../Chess-Kesari-Models/ffnn_keras-mg005-be00778-sn003-ep00001-weights-v001.h5', validation_split=0.2, version_number=1, y_normalizer='normalize_003')
+
+
+INFO: auto_load_new: Trying
+INFO: auto_load_new: loading: '../../Chess-Kesari-Models/ffnn_keras-mg005-be00778-sn003-ep00028-weights-v032.h5'
+Model weights successfully loaded: ffnn_keras-mg005-be00778-sn003-ep00028-weights-v032.h5
+INFO: auto_load_new: Model loaded :)
+
+File: z__r_A00-A39__aa-be00778.pkl:   0%|                                                                             | 0/32 [00:00<?, ?it/s]Train on 799999 samples, validate on 200000 samples
+799999/799999 - 10s - loss: 0.0252 - mse: 0.0252 - mae: 0.1101 - val_loss: 0.0420 - val_mse: 0.0420 - val_mae: 0.1385
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00029-weights-v001.h5
+File: z__r_A00-A39__ab-be00778.pkl:   3%|██▏                                                                  | 1/32 [00:18<09:25, 18.25s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0251 - mse: 0.0251 - mae: 0.1102 - val_loss: 0.0425 - val_mse: 0.0425 - val_mae: 0.1389
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00029-weights-v002.h5
+File: z__r_A00-A39__ac-be00778.pkl:   6%|████▎                                                                | 2/32 [00:36<09:03, 18.12s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0246 - mse: 0.0246 - mae: 0.1091 - val_loss: 0.0424 - val_mse: 0.0424 - val_mae: 0.1392
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00029-weights-v003.h5
+File: z__r_A00-A39__ad-be00778.pkl:   9%|██████▍                                                              | 3/32 [00:53<08:37, 17.85s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0243 - mse: 0.0243 - mae: 0.1080 - val_loss: 0.0405 - val_mse: 0.0405 - val_mae: 0.1345
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00029-weights-v004.h5
+File: z__r_A00-A39__ae-be00778.pkl:  12%|████████▋                                                            | 4/32 [01:10<08:13, 17.61s/it]Train on 553428 samples, validate on 138357 samples
+553428/553428 - 6s - loss: 0.0244 - mse: 0.0244 - mae: 0.1078 - val_loss: 0.0391 - val_mse: 0.0391 - val_mae: 0.1323
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00029-weights-v005.h5
+File: z__r_A40-A79__aa-be00778.pkl:  16%|██████████▊                                                          | 5/32 [01:23<07:22, 16.40s/it]Train on 799999 samples, validate on 200000 samples
+799999/799999 - 9s - loss: 0.0249 - mse: 0.0249 - mae: 0.1080 - val_loss: 0.0456 - val_mse: 0.0456 - val_mae: 0.1403
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00029-weights-v006.h5
+File: z__r_A40-A79__ab-be00778.pkl:  19%|████████████▉                                                        | 6/32 [01:41<07:13, 16.68s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0246 - mse: 0.0246 - mae: 0.1069 - val_loss: 0.0441 - val_mse: 0.0441 - val_mae: 0.1393
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00029-weights-v007.h5
+File: z__r_A40-A79__ac-be00778.pkl:  22%|███████████████                                                      | 7/32 [01:58<06:59, 16.78s/it]Train on 639114 samples, validate on 159779 samples
+639114/639114 - 7s - loss: 0.0248 - mse: 0.0248 - mae: 0.1066 - val_loss: 0.0426 - val_mse: 0.0426 - val_mae: 0.1338
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00029-weights-v008.h5
+File: z__r_A80-A99__aa-be00778.pkl:  25%|█████████████████▎                                                   | 8/32 [02:13<06:28, 16.21s/it]Train on 410995 samples, validate on 102749 samples
+410995/410995 - 5s - loss: 0.0264 - mse: 0.0264 - mae: 0.1118 - val_loss: 0.0453 - val_mse: 0.0453 - val_mae: 0.1400
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00029-weights-v009.h5
+File: z__r_B00-B19__aa-be00778.pkl:  28%|███████████████████▍                                                 | 9/32 [02:24<05:39, 14.77s/it]Train on 799999 samples, validate on 200000 samples
+799999/799999 - 10s - loss: 0.0256 - mse: 0.0256 - mae: 0.1099 - val_loss: 0.0466 - val_mse: 0.0466 - val_mae: 0.1436
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00029-weights-v010.h5
+File: z__r_B00-B19__ab-be00778.pkl:  31%|█████████████████████▎                                              | 10/32 [02:42<05:48, 15.82s/it]
+Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0254 - mse: 0.0254 - mae: 0.1088 - val_loss: 0.0435 - val_mse: 0.0435 - val_mae: 0.1389
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00029-weights-v011.h5
+File: z__r_B00-B19__ac-be00778.pkl:  34%|███████████████████████▍                                            | 11/32 [03:00<05:43, 16.36s/it]Train on 722848 samples, validate on 180713 samples
+722848/722848 - 8s - loss: 0.0251 - mse: 0.0251 - mae: 0.1083 - val_loss: 0.0464 - val_mse: 0.0464 - val_mae: 0.1428
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00029-weights-v012.h5
+File: z__r_B20-B49__aa-be00778.pkl:  38%|█████████████████████████▌                                          | 12/32 [03:16<05:25, 16.29s/it]Train on 799999 samples, validate on 200000 samples
+799999/799999 - 9s - loss: 0.0269 - mse: 0.0269 - mae: 0.1141 - val_loss: 0.0331 - val_mse: 0.0331 - val_mae: 0.1255
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00029-weights-v013.h5
+File: z__r_B20-B49__ab-be00778.pkl:  41%|███████████████████████████▋                                        | 13/32 [03:33<05:15, 16.62s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0270 - mse: 0.0270 - mae: 0.1145 - val_loss: 0.0331 - val_mse: 0.0331 - val_mae: 0.1235
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00029-weights-v014.h5
+File: z__r_B20-B49__ac-be00778.pkl:  44%|█████████████████████████████▊                                      | 14/32 [03:51<05:02, 16.82s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0265 - mse: 0.0265 - mae: 0.1134 - val_loss: 0.0389 - val_mse: 0.0389 - val_mae: 0.1330
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00029-weights-v015.h5
+File: z__r_B20-B49__ad-be00778.pkl:  47%|███████████████████████████████▉                                    | 15/32 [04:08<04:48, 16.96s/it]Train on 294961 samples, validate on 73741 samples
+294961/294961 - 3s - loss: 0.0241 - mse: 0.0241 - mae: 0.1071 - val_loss: 0.0196 - val_mse: 0.0196 - val_mae: 0.1056
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00029-weights-v016.h5
+File: z__r_B50-B99__aa-be00778.pkl:  50%|██████████████████████████████████                                  | 16/32 [04:18<03:56, 14.77s/it]Train on 799999 samples, validate on 200000 samples
+799999/799999 - 9s - loss: 0.0293 - mse: 0.0293 - mae: 0.1204 - val_loss: 0.0329 - val_mse: 0.0329 - val_mae: 0.1253
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00029-weights-v017.h5
+File: z__r_B50-B99__ab-be00778.pkl:  53%|████████████████████████████████████▏                               | 17/32 [04:35<03:53, 15.54s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0281 - mse: 0.0281 - mae: 0.1169 - val_loss: 0.0327 - val_mse: 0.0327 - val_mae: 0.1227
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00029-weights-v018.h5
+File: z__r_B50-B99__ac-be00778.pkl:  56%|██████████████████████████████████████▎                             | 18/32 [04:52<03:44, 16.05s/it]Train on 35924 samples, validate on 8981 samples
+35924/35924 - 0s - loss: 0.0305 - mse: 0.0305 - mae: 0.1222 - val_loss: 0.0363 - val_mse: 0.0363 - val_mae: 0.1352
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00029-weights-v019.h5
+File: z__r_C00-C99__aa-be00778.pkl:  59%|████████████████████████████████████████▍                           | 19/32 [04:58<02:48, 12.93s/it]Train on 799999 samples, validate on 200000 samples
+799999/799999 - 9s - loss: 0.0282 - mse: 0.0282 - mae: 0.1182 - val_loss: 0.0320 - val_mse: 0.0320 - val_mae: 0.1233
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00029-weights-v020.h5
+File: z__r_C00-C99__ab-be00778.pkl:  62%|██████████████████████████████████████████▌                         | 20/32 [05:15<02:51, 14.28s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0275 - mse: 0.0275 - mae: 0.1164 - val_loss: 0.0299 - val_mse: 0.0299 - val_mae: 0.1196
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00029-weights-v021.h5
+File: z__r_C00-C99__ac-be00778.pkl:  66%|████████████████████████████████████████████▋                       | 21/32 [05:33<02:46, 15.14s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0267 - mse: 0.0267 - mae: 0.1149 - val_loss: 0.0298 - val_mse: 0.0298 - val_mae: 0.1202
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00029-weights-v022.h5
+File: z__r_C00-C99__ad-be00778.pkl:  69%|██████████████████████████████████████████████▊                     | 22/32 [05:50<02:37, 15.72s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0265 - mse: 0.0265 - mae: 0.1145 - val_loss: 0.0331 - val_mse: 0.0331 - val_mae: 0.1259
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00029-weights-v023.h5
+File: z__r_C00-C99__ae-be00778.pkl:  72%|████████████████████████████████████████████████▉                   | 23/32 [06:07<02:24, 16.09s/it]Train on 620521 samples, validate on 155131 samples
+620521/620521 - 7s - loss: 0.0250 - mse: 0.0250 - mae: 0.1111 - val_loss: 0.0427 - val_mse: 0.0427 - val_mae: 0.1420
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00029-weights-v024.h5
+File: z__r_D00-D99__aa-be00778.pkl:  75%|███████████████████████████████████████████████████                 | 24/32 [06:21<02:04, 15.61s/it]Train on 799999 samples, validate on 200000 samples
+799999/799999 - 9s - loss: 0.0254 - mse: 0.0254 - mae: 0.1119 - val_loss: 0.0305 - val_mse: 0.0305 - val_mae: 0.1206
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00029-weights-v025.h5
+File: z__r_D00-D99__ab-be00778.pkl:  78%|█████████████████████████████████████████████████████▏              | 25/32 [06:38<01:52, 16.09s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0245 - mse: 0.0245 - mae: 0.1096 - val_loss: 0.0301 - val_mse: 0.0301 - val_mae: 0.1187
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00029-weights-v026.h5
+File: z__r_D00-D99__ac-be00778.pkl:  81%|███████████████████████████████████████████████████████▎            | 26/32 [06:55<01:38, 16.34s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0241 - mse: 0.0241 - mae: 0.1087 - val_loss: 0.0280 - val_mse: 0.0280 - val_mae: 0.1144
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00029-weights-v027.h5
+File: z__r_D00-D99__ad-be00778.pkl:  84%|█████████████████████████████████████████████████████████▍          | 27/32 [07:12<01:22, 16.51s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0239 - mse: 0.0239 - mae: 0.1083 - val_loss: 0.0343 - val_mse: 0.0343 - val_mae: 0.1259
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00029-weights-v028.h5
+File: z__r_D00-D99__ae-be00778.pkl:  88%|███████████████████████████████████████████████████████████▌        | 28/32 [07:29<01:06, 16.65s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0245 - mse: 0.0245 - mae: 0.1099 - val_loss: 0.0282 - val_mse: 0.0282 - val_mae: 0.1162
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00029-weights-v029.h5
+File: z__r_D00-D99__af-be00778.pkl:  91%|█████████████████████████████████████████████████████████████▋      | 29/32 [07:46<00:50, 16.75s/it]Train on 196335 samples, validate on 49084 samples
+196335/196335 - 2s - loss: 0.0261 - mse: 0.0261 - mae: 0.1137 - val_loss: 0.0369 - val_mse: 0.0369 - val_mae: 0.1302
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00029-weights-v030.h5
+File: z__r_E00-E99__aa-be00778.pkl:  94%|███████████████████████████████████████████████████████████████▊    | 30/32 [07:54<00:28, 14.15s/it]Train on 799999 samples, validate on 200000 samples
+799999/799999 - 9s - loss: 0.0233 - mse: 0.0233 - mae: 0.1063 - val_loss: 0.0274 - val_mse: 0.0274 - val_mae: 0.1122
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00029-weights-v031.h5
+File: z__r_E00-E99__ab-be00778.pkl:  97%|█████████████████████████████████████████████████████████████████▉  | 31/32 [08:11<00:15, 15.07s/it]Train on 548437 samples, validate on 137110 samples
+548437/548437 - 6s - loss: 0.0237 - mse: 0.0237 - mae: 0.1073 - val_loss: 0.0314 - val_mse: 0.0314 - val_mae: 0.1204
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00029-weights-v032.h5
+File: z__r_E00-E99__ab-be00778.pkl: 100%|████████████████████████████████████████████████████████████████████| 32/32 [08:25<00:00, 15.79s/it]
+(chess) ➜  code git:(master) ✗ 
+(chess) ➜  code git:(master) ✗ 
+(chess) ➜  code git:(master) ✗ 
+(chess) ➜  code git:(master) ✗ python step_03b_train.py                                \
+>     --action train                                      \
+>     --gpu_id=0                                          \
+>     --model_version=5                                   \
+>     --version_number=1                                  \
+>     --epochs=${EPOCHS}                                  \
+>     --batch_size=8192                                   \
+>     --validation_split=0.2                              \
+>     --generate_model_image=False                        \
+>     --input_dir="${PKL_PATH}"                           \
+>     --move_dir="${PKL_PATH_TRAINED}"                    \
+>     --file_suffix="pkl"                                 \
+>     --y_normalizer="normalize_003"                      \
+>     --callback=False                                    \
+>     --name_prefix="${MODEL_NAME_PREFIX}"                \
+>     --auto_load_new=True                                \
+>     --saved_weights_file="${SAVED_WEIGHTS_FILE}"        \
+>     && mv "${PKL_PATH_TRAINED}/"*.pkl "${PKL_PATH}"
+
+
+Namespace(action='train', auto_load_new=True, batch_size=8192, callback=False, epochs=1, file_suffix='pkl', generate_model_image=False, gpu_id=0, input_dir='/home/student/Desktop/fenil_pc/aggregated output 03/kingbase2019/04_pkl_data', model_version=5, move_dir='/home/student/Desktop/fenil_pc/aggregated output 03/kingbase2019/04_pkl_data_trained', name_prefix='ffnn_keras', saved_weights_file='../../Chess-Kesari-Models/ffnn_keras-mg005-be00778-sn003-ep00001-weights-v001.h5', validation_split=0.2, version_number=1, y_normalizer='normalize_003')
+
+
+INFO: auto_load_new: Trying
+INFO: auto_load_new: loading: '../../Chess-Kesari-Models/ffnn_keras-mg005-be00778-sn003-ep00029-weights-v032.h5'
+Model weights successfully loaded: ffnn_keras-mg005-be00778-sn003-ep00029-weights-v032.h5
+INFO: auto_load_new: Model loaded :)
+
+File: z__r_A00-A39__aa-be00778.pkl:   0%|                                                                             | 0/32 [00:00<?, ?it/s]Train on 799999 samples, validate on 200000 samples
+799999/799999 - 9s - loss: 0.0243 - mse: 0.0243 - mae: 0.1079 - val_loss: 0.0415 - val_mse: 0.0415 - val_mae: 0.1363
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00030-weights-v001.h5
+File: z__r_A00-A39__ab-be00778.pkl:   3%|██▏                                                                  | 1/32 [00:17<09:08, 17.68s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0240 - mse: 0.0240 - mae: 0.1076 - val_loss: 0.0429 - val_mse: 0.0429 - val_mae: 0.1397
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00030-weights-v002.h5
+File: z__r_A00-A39__ac-be00778.pkl:   6%|████▎                                                                | 2/32 [00:34<08:45, 17.50s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0236 - mse: 0.0236 - mae: 0.1066 - val_loss: 0.0421 - val_mse: 0.0421 - val_mae: 0.1385
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00030-weights-v003.h5
+File: z__r_A00-A39__ad-be00778.pkl:   9%|██████▍                                                              | 3/32 [00:51<08:22, 17.33s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0233 - mse: 0.0233 - mae: 0.1057 - val_loss: 0.0401 - val_mse: 0.0401 - val_mae: 0.1346
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00030-weights-v004.h5
+File: z__r_A00-A39__ae-be00778.pkl:  12%|████████▋                                                            | 4/32 [01:08<08:02, 17.22s/it]Train on 553428 samples, validate on 138357 samples
+553428/553428 - 6s - loss: 0.0234 - mse: 0.0234 - mae: 0.1053 - val_loss: 0.0393 - val_mse: 0.0393 - val_mae: 0.1329
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00030-weights-v005.h5
+File: z__r_A40-A79__aa-be00778.pkl:  16%|██████████▊                                                          | 5/32 [01:22<07:14, 16.11s/it]Train on 799999 samples, validate on 200000 samples
+799999/799999 - 9s - loss: 0.0238 - mse: 0.0238 - mae: 0.1054 - val_loss: 0.0450 - val_mse: 0.0450 - val_mae: 0.1414
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00030-weights-v006.h5
+File: z__r_A40-A79__ab-be00778.pkl:  19%|████████████▉                                                        | 6/32 [01:39<07:07, 16.43s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0236 - mse: 0.0236 - mae: 0.1043 - val_loss: 0.0440 - val_mse: 0.0440 - val_mae: 0.1380
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00030-weights-v007.h5
+File: z__r_A40-A79__ac-be00778.pkl:  22%|███████████████                                                      | 7/32 [01:56<06:55, 16.61s/it]Train on 639114 samples, validate on 159779 samples
+639114/639114 - 7s - loss: 0.0238 - mse: 0.0238 - mae: 0.1045 - val_loss: 0.0427 - val_mse: 0.0427 - val_mae: 0.1399
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00030-weights-v008.h5
+File: z__r_A80-A99__aa-be00778.pkl:  25%|█████████████████▎                                                   | 8/32 [02:11<06:24, 16.04s/it]Train on 410995 samples, validate on 102749 samples
+410995/410995 - 5s - loss: 0.0255 - mse: 0.0255 - mae: 0.1095 - val_loss: 0.0446 - val_mse: 0.0446 - val_mae: 0.1410
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00030-weights-v009.h5
+File: z__r_B00-B19__aa-be00778.pkl:  28%|███████████████████▍                                                 | 9/32 [02:22<05:36, 14.65s/it]Train on 799999 samples, validate on 200000 samples
+799999/799999 - 9s - loss: 0.0247 - mse: 0.0247 - mae: 0.1077 - val_loss: 0.0463 - val_mse: 0.0463 - val_mae: 0.1438
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00030-weights-v010.h5
+File: z__r_B00-B19__ab-be00778.pkl:  31%|█████████████████████▎                                              | 10/32 [02:39<05:39, 15.42s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0243 - mse: 0.0243 - mae: 0.1063 - val_loss: 0.0433 - val_mse: 0.0433 - val_mae: 0.1388
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00030-weights-v011.h5
+File: z__r_B00-B19__ac-be00778.pkl:  34%|███████████████████████▍                                            | 11/32 [02:56<05:33, 15.88s/it]Train on 722848 samples, validate on 180713 samples
+722848/722848 - 8s - loss: 0.0243 - mse: 0.0243 - mae: 0.1062 - val_loss: 0.0458 - val_mse: 0.0458 - val_mae: 0.1438
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00030-weights-v012.h5
+File: z__r_B20-B49__aa-be00778.pkl:  38%|█████████████████████████▌                                          | 12/32 [03:12<05:17, 15.86s/it]Train on 799999 samples, validate on 200000 samples
+799999/799999 - 9s - loss: 0.0258 - mse: 0.0258 - mae: 0.1113 - val_loss: 0.0326 - val_mse: 0.0326 - val_mae: 0.1219
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00030-weights-v013.h5
+File: z__r_B20-B49__ab-be00778.pkl:  41%|███████████████████████████▋                                        | 13/32 [03:29<05:09, 16.26s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0259 - mse: 0.0259 - mae: 0.1118 - val_loss: 0.0325 - val_mse: 0.0325 - val_mae: 0.1226
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00030-weights-v014.h5
+File: z__r_B20-B49__ac-be00778.pkl:  44%|█████████████████████████████▊                                      | 14/32 [03:46<04:56, 16.47s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0256 - mse: 0.0256 - mae: 0.1110 - val_loss: 0.0385 - val_mse: 0.0385 - val_mae: 0.1339
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00030-weights-v015.h5
+File: z__r_B20-B49__ad-be00778.pkl:  47%|███████████████████████████████▉                                    | 15/32 [04:03<04:42, 16.61s/it]Train on 294961 samples, validate on 73741 samples
+294961/294961 - 3s - loss: 0.0234 - mse: 0.0234 - mae: 0.1057 - val_loss: 0.0174 - val_mse: 0.0174 - val_mae: 0.0915
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00030-weights-v016.h5
+File: z__r_B50-B99__aa-be00778.pkl:  50%|██████████████████████████████████                                  | 16/32 [04:13<03:52, 14.51s/it]Train on 799999 samples, validate on 200000 samples
+799999/799999 - 9s - loss: 0.0283 - mse: 0.0283 - mae: 0.1178 - val_loss: 0.0325 - val_mse: 0.0325 - val_mae: 0.1230
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00030-weights-v017.h5
+File: z__r_B50-B99__ab-be00778.pkl:  53%|████████████████████████████████████▏                               | 17/32 [04:30<03:49, 15.31s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0272 - mse: 0.0272 - mae: 0.1149 - val_loss: 0.0327 - val_mse: 0.0327 - val_mae: 0.1244
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00030-weights-v018.h5
+File: z__r_B50-B99__ac-be00778.pkl:  56%|██████████████████████████████████████▎                             | 18/32 [04:47<03:41, 15.82s/it]Train on 35924 samples, validate on 8981 samples
+35924/35924 - 0s - loss: 0.0302 - mse: 0.0302 - mae: 0.1219 - val_loss: 0.0361 - val_mse: 0.0361 - val_mae: 0.1315
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00030-weights-v019.h5
+File: z__r_C00-C99__aa-be00778.pkl:  59%|████████████████████████████████████████▍                           | 19/32 [04:53<02:46, 12.77s/it]Train on 799999 samples, validate on 200000 samples
+799999/799999 - 9s - loss: 0.0273 - mse: 0.0273 - mae: 0.1160 - val_loss: 0.0317 - val_mse: 0.0317 - val_mae: 0.1252
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00030-weights-v020.h5
+File: z__r_C00-C99__ab-be00778.pkl:  62%|██████████████████████████████████████████▌                         | 20/32 [05:10<02:49, 14.12s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0267 - mse: 0.0267 - mae: 0.1146 - val_loss: 0.0296 - val_mse: 0.0296 - val_mae: 0.1191
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00030-weights-v021.h5
+File: z__r_C00-C99__ac-be00778.pkl:  66%|████████████████████████████████████████████▋                       | 21/32 [05:27<02:44, 14.96s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0259 - mse: 0.0259 - mae: 0.1131 - val_loss: 0.0292 - val_mse: 0.0292 - val_mae: 0.1183
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00030-weights-v022.h5
+File: z__r_C00-C99__ad-be00778.pkl:  69%|██████████████████████████████████████████████▊                     | 22/32 [05:44<02:35, 15.59s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0257 - mse: 0.0257 - mae: 0.1127 - val_loss: 0.0330 - val_mse: 0.0330 - val_mae: 0.1281
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00030-weights-v023.h5
+File: z__r_C00-C99__ae-be00778.pkl:  72%|████████████████████████████████████████████████▉                   | 23/32 [06:01<02:23, 15.99s/it]Train on 620521 samples, validate on 155131 samples
+620521/620521 - 7s - loss: 0.0243 - mse: 0.0243 - mae: 0.1097 - val_loss: 0.0425 - val_mse: 0.0425 - val_mae: 0.1413
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00030-weights-v024.h5
+File: z__r_D00-D99__aa-be00778.pkl:  75%|███████████████████████████████████████████████████                 | 24/32 [06:15<02:04, 15.55s/it]Train on 799999 samples, validate on 200000 samples
+799999/799999 - 9s - loss: 0.0246 - mse: 0.0246 - mae: 0.1101 - val_loss: 0.0301 - val_mse: 0.0301 - val_mae: 0.1188
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00030-weights-v025.h5
+File: z__r_D00-D99__ab-be00778.pkl:  78%|█████████████████████████████████████████████████████▏              | 25/32 [06:32<01:52, 16.04s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0239 - mse: 0.0239 - mae: 0.1078 - val_loss: 0.0301 - val_mse: 0.0301 - val_mae: 0.1195
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00030-weights-v026.h5
+File: z__r_D00-D99__ac-be00778.pkl:  81%|███████████████████████████████████████████████████████▎            | 26/32 [06:49<01:37, 16.33s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0235 - mse: 0.0235 - mae: 0.1070 - val_loss: 0.0274 - val_mse: 0.0274 - val_mae: 0.1117
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00030-weights-v027.h5
+File: z__r_D00-D99__ad-be00778.pkl:  84%|█████████████████████████████████████████████████████████▍          | 27/32 [07:06<01:22, 16.50s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0233 - mse: 0.0233 - mae: 0.1070 - val_loss: 0.0343 - val_mse: 0.0343 - val_mae: 0.1245
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00030-weights-v028.h5
+File: z__r_D00-D99__ae-be00778.pkl:  88%|███████████████████████████████████████████████████████████▌        | 28/32 [07:23<01:06, 16.64s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0239 - mse: 0.0239 - mae: 0.1085 - val_loss: 0.0278 - val_mse: 0.0278 - val_mae: 0.1151
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00030-weights-v029.h5
+File: z__r_D00-D99__af-be00778.pkl:  91%|█████████████████████████████████████████████████████████████▋      | 29/32 [07:40<00:50, 16.71s/it]Train on 196335 samples, validate on 49084 samples
+196335/196335 - 2s - loss: 0.0256 - mse: 0.0256 - mae: 0.1125 - val_loss: 0.0366 - val_mse: 0.0366 - val_mae: 0.1280
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00030-weights-v030.h5
+File: z__r_E00-E99__aa-be00778.pkl:  94%|███████████████████████████████████████████████████████████████▊    | 30/32 [07:48<00:28, 14.12s/it]Train on 799999 samples, validate on 200000 samples
+799999/799999 - 9s - loss: 0.0228 - mse: 0.0228 - mae: 0.1052 - val_loss: 0.0271 - val_mse: 0.0271 - val_mae: 0.1122
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00030-weights-v031.h5
+File: z__r_E00-E99__ab-be00778.pkl:  97%|█████████████████████████████████████████████████████████████████▉  | 31/32 [08:05<00:15, 15.05s/it]Train on 548437 samples, validate on 137110 samples
+548437/548437 - 6s - loss: 0.0232 - mse: 0.0232 - mae: 0.1061 - val_loss: 0.0314 - val_mse: 0.0314 - val_mae: 0.1205
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00030-weights-v032.h5
+File: z__r_E00-E99__ab-be00778.pkl: 100%|████████████████████████████████████████████████████████████████████| 32/32 [08:19<00:00, 15.60s/it]
+(chess) ➜  code git:(master) ✗ 
+(chess) ➜  code git:(master) ✗ python step_03b_train.py                                \
+>     --action train                                      \
+>     --gpu_id=0                                          \
+>     --model_version=5                                   \
+>     --version_number=1                                  \
+>     --epochs=${EPOCHS}                                  \
+>     --batch_size=8192                                   \
+>     --validation_split=0.2                              \
+>     --generate_model_image=False                        \
+>     --input_dir="${PKL_PATH}"                           \
+>     --move_dir="${PKL_PATH_TRAINED}"                    \
+>     --file_suffix="pkl"                                 \
+>     --y_normalizer="normalize_003"                      \
+>     --callback=False                                    \
+>     --name_prefix="${MODEL_NAME_PREFIX}"                \
+>     --auto_load_new=True                                \
+>     --saved_weights_file="${SAVED_WEIGHTS_FILE}"        \
+>     && mv "${PKL_PATH_TRAINED}/"*.pkl "${PKL_PATH}"
+
+
+Namespace(action='train', auto_load_new=True, batch_size=8192, callback=False, epochs=1, file_suffix='pkl', generate_model_image=False, gpu_id=0, input_dir='/home/student/Desktop/fenil_pc/aggregated output 03/kingbase2019/04_pkl_data', model_version=5, move_dir='/home/student/Desktop/fenil_pc/aggregated output 03/kingbase2019/04_pkl_data_trained', name_prefix='ffnn_keras', saved_weights_file='../../Chess-Kesari-Models/ffnn_keras-mg005-be00778-sn003-ep00001-weights-v001.h5', validation_split=0.2, version_number=1, y_normalizer='normalize_003')
+
+
+INFO: auto_load_new: Trying
+INFO: auto_load_new: loading: '../../Chess-Kesari-Models/ffnn_keras-mg005-be00778-sn003-ep00030-weights-v032.h5'
+Model weights successfully loaded: ffnn_keras-mg005-be00778-sn003-ep00030-weights-v032.h5
+INFO: auto_load_new: Model loaded :)
+
+File: z__r_A00-A39__aa-be00778.pkl:   0%|                                                                             | 0/32 [00:00<?, ?it/s]Train on 799999 samples, validate on 200000 samples
+799999/799999 - 9s - loss: 0.0234 - mse: 0.0234 - mae: 0.1058 - val_loss: 0.0417 - val_mse: 0.0417 - val_mae: 0.1370
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00031-weights-v001.h5
+File: z__r_A00-A39__ab-be00778.pkl:   3%|██▏                                                                  | 1/32 [00:17<09:05, 17.60s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0232 - mse: 0.0232 - mae: 0.1056 - val_loss: 0.0430 - val_mse: 0.0430 - val_mae: 0.1386
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00031-weights-v002.h5
+File: z__r_A00-A39__ac-be00778.pkl:   6%|████▎                                                                | 2/32 [00:34<08:41, 17.39s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0227 - mse: 0.0227 - mae: 0.1047 - val_loss: 0.0420 - val_mse: 0.0420 - val_mae: 0.1365
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00031-weights-v003.h5
+File: z__r_A00-A39__ad-be00778.pkl:   9%|██████▍                                                              | 3/32 [00:51<08:19, 17.24s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0225 - mse: 0.0225 - mae: 0.1037 - val_loss: 0.0400 - val_mse: 0.0400 - val_mae: 0.1347
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00031-weights-v004.h5
+File: z__r_A00-A39__ae-be00778.pkl:  12%|████████▋                                                            | 4/32 [01:08<08:00, 17.16s/it]Train on 553428 samples, validate on 138357 samples
+553428/553428 - 6s - loss: 0.0226 - mse: 0.0226 - mae: 0.1037 - val_loss: 0.0389 - val_mse: 0.0389 - val_mae: 0.1304
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00031-weights-v005.h5
+File: z__r_A40-A79__aa-be00778.pkl:  16%|██████████▊                                                          | 5/32 [01:21<07:13, 16.05s/it]Train on 799999 samples, validate on 200000 samples
+799999/799999 - 9s - loss: 0.0229 - mse: 0.0229 - mae: 0.1031 - val_loss: 0.0450 - val_mse: 0.0450 - val_mae: 0.1406
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00031-weights-v006.h5
+File: z__r_A40-A79__ab-be00778.pkl:  19%|████████████▉                                                        | 6/32 [01:39<07:06, 16.40s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0229 - mse: 0.0229 - mae: 0.1027 - val_loss: 0.0441 - val_mse: 0.0441 - val_mae: 0.1392
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00031-weights-v007.h5
+File: z__r_A40-A79__ac-be00778.pkl:  22%|███████████████                                                      | 7/32 [01:55<06:54, 16.57s/it]Train on 639114 samples, validate on 159779 samples
+639114/639114 - 7s - loss: 0.0230 - mse: 0.0230 - mae: 0.1024 - val_loss: 0.0432 - val_mse: 0.0432 - val_mae: 0.1355
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00031-weights-v008.h5
+File: z__r_A80-A99__aa-be00778.pkl:  25%|█████████████████▎                                                   | 8/32 [02:10<06:25, 16.05s/it]Train on 410995 samples, validate on 102749 samples
+410995/410995 - 5s - loss: 0.0247 - mse: 0.0247 - mae: 0.1072 - val_loss: 0.0451 - val_mse: 0.0451 - val_mae: 0.1418
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00031-weights-v009.h5
+File: z__r_B00-B19__aa-be00778.pkl:  28%|███████████████████▍                                                 | 9/32 [02:22<05:36, 14.64s/it]Train on 799999 samples, validate on 200000 samples
+799999/799999 - 9s - loss: 0.0238 - mse: 0.0238 - mae: 0.1055 - val_loss: 0.0464 - val_mse: 0.0464 - val_mae: 0.1444
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00031-weights-v010.h5
+File: z__r_B00-B19__ab-be00778.pkl:  31%|█████████████████████▎                                              | 10/32 [02:39<05:38, 15.39s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0236 - mse: 0.0236 - mae: 0.1046 - val_loss: 0.0436 - val_mse: 0.0436 - val_mae: 0.1383
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00031-weights-v011.h5
+File: z__r_B00-B19__ac-be00778.pkl:  34%|███████████████████████▍                                            | 11/32 [02:56<05:33, 15.87s/it]Train on 722848 samples, validate on 180713 samples
+722848/722848 - 8s - loss: 0.0235 - mse: 0.0235 - mae: 0.1044 - val_loss: 0.0468 - val_mse: 0.0468 - val_mae: 0.1438
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00031-weights-v012.h5
+File: z__r_B20-B49__aa-be00778.pkl:  38%|█████████████████████████▌                                          | 12/32 [03:12<05:17, 15.86s/it]Train on 799999 samples, validate on 200000 samples
+799999/799999 - 9s - loss: 0.0250 - mse: 0.0250 - mae: 0.1095 - val_loss: 0.0323 - val_mse: 0.0323 - val_mae: 0.1216
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00031-weights-v013.h5
+File: z__r_B20-B49__ab-be00778.pkl:  41%|███████████████████████████▋                                        | 13/32 [03:29<05:08, 16.25s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0252 - mse: 0.0252 - mae: 0.1100 - val_loss: 0.0323 - val_mse: 0.0323 - val_mae: 0.1224
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00031-weights-v014.h5
+File: z__r_B20-B49__ac-be00778.pkl:  44%|█████████████████████████████▊                                      | 14/32 [03:46<04:56, 16.45s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0248 - mse: 0.0248 - mae: 0.1093 - val_loss: 0.0382 - val_mse: 0.0382 - val_mae: 0.1313
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00031-weights-v015.h5
+File: z__r_B20-B49__ad-be00778.pkl:  47%|███████████████████████████████▉                                    | 15/32 [04:03<04:42, 16.60s/it]Train on 294961 samples, validate on 73741 samples
+294961/294961 - 3s - loss: 0.0226 - mse: 0.0226 - mae: 0.1037 - val_loss: 0.0184 - val_mse: 0.0184 - val_mae: 0.1002
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00031-weights-v016.h5
+File: z__r_B50-B99__aa-be00778.pkl:  50%|██████████████████████████████████                                  | 16/32 [04:12<03:52, 14.50s/it]Train on 799999 samples, validate on 200000 samples
+799999/799999 - 9s - loss: 0.0276 - mse: 0.0276 - mae: 0.1165 - val_loss: 0.0321 - val_mse: 0.0321 - val_mae: 0.1218
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00031-weights-v017.h5
+File: z__r_B50-B99__ab-be00778.pkl:  53%|████████████████████████████████████▏                               | 17/32 [04:29<03:49, 15.30s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0266 - mse: 0.0266 - mae: 0.1136 - val_loss: 0.0324 - val_mse: 0.0324 - val_mae: 0.1217
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00031-weights-v018.h5
+File: z__r_B50-B99__ac-be00778.pkl:  56%|██████████████████████████████████████▎                             | 18/32 [04:46<03:41, 15.80s/it]Train on 35924 samples, validate on 8981 samples
+35924/35924 - 0s - loss: 0.0301 - mse: 0.0301 - mae: 0.1221 - val_loss: 0.0360 - val_mse: 0.0360 - val_mae: 0.1322
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00031-weights-v019.h5
+File: z__r_C00-C99__aa-be00778.pkl:  59%|████████████████████████████████████████▍                           | 19/32 [04:52<02:45, 12.76s/it]Train on 799999 samples, validate on 200000 samples
+799999/799999 - 9s - loss: 0.0267 - mse: 0.0267 - mae: 0.1148 - val_loss: 0.0309 - val_mse: 0.0309 - val_mae: 0.1214
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00031-weights-v020.h5
+File: z__r_C00-C99__ab-be00778.pkl:  62%|██████████████████████████████████████████▌                         | 20/32 [05:09<02:49, 14.09s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0261 - mse: 0.0261 - mae: 0.1132 - val_loss: 0.0291 - val_mse: 0.0291 - val_mae: 0.1182
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00031-weights-v021.h5
+File: z__r_C00-C99__ac-be00778.pkl:  66%|████████████████████████████████████████████▋                       | 21/32 [05:26<02:44, 14.95s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0253 - mse: 0.0253 - mae: 0.1116 - val_loss: 0.0288 - val_mse: 0.0288 - val_mae: 0.1156
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00031-weights-v022.h5
+File: z__r_C00-C99__ad-be00778.pkl:  69%|██████████████████████████████████████████████▊                     | 22/32 [05:43<02:35, 15.54s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0251 - mse: 0.0251 - mae: 0.1114 - val_loss: 0.0326 - val_mse: 0.0326 - val_mae: 0.1239
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00031-weights-v023.h5
+File: z__r_C00-C99__ae-be00778.pkl:  72%|████████████████████████████████████████████████▉                   | 23/32 [06:00<02:23, 15.95s/it]Train on 620521 samples, validate on 155131 samples
+620521/620521 - 7s - loss: 0.0237 - mse: 0.0237 - mae: 0.1082 - val_loss: 0.0425 - val_mse: 0.0425 - val_mae: 0.1396
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00031-weights-v024.h5
+File: z__r_D00-D99__aa-be00778.pkl:  75%|███████████████████████████████████████████████████                 | 24/32 [06:15<02:04, 15.52s/it]Train on 799999 samples, validate on 200000 samples
+799999/799999 - 9s - loss: 0.0241 - mse: 0.0241 - mae: 0.1089 - val_loss: 0.0302 - val_mse: 0.0302 - val_mae: 0.1206
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00031-weights-v025.h5
+File: z__r_D00-D99__ab-be00778.pkl:  78%|█████████████████████████████████████████████████████▏              | 25/32 [06:32<01:52, 16.03s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0234 - mse: 0.0234 - mae: 0.1067 - val_loss: 0.0299 - val_mse: 0.0299 - val_mae: 0.1194
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00031-weights-v026.h5
+File: z__r_D00-D99__ac-be00778.pkl:  81%|███████████████████████████████████████████████████████▎            | 26/32 [06:49<01:37, 16.32s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0231 - mse: 0.0231 - mae: 0.1062 - val_loss: 0.0272 - val_mse: 0.0272 - val_mae: 0.1111
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00031-weights-v027.h5
+File: z__r_D00-D99__ad-be00778.pkl:  84%|█████████████████████████████████████████████████████████▍          | 27/32 [07:06<01:22, 16.49s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0228 - mse: 0.0228 - mae: 0.1058 - val_loss: 0.0343 - val_mse: 0.0343 - val_mae: 0.1248
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00031-weights-v028.h5
+File: z__r_D00-D99__ae-be00778.pkl:  88%|███████████████████████████████████████████████████████████▌        | 28/32 [07:23<01:06, 16.64s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0234 - mse: 0.0234 - mae: 0.1074 - val_loss: 0.0276 - val_mse: 0.0276 - val_mae: 0.1139
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00031-weights-v029.h5
+File: z__r_D00-D99__af-be00778.pkl:  91%|█████████████████████████████████████████████████████████████▋      | 29/32 [07:40<00:50, 16.73s/it]Train on 196335 samples, validate on 49084 samples
+196335/196335 - 2s - loss: 0.0251 - mse: 0.0251 - mae: 0.1114 - val_loss: 0.0366 - val_mse: 0.0366 - val_mae: 0.1301
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00031-weights-v030.h5
+File: z__r_E00-E99__aa-be00778.pkl:  94%|███████████████████████████████████████████████████████████████▊    | 30/32 [07:48<00:28, 14.14s/it]Train on 799999 samples, validate on 200000 samples
+799999/799999 - 9s - loss: 0.0223 - mse: 0.0223 - mae: 0.1040 - val_loss: 0.0270 - val_mse: 0.0270 - val_mae: 0.1114
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00031-weights-v031.h5
+File: z__r_E00-E99__ab-be00778.pkl:  97%|█████████████████████████████████████████████████████████████████▉  | 31/32 [08:05<00:15, 15.06s/it]Train on 548437 samples, validate on 137110 samples
+548437/548437 - 6s - loss: 0.0230 - mse: 0.0230 - mae: 0.1057 - val_loss: 0.0315 - val_mse: 0.0315 - val_mae: 0.1191
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00031-weights-v032.h5
+File: z__r_E00-E99__ab-be00778.pkl: 100%|████████████████████████████████████████████████████████████████████| 32/32 [08:18<00:00, 15.59s/it]
+(chess) ➜  code git:(master) ✗ 
+(chess) ➜  code git:(master) ✗ python step_03b_train.py                                \
+>     --action train                                      \
+>     --gpu_id=0                                          \
+>     --model_version=5                                   \
+>     --version_number=1                                  \
+>     --epochs=${EPOCHS}                                  \
+>     --batch_size=8192                                   \
+>     --validation_split=0.2                              \
+>     --generate_model_image=False                        \
+>     --input_dir="${PKL_PATH}"                           \
+>     --move_dir="${PKL_PATH_TRAINED}"                    \
+>     --file_suffix="pkl"                                 \
+>     --y_normalizer="normalize_003"                      \
+>     --callback=False                                    \
+>     --name_prefix="${MODEL_NAME_PREFIX}"                \
+>     --auto_load_new=True                                \
+>     --saved_weights_file="${SAVED_WEIGHTS_FILE}"        \
+>     && mv "${PKL_PATH_TRAINED}/"*.pkl "${PKL_PATH}"
+
+
+Namespace(action='train', auto_load_new=True, batch_size=8192, callback=False, epochs=1, file_suffix='pkl', generate_model_image=False, gpu_id=0, input_dir='/home/student/Desktop/fenil_pc/aggregated output 03/kingbase2019/04_pkl_data', model_version=5, move_dir='/home/student/Desktop/fenil_pc/aggregated output 03/kingbase2019/04_pkl_data_trained', name_prefix='ffnn_keras', saved_weights_file='../../Chess-Kesari-Models/ffnn_keras-mg005-be00778-sn003-ep00001-weights-v001.h5', validation_split=0.2, version_number=1, y_normalizer='normalize_003')
+
+
+INFO: auto_load_new: Trying
+INFO: auto_load_new: loading: '../../Chess-Kesari-Models/ffnn_keras-mg005-be00778-sn003-ep00031-weights-v032.h5'
+Model weights successfully loaded: ffnn_keras-mg005-be00778-sn003-ep00031-weights-v032.h5
+INFO: auto_load_new: Model loaded :)
+
+File: z__r_A00-A39__aa-be00778.pkl:   0%|                                                                             | 0/32 [00:00<?, ?it/s]Train on 799999 samples, validate on 200000 samples
+799999/799999 - 9s - loss: 0.0227 - mse: 0.0227 - mae: 0.1041 - val_loss: 0.0417 - val_mse: 0.0417 - val_mae: 0.1369
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00032-weights-v001.h5
+File: z__r_A00-A39__ab-be00778.pkl:   3%|██▏                                                                  | 1/32 [00:17<09:05, 17.60s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0225 - mse: 0.0225 - mae: 0.1039 - val_loss: 0.0429 - val_mse: 0.0429 - val_mae: 0.1388
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00032-weights-v002.h5
+File: z__r_A00-A39__ac-be00778.pkl:   6%|████▎                                                                | 2/32 [00:34<08:42, 17.41s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0221 - mse: 0.0221 - mae: 0.1032 - val_loss: 0.0420 - val_mse: 0.0420 - val_mae: 0.1369
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00032-weights-v003.h5
+File: z__r_A00-A39__ad-be00778.pkl:   9%|██████▍                                                              | 3/32 [00:51<08:20, 17.25s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0219 - mse: 0.0219 - mae: 0.1023 - val_loss: 0.0403 - val_mse: 0.0403 - val_mae: 0.1336
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00032-weights-v004.h5
+File: z__r_A00-A39__ae-be00778.pkl:  12%|████████▋                                                            | 4/32 [01:08<08:00, 17.16s/it]Train on 553428 samples, validate on 138357 samples
+553428/553428 - 6s - loss: 0.0219 - mse: 0.0219 - mae: 0.1019 - val_loss: 0.0390 - val_mse: 0.0390 - val_mae: 0.1299
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00032-weights-v005.h5
+File: z__r_A40-A79__aa-be00778.pkl:  16%|██████████▊                                                          | 5/32 [01:21<07:13, 16.06s/it]Train on 799999 samples, validate on 200000 samples
+799999/799999 - 9s - loss: 0.0222 - mse: 0.0222 - mae: 0.1013 - val_loss: 0.0449 - val_mse: 0.0449 - val_mae: 0.1389
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00032-weights-v006.h5
+File: z__r_A40-A79__ab-be00778.pkl:  19%|████████████▉                                                        | 6/32 [01:39<07:06, 16.41s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0222 - mse: 0.0222 - mae: 0.1008 - val_loss: 0.0443 - val_mse: 0.0443 - val_mae: 0.1392
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00032-weights-v007.h5
+File: z__r_A40-A79__ac-be00778.pkl:  22%|███████████████                                                      | 7/32 [01:56<06:54, 16.58s/it]Train on 639114 samples, validate on 159779 samples
+639114/639114 - 7s - loss: 0.0223 - mse: 0.0223 - mae: 0.1007 - val_loss: 0.0427 - val_mse: 0.0427 - val_mae: 0.1364
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00032-weights-v008.h5
+File: z__r_A80-A99__aa-be00778.pkl:  25%|█████████████████▎                                                   | 8/32 [02:10<06:24, 16.04s/it]Train on 410995 samples, validate on 102749 samples
+410995/410995 - 5s - loss: 0.0240 - mse: 0.0240 - mae: 0.1059 - val_loss: 0.0451 - val_mse: 0.0451 - val_mae: 0.1420
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00032-weights-v009.h5
+File: z__r_B00-B19__aa-be00778.pkl:  28%|███████████████████▍                                                 | 9/32 [02:22<05:36, 14.63s/it]Train on 799999 samples, validate on 200000 samples
+799999/799999 - 9s - loss: 0.0233 - mse: 0.0233 - mae: 0.1044 - val_loss: 0.0466 - val_mse: 0.0466 - val_mae: 0.1439
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00032-weights-v010.h5
+File: z__r_B00-B19__ab-be00778.pkl:  31%|█████████████████████▎                                              | 10/32 [02:39<05:38, 15.39s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0230 - mse: 0.0230 - mae: 0.1031 - val_loss: 0.0435 - val_mse: 0.0435 - val_mae: 0.1375
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00032-weights-v011.h5
+File: z__r_B00-B19__ac-be00778.pkl:  34%|███████████████████████▍                                            | 11/32 [02:56<05:32, 15.84s/it]Train on 722848 samples, validate on 180713 samples
+722848/722848 - 8s - loss: 0.0230 - mse: 0.0230 - mae: 0.1032 - val_loss: 0.0469 - val_mse: 0.0469 - val_mae: 0.1435
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00032-weights-v012.h5
+File: z__r_B20-B49__aa-be00778.pkl:  38%|█████████████████████████▌                                          | 12/32 [03:12<05:16, 15.83s/it]Train on 799999 samples, validate on 200000 samples
+799999/799999 - 9s - loss: 0.0244 - mse: 0.0244 - mae: 0.1080 - val_loss: 0.0320 - val_mse: 0.0320 - val_mae: 0.1210
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00032-weights-v013.h5
+File: z__r_B20-B49__ab-be00778.pkl:  41%|███████████████████████████▋                                        | 13/32 [03:29<05:08, 16.22s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0248 - mse: 0.0248 - mae: 0.1090 - val_loss: 0.0321 - val_mse: 0.0321 - val_mae: 0.1215
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00032-weights-v014.h5
+File: z__r_B20-B49__ac-be00778.pkl:  44%|█████████████████████████████▊                                      | 14/32 [03:46<04:55, 16.42s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0243 - mse: 0.0243 - mae: 0.1079 - val_loss: 0.0382 - val_mse: 0.0382 - val_mae: 0.1315
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00032-weights-v015.h5
+File: z__r_B20-B49__ad-be00778.pkl:  47%|███████████████████████████████▉                                    | 15/32 [04:03<04:41, 16.57s/it]Train on 294961 samples, validate on 73741 samples
+294961/294961 - 3s - loss: 0.0221 - mse: 0.0221 - mae: 0.1026 - val_loss: 0.0171 - val_mse: 0.0171 - val_mae: 0.0943
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00032-weights-v016.h5
+File: z__r_B50-B99__aa-be00778.pkl:  50%|██████████████████████████████████                                  | 16/32 [04:12<03:51, 14.47s/it]Train on 799999 samples, validate on 200000 samples
+799999/799999 - 9s - loss: 0.0268 - mse: 0.0268 - mae: 0.1143 - val_loss: 0.0319 - val_mse: 0.0319 - val_mae: 0.1232
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00032-weights-v017.h5
+File: z__r_B50-B99__ab-be00778.pkl:  53%|████████████████████████████████████▏                               | 17/32 [04:29<03:49, 15.28s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0259 - mse: 0.0259 - mae: 0.1119 - val_loss: 0.0320 - val_mse: 0.0320 - val_mae: 0.1232
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00032-weights-v018.h5
+File: z__r_B50-B99__ac-be00778.pkl:  56%|██████████████████████████████████████▎                             | 18/32 [04:46<03:41, 15.79s/it]Train on 35924 samples, validate on 8981 samples
+35924/35924 - 0s - loss: 0.0292 - mse: 0.0292 - mae: 0.1201 - val_loss: 0.0355 - val_mse: 0.0355 - val_mae: 0.1300
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00032-weights-v019.h5
+File: z__r_C00-C99__aa-be00778.pkl:  59%|████████████████████████████████████████▍                           | 19/32 [04:52<02:45, 12.75s/it]Train on 799999 samples, validate on 200000 samples
+799999/799999 - 9s - loss: 0.0260 - mse: 0.0260 - mae: 0.1130 - val_loss: 0.0305 - val_mse: 0.0305 - val_mae: 0.1211
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00032-weights-v020.h5
+File: z__r_C00-C99__ab-be00778.pkl:  62%|██████████████████████████████████████████▌                         | 20/32 [05:09<02:48, 14.08s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0256 - mse: 0.0256 - mae: 0.1119 - val_loss: 0.0289 - val_mse: 0.0289 - val_mae: 0.1182
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00032-weights-v021.h5
+File: z__r_C00-C99__ac-be00778.pkl:  66%|████████████████████████████████████████████▋                       | 21/32 [05:26<02:44, 14.92s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0248 - mse: 0.0248 - mae: 0.1103 - val_loss: 0.0285 - val_mse: 0.0285 - val_mae: 0.1147
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00032-weights-v022.h5
+File: z__r_C00-C99__ad-be00778.pkl:  69%|██████████████████████████████████████████████▊                     | 22/32 [05:43<02:35, 15.52s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0246 - mse: 0.0246 - mae: 0.1100 - val_loss: 0.0325 - val_mse: 0.0325 - val_mae: 0.1233
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00032-weights-v023.h5
+File: z__r_C00-C99__ae-be00778.pkl:  72%|████████████████████████████████████████████████▉                   | 23/32 [06:00<02:23, 15.94s/it]Train on 620521 samples, validate on 155131 samples
+620521/620521 - 7s - loss: 0.0233 - mse: 0.0233 - mae: 0.1072 - val_loss: 0.0423 - val_mse: 0.0423 - val_mae: 0.1413
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00032-weights-v024.h5
+File: z__r_D00-D99__aa-be00778.pkl:  75%|███████████████████████████████████████████████████                 | 24/32 [06:14<02:03, 15.50s/it]Train on 799999 samples, validate on 200000 samples
+799999/799999 - 9s - loss: 0.0236 - mse: 0.0236 - mae: 0.1076 - val_loss: 0.0301 - val_mse: 0.0301 - val_mae: 0.1202
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00032-weights-v025.h5
+File: z__r_D00-D99__ab-be00778.pkl:  78%|█████████████████████████████████████████████████████▏              | 25/32 [06:31<01:52, 16.02s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0229 - mse: 0.0229 - mae: 0.1056 - val_loss: 0.0297 - val_mse: 0.0297 - val_mae: 0.1177
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00032-weights-v026.h5
+File: z__r_D00-D99__ac-be00778.pkl:  81%|███████████████████████████████████████████████████████▎            | 26/32 [06:48<01:37, 16.31s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0227 - mse: 0.0227 - mae: 0.1052 - val_loss: 0.0269 - val_mse: 0.0269 - val_mae: 0.1101
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00032-weights-v027.h5
+File: z__r_D00-D99__ad-be00778.pkl:  84%|█████████████████████████████████████████████████████████▍          | 27/32 [07:05<01:22, 16.51s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0225 - mse: 0.0225 - mae: 0.1051 - val_loss: 0.0342 - val_mse: 0.0342 - val_mae: 0.1233
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00032-weights-v028.h5
+File: z__r_D00-D99__ae-be00778.pkl:  88%|███████████████████████████████████████████████████████████▌        | 28/32 [07:22<01:06, 16.63s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0232 - mse: 0.0232 - mae: 0.1068 - val_loss: 0.0274 - val_mse: 0.0274 - val_mae: 0.1136
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00032-weights-v029.h5
+File: z__r_D00-D99__af-be00778.pkl:  91%|█████████████████████████████████████████████████████████████▋      | 29/32 [07:39<00:50, 16.73s/it]Train on 196335 samples, validate on 49084 samples
+196335/196335 - 2s - loss: 0.0250 - mse: 0.0250 - mae: 0.1111 - val_loss: 0.0367 - val_mse: 0.0367 - val_mae: 0.1303
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00032-weights-v030.h5
+File: z__r_E00-E99__aa-be00778.pkl:  94%|███████████████████████████████████████████████████████████████▊    | 30/32 [07:47<00:28, 14.13s/it]Train on 799999 samples, validate on 200000 samples
+799999/799999 - 9s - loss: 0.0221 - mse: 0.0221 - mae: 0.1037 - val_loss: 0.0270 - val_mse: 0.0270 - val_mae: 0.1117
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00032-weights-v031.h5
+File: z__r_E00-E99__ab-be00778.pkl:  97%|█████████████████████████████████████████████████████████████████▉  | 31/32 [08:05<00:15, 15.04s/it]Train on 548437 samples, validate on 137110 samples
+548437/548437 - 6s - loss: 0.0227 - mse: 0.0227 - mae: 0.1051 - val_loss: 0.0314 - val_mse: 0.0314 - val_mae: 0.1166
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00032-weights-v032.h5
+File: z__r_E00-E99__ab-be00778.pkl: 100%|████████████████████████████████████████████████████████████████████| 32/32 [08:18<00:00, 15.57s/it]
+(chess) ➜  code git:(master) ✗ 
+(chess) ➜  code git:(master) ✗ python step_03b_train.py                                \
+>     --action train                                      \
+>     --gpu_id=0                                          \
+>     --model_version=5                                   \
+>     --version_number=1                                  \
+>     --epochs=${EPOCHS}                                  \
+>     --batch_size=8192                                   \
+>     --validation_split=0.2                              \
+>     --generate_model_image=False                        \
+>     --input_dir="${PKL_PATH}"                           \
+>     --move_dir="${PKL_PATH_TRAINED}"                    \
+>     --file_suffix="pkl"                                 \
+>     --y_normalizer="normalize_003"                      \
+>     --callback=False                                    \
+>     --name_prefix="${MODEL_NAME_PREFIX}"                \
+>     --auto_load_new=True                                \
+>     --saved_weights_file="${SAVED_WEIGHTS_FILE}"        \
+>     && mv "${PKL_PATH_TRAINED}/"*.pkl "${PKL_PATH}"
+
+
+Namespace(action='train', auto_load_new=True, batch_size=8192, callback=False, epochs=1, file_suffix='pkl', generate_model_image=False, gpu_id=0, input_dir='/home/student/Desktop/fenil_pc/aggregated output 03/kingbase2019/04_pkl_data', model_version=5, move_dir='/home/student/Desktop/fenil_pc/aggregated output 03/kingbase2019/04_pkl_data_trained', name_prefix='ffnn_keras', saved_weights_file='../../Chess-Kesari-Models/ffnn_keras-mg005-be00778-sn003-ep00001-weights-v001.h5', validation_split=0.2, version_number=1, y_normalizer='normalize_003')
+
+
+INFO: auto_load_new: Trying
+INFO: auto_load_new: loading: '../../Chess-Kesari-Models/ffnn_keras-mg005-be00778-sn003-ep00032-weights-v032.h5'
+Model weights successfully loaded: ffnn_keras-mg005-be00778-sn003-ep00032-weights-v032.h5
+INFO: auto_load_new: Model loaded :)
+
+File: z__r_A00-A39__aa-be00778.pkl:   0%|                                                                             | 0/32 [00:00<?, ?it/s]Train on 799999 samples, validate on 200000 samples
+799999/799999 - 9s - loss: 0.0222 - mse: 0.0222 - mae: 0.1028 - val_loss: 0.0415 - val_mse: 0.0415 - val_mae: 0.1360
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00033-weights-v001.h5
+File: z__r_A00-A39__ab-be00778.pkl:   3%|██▏                                                                  | 1/32 [00:17<09:06, 17.62s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0219 - mse: 0.0219 - mae: 0.1025 - val_loss: 0.0431 - val_mse: 0.0431 - val_mae: 0.1385
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00033-weights-v002.h5
+File: z__r_A00-A39__ac-be00778.pkl:   6%|████▎                                                                | 2/32 [00:34<08:43, 17.43s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0216 - mse: 0.0216 - mae: 0.1018 - val_loss: 0.0421 - val_mse: 0.0421 - val_mae: 0.1356
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00033-weights-v003.h5
+File: z__r_A00-A39__ad-be00778.pkl:   9%|██████▍                                                              | 3/32 [00:51<08:21, 17.28s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0213 - mse: 0.0213 - mae: 0.1008 - val_loss: 0.0402 - val_mse: 0.0402 - val_mae: 0.1335
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00033-weights-v004.h5
+File: z__r_A00-A39__ae-be00778.pkl:  12%|████████▋                                                            | 4/32 [01:08<08:01, 17.19s/it]Train on 553428 samples, validate on 138357 samples
+553428/553428 - 6s - loss: 0.0213 - mse: 0.0213 - mae: 0.1005 - val_loss: 0.0394 - val_mse: 0.0394 - val_mae: 0.1304
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00033-weights-v005.h5
+File: z__r_A40-A79__aa-be00778.pkl:  16%|██████████▊                                                          | 5/32 [01:22<07:14, 16.09s/it]Train on 799999 samples, validate on 200000 samples
+799999/799999 - 9s - loss: 0.0217 - mse: 0.0217 - mae: 0.1000 - val_loss: 0.0450 - val_mse: 0.0450 - val_mae: 0.1402
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00033-weights-v006.h5
+File: z__r_A40-A79__ab-be00778.pkl:  19%|████████████▉                                                        | 6/32 [01:39<07:06, 16.41s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0216 - mse: 0.0216 - mae: 0.0994 - val_loss: 0.0439 - val_mse: 0.0439 - val_mae: 0.1386
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00033-weights-v007.h5
+File: z__r_A40-A79__ac-be00778.pkl:  22%|███████████████                                                      | 7/32 [01:56<06:54, 16.59s/it]Train on 639114 samples, validate on 159779 samples
+639114/639114 - 7s - loss: 0.0218 - mse: 0.0218 - mae: 0.0996 - val_loss: 0.0422 - val_mse: 0.0422 - val_mae: 0.1353
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00033-weights-v008.h5
+File: z__r_A80-A99__aa-be00778.pkl:  25%|█████████████████▎                                                   | 8/32 [02:10<06:25, 16.04s/it]Train on 410995 samples, validate on 102749 samples
+410995/410995 - 4s - loss: 0.0234 - mse: 0.0234 - mae: 0.1042 - val_loss: 0.0462 - val_mse: 0.0462 - val_mae: 0.1410
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00033-weights-v009.h5
+File: z__r_B00-B19__aa-be00778.pkl:  28%|███████████████████▍                                                 | 9/32 [02:22<05:36, 14.62s/it]Train on 799999 samples, validate on 200000 samples
+799999/799999 - 9s - loss: 0.0227 - mse: 0.0227 - mae: 0.1029 - val_loss: 0.0460 - val_mse: 0.0460 - val_mae: 0.1422
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00033-weights-v010.h5
+File: z__r_B00-B19__ab-be00778.pkl:  31%|█████████████████████▎                                              | 10/32 [02:39<05:38, 15.38s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0225 - mse: 0.0225 - mae: 0.1020 - val_loss: 0.0433 - val_mse: 0.0433 - val_mae: 0.1380
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00033-weights-v011.h5
+File: z__r_B00-B19__ac-be00778.pkl:  34%|███████████████████████▍                                            | 11/32 [02:56<05:32, 15.85s/it]Train on 722848 samples, validate on 180713 samples
+722848/722848 - 8s - loss: 0.0224 - mse: 0.0224 - mae: 0.1018 - val_loss: 0.0465 - val_mse: 0.0465 - val_mae: 0.1421
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00033-weights-v012.h5
+File: z__r_B20-B49__aa-be00778.pkl:  38%|█████████████████████████▌                                          | 12/32 [03:12<05:16, 15.82s/it]Train on 799999 samples, validate on 200000 samples
+799999/799999 - 9s - loss: 0.0238 - mse: 0.0238 - mae: 0.1065 - val_loss: 0.0318 - val_mse: 0.0318 - val_mae: 0.1217
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00033-weights-v013.h5
+File: z__r_B20-B49__ab-be00778.pkl:  41%|███████████████████████████▋                                        | 13/32 [03:29<05:08, 16.23s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0242 - mse: 0.0242 - mae: 0.1078 - val_loss: 0.0321 - val_mse: 0.0321 - val_mae: 0.1233
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00033-weights-v014.h5
+File: z__r_B20-B49__ac-be00778.pkl:  44%|█████████████████████████████▊                                      | 14/32 [03:46<04:56, 16.45s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0236 - mse: 0.0236 - mae: 0.1065 - val_loss: 0.0378 - val_mse: 0.0378 - val_mae: 0.1302
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00033-weights-v015.h5
+File: z__r_B20-B49__ad-be00778.pkl:  47%|███████████████████████████████▉                                    | 15/32 [04:03<04:41, 16.58s/it]Train on 294961 samples, validate on 73741 samples
+294961/294961 - 3s - loss: 0.0217 - mse: 0.0217 - mae: 0.1013 - val_loss: 0.0159 - val_mse: 0.0159 - val_mae: 0.0849
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00033-weights-v016.h5
+File: z__r_B50-B99__aa-be00778.pkl:  50%|██████████████████████████████████                                  | 16/32 [04:12<03:51, 14.48s/it]Train on 799999 samples, validate on 200000 samples
+799999/799999 - 9s - loss: 0.0264 - mse: 0.0264 - mae: 0.1134 - val_loss: 0.0318 - val_mse: 0.0318 - val_mae: 0.1233
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00033-weights-v017.h5
+File: z__r_B50-B99__ab-be00778.pkl:  53%|████████████████████████████████████▏                               | 17/32 [04:29<03:49, 15.29s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0255 - mse: 0.0255 - mae: 0.1110 - val_loss: 0.0318 - val_mse: 0.0318 - val_mae: 0.1214
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00033-weights-v018.h5
+File: z__r_B50-B99__ac-be00778.pkl:  56%|██████████████████████████████████████▎                             | 18/32 [04:46<03:41, 15.79s/it]Train on 35924 samples, validate on 8981 samples
+35924/35924 - 0s - loss: 0.0289 - mse: 0.0289 - mae: 0.1182 - val_loss: 0.0352 - val_mse: 0.0352 - val_mae: 0.1312
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00033-weights-v019.h5
+File: z__r_C00-C99__aa-be00778.pkl:  59%|████████████████████████████████████████▍                           | 19/32 [04:52<02:45, 12.75s/it]Train on 799999 samples, validate on 200000 samples
+799999/799999 - 9s - loss: 0.0254 - mse: 0.0254 - mae: 0.1115 - val_loss: 0.0299 - val_mse: 0.0299 - val_mae: 0.1179
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00033-weights-v020.h5
+File: z__r_C00-C99__ab-be00778.pkl:  62%|██████████████████████████████████████████▌                         | 20/32 [05:09<02:48, 14.07s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0252 - mse: 0.0252 - mae: 0.1110 - val_loss: 0.0283 - val_mse: 0.0283 - val_mae: 0.1153
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00033-weights-v021.h5
+File: z__r_C00-C99__ac-be00778.pkl:  66%|████████████████████████████████████████████▋                       | 21/32 [05:26<02:44, 14.93s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0245 - mse: 0.0245 - mae: 0.1096 - val_loss: 0.0281 - val_mse: 0.0281 - val_mae: 0.1150
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00033-weights-v022.h5
+File: z__r_C00-C99__ad-be00778.pkl:  69%|██████████████████████████████████████████████▊                     | 22/32 [05:43<02:35, 15.53s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0243 - mse: 0.0243 - mae: 0.1095 - val_loss: 0.0323 - val_mse: 0.0323 - val_mae: 0.1234
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00033-weights-v023.h5
+File: z__r_C00-C99__ae-be00778.pkl:  72%|████████████████████████████████████████████████▉                   | 23/32 [06:00<02:23, 15.95s/it]Train on 620521 samples, validate on 155131 samples
+620521/620521 - 7s - loss: 0.0230 - mse: 0.0230 - mae: 0.1064 - val_loss: 0.0428 - val_mse: 0.0428 - val_mae: 0.1402
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00033-weights-v024.h5
+File: z__r_D00-D99__aa-be00778.pkl:  75%|███████████████████████████████████████████████████                 | 24/32 [06:14<02:04, 15.52s/it]Train on 799999 samples, validate on 200000 samples
+799999/799999 - 9s - loss: 0.0233 - mse: 0.0233 - mae: 0.1066 - val_loss: 0.0299 - val_mse: 0.0299 - val_mae: 0.1208
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00033-weights-v025.h5
+File: z__r_D00-D99__ab-be00778.pkl:  78%|█████████████████████████████████████████████████████▏              | 25/32 [06:32<01:52, 16.02s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0227 - mse: 0.0227 - mae: 0.1050 - val_loss: 0.0296 - val_mse: 0.0296 - val_mae: 0.1179
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00033-weights-v026.h5
+File: z__r_D00-D99__ac-be00778.pkl:  81%|███████████████████████████████████████████████████████▎            | 26/32 [06:49<01:37, 16.31s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0224 - mse: 0.0224 - mae: 0.1044 - val_loss: 0.0267 - val_mse: 0.0267 - val_mae: 0.1105
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00033-weights-v027.h5
+File: z__r_D00-D99__ad-be00778.pkl:  84%|█████████████████████████████████████████████████████████▍          | 27/32 [07:06<01:22, 16.51s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0222 - mse: 0.0222 - mae: 0.1042 - val_loss: 0.0340 - val_mse: 0.0340 - val_mae: 0.1236
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00033-weights-v028.h5
+File: z__r_D00-D99__ae-be00778.pkl:  88%|███████████████████████████████████████████████████████████▌        | 28/32 [07:22<01:06, 16.62s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0228 - mse: 0.0228 - mae: 0.1058 - val_loss: 0.0272 - val_mse: 0.0272 - val_mae: 0.1132
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00033-weights-v029.h5
+File: z__r_D00-D99__af-be00778.pkl:  91%|█████████████████████████████████████████████████████████████▋      | 29/32 [07:39<00:50, 16.72s/it]Train on 196335 samples, validate on 49084 samples
+196335/196335 - 2s - loss: 0.0242 - mse: 0.0242 - mae: 0.1093 - val_loss: 0.0365 - val_mse: 0.0365 - val_mae: 0.1288
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00033-weights-v030.h5
+File: z__r_E00-E99__aa-be00778.pkl:  94%|███████████████████████████████████████████████████████████████▊    | 30/32 [07:48<00:28, 14.13s/it]Train on 799999 samples, validate on 200000 samples
+799999/799999 - 9s - loss: 0.0217 - mse: 0.0217 - mae: 0.1025 - val_loss: 0.0267 - val_mse: 0.0267 - val_mae: 0.1103
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00033-weights-v031.h5
+File: z__r_E00-E99__ab-be00778.pkl:  97%|█████████████████████████████████████████████████████████████████▉  | 31/32 [08:05<00:15, 15.05s/it]Train on 548437 samples, validate on 137110 samples
+548437/548437 - 6s - loss: 0.0224 - mse: 0.0224 - mae: 0.1041 - val_loss: 0.0313 - val_mse: 0.0313 - val_mae: 0.1184
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00033-weights-v032.h5
+File: z__r_E00-E99__ab-be00778.pkl: 100%|████████████████████████████████████████████████████████████████████| 32/32 [08:18<00:00, 15.58s/it]
+(chess) ➜  code git:(master) ✗ 
+(chess) ➜  code git:(master) ✗ python step_03b_train.py                                \
+>     --action train                                      \
+>     --gpu_id=0                                          \
+>     --model_version=5                                   \
+>     --version_number=1                                  \
+>     --epochs=${EPOCHS}                                  \
+>     --batch_size=8192                                   \
+>     --validation_split=0.2                              \
+>     --generate_model_image=False                        \
+>     --input_dir="${PKL_PATH}"                           \
+>     --move_dir="${PKL_PATH_TRAINED}"                    \
+>     --file_suffix="pkl"                                 \
+>     --y_normalizer="normalize_003"                      \
+>     --callback=False                                    \
+>     --name_prefix="${MODEL_NAME_PREFIX}"                \
+>     --auto_load_new=True                                \
+>     --saved_weights_file="${SAVED_WEIGHTS_FILE}"        \
+>     && mv "${PKL_PATH_TRAINED}/"*.pkl "${PKL_PATH}"
+
+
+Namespace(action='train', auto_load_new=True, batch_size=8192, callback=False, epochs=1, file_suffix='pkl', generate_model_image=False, gpu_id=0, input_dir='/home/student/Desktop/fenil_pc/aggregated output 03/kingbase2019/04_pkl_data', model_version=5, move_dir='/home/student/Desktop/fenil_pc/aggregated output 03/kingbase2019/04_pkl_data_trained', name_prefix='ffnn_keras', saved_weights_file='../../Chess-Kesari-Models/ffnn_keras-mg005-be00778-sn003-ep00001-weights-v001.h5', validation_split=0.2, version_number=1, y_normalizer='normalize_003')
+
+
+INFO: auto_load_new: Trying
+INFO: auto_load_new: loading: '../../Chess-Kesari-Models/ffnn_keras-mg005-be00778-sn003-ep00033-weights-v032.h5'
+Model weights successfully loaded: ffnn_keras-mg005-be00778-sn003-ep00033-weights-v032.h5
+INFO: auto_load_new: Model loaded :)
+
+File: z__r_A00-A39__aa-be00778.pkl:   0%|                                                                             | 0/32 [00:00<?, ?it/s]Train on 799999 samples, validate on 200000 samples
+799999/799999 - 9s - loss: 0.0219 - mse: 0.0219 - mae: 0.1020 - val_loss: 0.0411 - val_mse: 0.0411 - val_mae: 0.1351
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00034-weights-v001.h5
+File: z__r_A00-A39__ab-be00778.pkl:   3%|██▏                                                                  | 1/32 [00:17<09:08, 17.70s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0214 - mse: 0.0214 - mae: 0.1012 - val_loss: 0.0427 - val_mse: 0.0427 - val_mae: 0.1395
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00034-weights-v002.h5
+File: z__r_A00-A39__ac-be00778.pkl:   6%|████▎                                                                | 2/32 [00:34<08:44, 17.50s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0210 - mse: 0.0210 - mae: 0.1003 - val_loss: 0.0419 - val_mse: 0.0419 - val_mae: 0.1359
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00034-weights-v003.h5
+File: z__r_A00-A39__ad-be00778.pkl:   9%|██████▍                                                              | 3/32 [00:51<08:22, 17.34s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0210 - mse: 0.0210 - mae: 0.1000 - val_loss: 0.0399 - val_mse: 0.0399 - val_mae: 0.1343
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00034-weights-v004.h5
+File: z__r_A00-A39__ae-be00778.pkl:  12%|████████▋                                                            | 4/32 [01:08<08:02, 17.23s/it]Train on 553428 samples, validate on 138357 samples
+553428/553428 - 6s - loss: 0.0209 - mse: 0.0209 - mae: 0.0993 - val_loss: 0.0395 - val_mse: 0.0395 - val_mae: 0.1310
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00034-weights-v005.h5
+File: z__r_A40-A79__aa-be00778.pkl:  16%|██████████▊                                                          | 5/32 [01:22<07:14, 16.11s/it]Train on 799999 samples, validate on 200000 samples
+799999/799999 - 9s - loss: 0.0213 - mse: 0.0213 - mae: 0.0991 - val_loss: 0.0451 - val_mse: 0.0451 - val_mae: 0.1387
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00034-weights-v006.h5
+File: z__r_A40-A79__ab-be00778.pkl:  19%|████████████▉                                                        | 6/32 [01:39<07:07, 16.45s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0213 - mse: 0.0213 - mae: 0.0987 - val_loss: 0.0444 - val_mse: 0.0444 - val_mae: 0.1398
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00034-weights-v007.h5
+File: z__r_A40-A79__ac-be00778.pkl:  22%|███████████████                                                      | 7/32 [01:56<06:55, 16.61s/it]Train on 639114 samples, validate on 159779 samples
+639114/639114 - 7s - loss: 0.0214 - mse: 0.0214 - mae: 0.0986 - val_loss: 0.0439 - val_mse: 0.0439 - val_mae: 0.1400
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00034-weights-v008.h5
+File: z__r_A80-A99__aa-be00778.pkl:  25%|█████████████████▎                                                   | 8/32 [02:11<06:25, 16.06s/it]Train on 410995 samples, validate on 102749 samples
+410995/410995 - 5s - loss: 0.0230 - mse: 0.0230 - mae: 0.1037 - val_loss: 0.0454 - val_mse: 0.0454 - val_mae: 0.1434
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00034-weights-v009.h5
+File: z__r_B00-B19__aa-be00778.pkl:  28%|███████████████████▍                                                 | 9/32 [02:22<05:36, 14.65s/it]Train on 799999 samples, validate on 200000 samples
+799999/799999 - 9s - loss: 0.0223 - mse: 0.0223 - mae: 0.1020 - val_loss: 0.0462 - val_mse: 0.0462 - val_mae: 0.1421
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00034-weights-v010.h5
+File: z__r_B00-B19__ab-be00778.pkl:  31%|█████████████████████▎                                              | 10/32 [02:39<05:39, 15.41s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0219 - mse: 0.0219 - mae: 0.1005 - val_loss: 0.0434 - val_mse: 0.0434 - val_mae: 0.1354
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00034-weights-v011.h5
+File: z__r_B00-B19__ac-be00778.pkl:  34%|███████████████████████▍                                            | 11/32 [02:56<05:33, 15.86s/it]Train on 722848 samples, validate on 180713 samples
+722848/722848 - 8s - loss: 0.0220 - mse: 0.0220 - mae: 0.1006 - val_loss: 0.0471 - val_mse: 0.0471 - val_mae: 0.1421
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00034-weights-v012.h5
+File: z__r_B20-B49__aa-be00778.pkl:  38%|█████████████████████████▌                                          | 12/32 [03:12<05:17, 15.86s/it]Train on 799999 samples, validate on 200000 samples
+799999/799999 - 9s - loss: 0.0234 - mse: 0.0234 - mae: 0.1055 - val_loss: 0.0316 - val_mse: 0.0316 - val_mae: 0.1198
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00034-weights-v013.h5
+File: z__r_B20-B49__ab-be00778.pkl:  41%|███████████████████████████▋                                        | 13/32 [03:29<05:08, 16.26s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0237 - mse: 0.0237 - mae: 0.1065 - val_loss: 0.0320 - val_mse: 0.0320 - val_mae: 0.1198
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00034-weights-v014.h5
+File: z__r_B20-B49__ac-be00778.pkl:  44%|█████████████████████████████▊                                      | 14/32 [03:46<04:56, 16.48s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0231 - mse: 0.0231 - mae: 0.1052 - val_loss: 0.0376 - val_mse: 0.0376 - val_mae: 0.1301
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00034-weights-v015.h5
+File: z__r_B20-B49__ad-be00778.pkl:  47%|███████████████████████████████▉                                    | 15/32 [04:03<04:42, 16.64s/it]Train on 294961 samples, validate on 73741 samples
+294961/294961 - 3s - loss: 0.0214 - mse: 0.0214 - mae: 0.1006 - val_loss: 0.0153 - val_mse: 0.0153 - val_mae: 0.0834
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00034-weights-v016.h5
+File: z__r_B50-B99__aa-be00778.pkl:  50%|██████████████████████████████████                                  | 16/32 [04:13<03:52, 14.53s/it]Train on 799999 samples, validate on 200000 samples
+799999/799999 - 9s - loss: 0.0257 - mse: 0.0257 - mae: 0.1115 - val_loss: 0.0312 - val_mse: 0.0312 - val_mae: 0.1196
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00034-weights-v017.h5
+File: z__r_B50-B99__ab-be00778.pkl:  53%|████████████████████████████████████▏                               | 17/32 [04:30<03:50, 15.34s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0249 - mse: 0.0249 - mae: 0.1094 - val_loss: 0.0315 - val_mse: 0.0315 - val_mae: 0.1198
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00034-weights-v018.h5
+File: z__r_B50-B99__ac-be00778.pkl:  56%|██████████████████████████████████████▎                             | 18/32 [04:47<03:41, 15.84s/it]Train on 35924 samples, validate on 8981 samples
+35924/35924 - 0s - loss: 0.0281 - mse: 0.0281 - mae: 0.1174 - val_loss: 0.0357 - val_mse: 0.0357 - val_mae: 0.1292
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00034-weights-v019.h5
+File: z__r_C00-C99__aa-be00778.pkl:  59%|████████████████████████████████████████▍                           | 19/32 [04:53<02:46, 12.79s/it]Train on 799999 samples, validate on 200000 samples
+799999/799999 - 9s - loss: 0.0249 - mse: 0.0249 - mae: 0.1103 - val_loss: 0.0297 - val_mse: 0.0297 - val_mae: 0.1179
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00034-weights-v020.h5
+File: z__r_C00-C99__ab-be00778.pkl:  62%|██████████████████████████████████████████▌                         | 20/32 [05:10<02:49, 14.11s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0247 - mse: 0.0247 - mae: 0.1097 - val_loss: 0.0281 - val_mse: 0.0281 - val_mae: 0.1145
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00034-weights-v021.h5
+File: z__r_C00-C99__ac-be00778.pkl:  66%|████████████████████████████████████████████▋                       | 21/32 [05:27<02:44, 14.97s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0240 - mse: 0.0240 - mae: 0.1086 - val_loss: 0.0279 - val_mse: 0.0279 - val_mae: 0.1152
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00034-weights-v022.h5
+File: z__r_C00-C99__ad-be00778.pkl:  69%|██████████████████████████████████████████████▊                     | 22/32 [05:44<02:35, 15.59s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0238 - mse: 0.0238 - mae: 0.1082 - val_loss: 0.0320 - val_mse: 0.0320 - val_mae: 0.1226
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00034-weights-v023.h5
+File: z__r_C00-C99__ae-be00778.pkl:  72%|████████████████████████████████████████████████▉                   | 23/32 [06:01<02:23, 15.99s/it]Train on 620521 samples, validate on 155131 samples
+620521/620521 - 7s - loss: 0.0224 - mse: 0.0224 - mae: 0.1049 - val_loss: 0.0425 - val_mse: 0.0425 - val_mae: 0.1415
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00034-weights-v024.h5
+File: z__r_D00-D99__aa-be00778.pkl:  75%|███████████████████████████████████████████████████                 | 24/32 [06:15<02:04, 15.55s/it]Train on 799999 samples, validate on 200000 samples
+799999/799999 - 9s - loss: 0.0228 - mse: 0.0228 - mae: 0.1057 - val_loss: 0.0298 - val_mse: 0.0298 - val_mae: 0.1178
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00034-weights-v025.h5
+File: z__r_D00-D99__ab-be00778.pkl:  78%|█████████████████████████████████████████████████████▏              | 25/32 [06:33<01:52, 16.10s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0223 - mse: 0.0223 - mae: 0.1040 - val_loss: 0.0295 - val_mse: 0.0295 - val_mae: 0.1171
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00034-weights-v026.h5
+File: z__r_D00-D99__ac-be00778.pkl:  81%|███████████████████████████████████████████████████████▎            | 26/32 [06:50<01:38, 16.35s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0220 - mse: 0.0220 - mae: 0.1035 - val_loss: 0.0263 - val_mse: 0.0263 - val_mae: 0.1093
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00034-weights-v027.h5
+File: z__r_D00-D99__ad-be00778.pkl:  84%|█████████████████████████████████████████████████████████▍          | 27/32 [07:07<01:22, 16.53s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0219 - mse: 0.0219 - mae: 0.1036 - val_loss: 0.0343 - val_mse: 0.0343 - val_mae: 0.1246
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00034-weights-v028.h5
+File: z__r_D00-D99__ae-be00778.pkl:  88%|███████████████████████████████████████████████████████████▌        | 28/32 [07:24<01:06, 16.65s/it]Train on 800000 samples, validate on 200000 samples
+800000/800000 - 9s - loss: 0.0224 - mse: 0.0224 - mae: 0.1049 - val_loss: 0.0271 - val_mse: 0.0271 - val_mae: 0.1126
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00034-weights-v029.h5
+File: z__r_D00-D99__af-be00778.pkl:  91%|█████████████████████████████████████████████████████████████▋      | 29/32 [07:40<00:50, 16.73s/it]Train on 196335 samples, validate on 49084 samples
+196335/196335 - 2s - loss: 0.0241 - mse: 0.0241 - mae: 0.1089 - val_loss: 0.0367 - val_mse: 0.0367 - val_mae: 0.1278
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00034-weights-v030.h5
+File: z__r_E00-E99__aa-be00778.pkl:  94%|███████████████████████████████████████████████████████████████▊    | 30/32 [07:49<00:28, 14.15s/it]Train on 799999 samples, validate on 200000 samples
+799999/799999 - 9s - loss: 0.0214 - mse: 0.0214 - mae: 0.1018 - val_loss: 0.0265 - val_mse: 0.0265 - val_mae: 0.1103
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00034-weights-v031.h5
+File: z__r_E00-E99__ab-be00778.pkl:  97%|█████████████████████████████████████████████████████████████████▉  | 31/32 [08:06<00:15, 15.08s/it]Train on 548437 samples, validate on 137110 samples
+548437/548437 - 6s - loss: 0.0222 - mse: 0.0222 - mae: 0.1035 - val_loss: 0.0312 - val_mse: 0.0312 - val_mae: 0.1170
+Model weights successfully saved: ffnn_keras-mg005-be00778-sn003-ep00034-weights-v032.h5
+File: z__r_E00-E99__ab-be00778.pkl: 100%|████████████████████████████████████████████████████████████████████| 32/32 [08:19<00:00, 15.62s/it]
+(chess) ➜  code git:(master) ✗ 
