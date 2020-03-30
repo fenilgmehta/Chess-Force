@@ -1,8 +1,6 @@
-# Chess-Kesari
+# Chess-Force
 
 Neural Network based chess AI
-
-Kesari = Lion (Sanskrit)
 
 # Steps for training a model
 1. Initialize the folder names
