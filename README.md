@@ -85,7 +85,7 @@ Neural Network based chess AI
 
 6.  * Play the game
         ```bash
-        MODEL_WEIGHTS_FILE="/home/student/Desktop/fenil_pc/Chess-Kesari-Models/ffnn_keras-mg005-be00778-sn003-ep00127-weights-v032.h5"
+        MODEL_WEIGHTS_FILE="/home/student/Desktop/fenil/35_Final Year Project/Chess-Kesari-Models/ffnn_keras-mg005-be00778-sn003-ep00127-weights-v032.h5"
       
         python step_04_play.py                              \
             play                                            \
