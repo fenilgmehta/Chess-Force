@@ -1,13 +1,47 @@
 # Chess-Force
 
 Neural Network based chess AI
+- [Usage](https://github.com/fenilgmehta/Chess-Force#usage)
+    * [Suggested steps to install all the prerequisites](https://github.com/fenilgmehta/Chess-Force#suggested-steps-to-install-all-the-prerequisites)
+    * [Steps for training and using a model](https://github.com/fenilgmehta/Chess-Force#steps-for-training-and-using-a-model)
+- [Usage help and documentation](https://github.com/fenilgmehta/Chess-Force#usage-help-and-documentation)
 
-# Steps for training a model
+
+## Usage
+
+#### Suggested steps to install all the prerequisites
+```bash
+# Open bash and run
+cd ~/Desktop
+git clone https://github.com/fenilgmehta/Chess-Force
+cd Chess-Force
+
+# Install miniconda3
+wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
+chmod +x Miniconda3-latest-Linux-x86_64.sh
+./Miniconda3-latest-Linux-x86_64.sh -bfu # b is batch mode, f is no error if already installed, u is update existing installation
+
+# Initialize miniconda3
+PREFIX=$HOME/miniconda3
+$PREFIX/bin/conda init
+
+# Create new environment
+conda create -y -n fm_chess python=3.7.7
+conda activate fm_chess
+
+# Install library dependencies
+pip install -r requirements_final.txt
+```
+
+#### Steps for training and using a model
+###### NOTE: run the following commands from the `Chess-Force/code` directory
 1. Initialize the folder names
     ```bash
-    # NOTE: run the following commands from the `code` directory
-    DATA_PATH="../../aggregated output 03/kaufman (copy)"
-    PGN_PATH="${DATA_PATH}/01_pgn_data"
+    # Activate the correct environment
+    # conda activate fm_chess
+
+    DATA_PATH="../../aggregated output 03/kaufman (copy)"   # EDIT this so that it points to the directory used for storing all the PGN/CSV/PKL data files used for training/testing/playing
+    PGN_PATH="${DATA_PATH}/01_pgn_data"                     # Paste the PGN files inside folder
     CSV_PATH="${DATA_PATH}/02_csv_data"
     CSV_SCORES_PATH="${DATA_PATH}/03_csv_score_data"
     CSV_SCORES_PATH_CONVERTED="${DATA_PATH}/03_csv_score_data_converted"
@@ -23,6 +57,9 @@ Neural Network based chess AI
 
 3.  * Setup worker nodes for computing the CentiPawn scores
         ```bash
+        # Activate the correct Python environment and run the following commands
+        # conda activate fm_chess
+
         # Install dispy library for distributed computing
         pip install dispy==4.11.1
       
@@ -58,10 +95,10 @@ Neural Network based chess AI
    
 5. Use the `pkl` files for training the ANN model
     ```bash
-    SAVED_WEIGHTS_FILE="../../Chess-Kesari-Models/ffnn_keras-mg005-be00778-sn003-ep00005-weights-v031.h5"
+    SAVED_WEIGHTS_FILE="../../Chess-Force-Models/ffnn_keras-mg005-be00778-sn003-ep00005-weights-v031.h5"
     MODEL_NAME_PREFIX="ffnn_keras"
     EPOCHS=8
-    WEIGHTS_SAVE_PATH="../../Chess-Kesari-Models"
+    WEIGHTS_SAVE_PATH="../../Chess-Force-Models"
     
     python step_03b_train.py train                          \
         --gpu=-1                                            \
@@ -85,7 +122,7 @@ Neural Network based chess AI
 
 6.  * Play the game
         ```bash
-        MODEL_WEIGHTS_FILE="/home/student/Desktop/fenil/35_Final Year Project/Chess-Kesari-Models/ffnn_keras-mg005-be00778-sn003-ep00127-weights-v032.h5"
+        MODEL_WEIGHTS_FILE="/home/student/Desktop/Chess-Force-Models/ffnn_keras-mg005-be00778-sn003-ep00127-weights-v032.h5"
       
         python step_04_play.py                              \
             play                                            \
@@ -98,8 +135,9 @@ Neural Network based chess AI
 
     * Predict move and score for chess boards stored in a CSV file
         ```bash
-        MODEL_WEIGHTS_FILE="/home/student/Desktop/fenil/35_Final Year Project/Chess-Kesari-Models/ffnn_keras-mg005-be00778-sn003-ep00127-weights-v032.h5"
+        MODEL_WEIGHTS_FILE="/home/student/Desktop/Chess-Force-Models/ffnn_keras-mg005-be00778-sn003-ep00127-weights-v032.h5"
 
+        # NOTE: edit the input_dir, output_dir and move_dir before running the command
         python step_04_play.py                              \
             predict_move                                    \
             --input_dir=PATH                                \
@@ -109,7 +147,7 @@ Neural Network based chess AI
         ```
  
 
-# Usage
+## Usage help and documentation
 * `python step_02_preprocess.py --help`
 * `python step_02a_preprocess_server_dispy.py --help`
 * `python step_03b_train.py --help`
