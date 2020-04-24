@@ -27,10 +27,13 @@ $PREFIX/bin/conda init
 
 # Create new environment
 conda create -y -n fm_chess python=3.7.7
+
+# NOTE: it is highly suggested that a new terminal be opened and then proceeded
 conda activate fm_chess
 
 # Install library dependencies
-pip install -r requirements_final.txt
+cd ~/Desktop/Chess-Force
+pip install -r requirements.txt
 ```
 
 #### Steps for training and using a model
@@ -39,6 +42,9 @@ pip install -r requirements_final.txt
     ```bash
     # Activate the correct environment
     # conda activate fm_chess
+    
+    # Goto the directory with source code
+    # cd ~/Desktop/Chess-Force/code
 
     DATA_PATH="../../aggregated output 03/kaufman (copy)"   # EDIT this so that it points to the directory used for storing all the PGN/CSV/PKL data files used for training/testing/playing
     PGN_PATH="${DATA_PATH}/01_pgn_data"                     # Paste the PGN files inside folder
@@ -62,7 +68,7 @@ pip install -r requirements_final.txt
 
         # Install dispy library for distributed computing
         pip install dispy==4.11.1
-      
+        
         # Run this on each worker so that it is ready to receive work from the master
         dispynode.py --debug --zombie_interval=1 --clean --cpus=1  
         ```
@@ -123,7 +129,7 @@ pip install -r requirements_final.txt
 6.  * Play the game
         ```bash
         MODEL_WEIGHTS_FILE="/home/student/Desktop/Chess-Force-Models/ffnn_keras-mg005-be00778-sn003-ep00127-weights-v032.h5"
-      
+        
         python step_04_play.py                              \
             play                                            \
             --game_type=mm                                  \
@@ -145,7 +151,14 @@ pip install -r requirements_final.txt
             --move_dir=PATH                                 \
             --model_weights_file="${MODEL_WEIGHTS_FILE}"
         ```
- 
+
+    * Iterate through the moves list
+        ```bash
+        python step_04_play.py iterate_moves --moves="['e2e4', 'd7d5', 'e4d5', 'd8d5', 'g1f3', 'g8f6', 'd2d4', 'd5e4', 'f1e2', 'c8f5', 'e1g1', 'e4c2', 'b1c3', 'c2d1', 'g2g4', 'd1c2', 'c3d5', 'f5g4', 'd5f6', 'g7f6', 'a2a4', 'c2e2', 'c1e3', 'g4f3', 'f1b1', 'h8g8', 'e3g5', 'g8g5']"       \
+        --analyze_game                                     \
+        --clear_screen                                     \
+        --delay=1.0
+        ```
 
 ## Usage help and documentation
 * `python step_02_preprocess.py --help`
