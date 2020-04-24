@@ -406,8 +406,10 @@ def iterate_moves(moves: List[str], analyze_game: bool, clear_screen: bool, dela
     flush_str = "\033c" if clear_screen else ''
     current_board = chess.Board()
 
+    engine_sf = None
     if analyze_game:
-        engine_sf = init_engine()
+        print("NOTE: the output of game analysis is CENTI-PAWN score\n")
+        engine_sf = init_engine(cpu_cores=1, analyse_time=0.1)
         chess_predict_4_analyse = ChessPredict(
             analyse_board=step_01.CustomEngine(
                 src_path=None, cp_score_max=8000, mate_score_max=10000,
@@ -421,12 +423,16 @@ def iterate_moves(moves: List[str], analyze_game: bool, clear_screen: bool, dela
             current_board.push(chess.Move.from_uci(mov_i))
         else:
             print("ERROR: invalid move, exiting the program")
-            return
+            break
         print(ChessPlayCLI.pretty_board(current_board, clear_screen))
-        if chess_predict_4_analyse is not None:
-            print(f"\nGame analysis[from white's perspective] = {chess_predict_4_analyse.analyse_board(current_board)}")
+        if analyze_game:
+            print(f"\nGame analysis[from white's perspective] = {1000*chess_predict_4_analyse.analyse_board(current_board):.2f}")
         time.sleep(delay)
         # print(flush_str)
+    if engine_sf is not None:
+        engine_sf.close()
+        print("Press CTRL+C to exit")
+    # os.kill(os.getpid(), 9)
 
 
 if __name__ == "__main__":
