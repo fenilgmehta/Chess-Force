@@ -203,7 +203,7 @@ class ChessPlayCLI:
         for i in range(len(res_out)):
             res_out[i] = colored(f"[{8 - i}] ", color_decoration) + res_out[i]
         res_out.insert(0, colored(f"   [a|b|c|d|e|f|g|h]", color_decoration))
-        res_out.insert(0, colored(f"\n### Board state number = {board.fullmove_number}\n", 'red', attrs=['bold', 'reverse']))
+        res_out.insert(0, colored(f"\n### Board state number = {board.fullmove_number}, {'white' if board.turn else 'black'}\n", 'red', attrs=['bold', 'reverse']))
         flush_str = "\033c" if clear_screen else ''
         res_out = flush_str + "\n".join(res_out) + "\n"
         return res_out
@@ -307,32 +307,40 @@ def play(player1_name: str, player2_name: str, game_type: str, model_weights_fil
             ffnn_keras = step_03a.FFNNBuilder.build_004(name_prefix='', version=1, callback=False, generate_model_image=False)
         else:
             ffnn_keras = step_03a.FFNNBuilder.build_005(name_prefix='', version=1, callback=False, generate_model_image=False)
-        ffnn_keras.c_load_weights(model_weights_file)
+        ffnn_keras.c_load_weights(model_weights_file, ".")
         return ffnn_keras
 
     player1_chess_predict, player2_chess_predict = None, None
-    if game_type == 'mm':
+    if 'e' in game_type:
+        engine_sf = init_engine()
+    if 'm' in game_type:
         ffnn_keras = init_model()
+
+    if game_type[0] == 'm':
         player1_chess_predict = ChessPredict(ffnn_keras.c_predict_board_1, ffnn_keras.c_predict_board_n, to_maximize=True)
-        player2_chess_predict = ChessPredict(ffnn_keras.c_predict_board_1, ffnn_keras.c_predict_board_n, to_maximize=False)
-    elif game_type == 'me':
-        ffnn_keras = init_model()
-        engine_sf = init_engine()
-        player1_chess_predict = ChessPredict(ffnn_keras.c_predict_board_1, ffnn_keras.c_predict_board_n, to_maximize=True)
-        player2_chess_predict = ChessPredict(predict_move_1=engine_sf.predict_move, to_maximize=False)
-    elif game_type == 'em':
-        ffnn_keras = init_model()
-        engine_sf = init_engine()
+    elif game_type[0] == 'e':
         player1_chess_predict = ChessPredict(predict_move_1=engine_sf.predict_move, to_maximize=True)
+    elif game_type[0] == 'h':
+        player1_chess_predict = None
+    else:
+        print(f"ERROR: invalid parameter --game_type={game_type}")
+        if engine_sf is not None: engine_sf.close()
+        return
+
+    if game_type[1] == 'm':
         player2_chess_predict = ChessPredict(ffnn_keras.c_predict_board_1, ffnn_keras.c_predict_board_n, to_maximize=False)
-    elif game_type == 'ee':
-        engine_sf = init_engine()
-        player1_chess_predict = ChessPredict(predict_move_1=engine_sf.predict_move, to_maximize=True)
-        player2_chess_predict = ChessPredict(predict_move_1=engine_sf.predict_move, to_maximize=False)
+    elif game_type[1] == 'e':
+        player2_chess_predict = ChessPredict(predict_move_1=engine_sf.predict_move, to_maximize=True)
+    elif game_type[1] == 'h':
+        player2_chess_predict = None
+    else:
+        print(f"ERROR: invalid parameter --game_type={game_type}")
+        if engine_sf is not None: engine_sf.close()
+        return
 
     chess_predict_4_analyse = None
     if analyze_game is True:
-        engine_predict = init_engine(cpu_cores=2, analyse_time=0.5);
+        engine_predict = init_engine(cpu_cores=2, analyse_time=0.5)
         chess_predict_4_analyse = ChessPredict(
             analyse_board=engine_predict.evaluate_normalized_board
         )
@@ -409,13 +417,9 @@ def iterate_moves(moves: List[str], analyze_game: bool, clear_screen: bool, dela
     engine_sf = None
     if analyze_game:
         print("NOTE: the output of game analysis is CENTI-PAWN score\n")
-        engine_sf = init_engine(cpu_cores=1, analyse_time=0.1)
+        engine_sf = init_engine(cpu_cores=1, analyse_time=0.5)
         chess_predict_4_analyse = ChessPredict(
-            analyse_board=step_01.CustomEngine(
-                src_path=None, cp_score_max=8000, mate_score_max=10000,
-                mate_score_difference=50, cpu_cores=1, hash_size_mb=16,
-                depth=20, analyse_time=0.5
-            ).evaluate_normalized_board
+            analyse_board=engine_sf.evaluate_normalized_board
         )
 
     for mov_i in moves:
@@ -429,10 +433,11 @@ def iterate_moves(moves: List[str], analyze_game: bool, clear_screen: bool, dela
             print(f"\nGame analysis[from white's perspective] = {1000*chess_predict_4_analyse.analyse_board(current_board):.2f}")
         time.sleep(delay)
         # print(flush_str)
-    if engine_sf is not None:
-        engine_sf.close()
-        print("Press CTRL+C to exit")
-    # os.kill(os.getpid(), 9)
+
+    if engine_sf is None: return
+    print("Closing the connection with the engine...", flush=True)
+    engine_sf.close()
+    print("Connection closed.", flush=True)
 
 
 if __name__ == "__main__":
@@ -449,7 +454,7 @@ if __name__ == "__main__":
     Options:
         --player1_name=NAME     Player 1 name [default: Player1]
         --player2_name=NAME     Player 2 name [default: Player2]
-        --game_type=TYPE        Type of the game to be played (TYPE can be: mm, me, em, ee)
+        --game_type=TYPE        Type of the game to be played (TYPE can be: mm, me, em, ee, hm, mh, he, eh, hh)
         --model_weights_file=PATH  Path to the neural network model, required if --game_type is either mm, me or em
         --analyze_game          Whether to use stockfish to analyze the game or not ?
         --clear_screen          Whether to clear the terminal output after each move or not ?
@@ -458,6 +463,8 @@ if __name__ == "__main__":
         --input_dir=PATH        Path to directory which has CSV files containing board states to predict move
         --output_dir=PATH       Path to directory where results shall be stored, default is input_dir
         --move_dir=PATH         Path to directory where processed files shall be moved
+
+        --moves=MOVESLIST       A string of list having chess moves in Universal Chess Interface(UCI) format
 
         -h --help               Show this
         --version               Show version
