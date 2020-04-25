@@ -5,7 +5,7 @@ Neural Network based chess AI
     * [Suggested steps to install all the prerequisites](https://github.com/fenilgmehta/Chess-Force#suggested-steps-to-install-all-the-prerequisites)
     * [Steps for training and using a model](https://github.com/fenilgmehta/Chess-Force#steps-for-training-and-using-a-model)
 - [Usage help and documentation](https://github.com/fenilgmehta/Chess-Force#usage-help-and-documentation)
-
+- [Architecture diagram](https://github.com/fenilgmehta/Chess-Force#architecture-diagram)
 
 ## Usage
 
@@ -165,3 +165,7 @@ pip install -r requirements.txt
 * `python step_02a_preprocess_server_dispy.py --help`
 * `python step_03b_train.py --help`
 * `python step_04_play.py --help`
+
+
+## Architecture diagram
+![Architecture diagram](images/Architecture%20Diagram.jpg "Architecture diagram")
