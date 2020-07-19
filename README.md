@@ -1,11 +1,18 @@
 # Chess-Force
 
 Neural Network based chess AI
+- [Papers published](https://github.com/fenilgmehta/Chess-Force#papers-published)
 - [Usage](https://github.com/fenilgmehta/Chess-Force#usage)
     * [Suggested steps to install all the prerequisites](https://github.com/fenilgmehta/Chess-Force#suggested-steps-to-install-all-the-prerequisites)
     * [Steps for training and using a model](https://github.com/fenilgmehta/Chess-Force#steps-for-training-and-using-a-model)
 - [Usage help and documentation](https://github.com/fenilgmehta/Chess-Force#usage-help-and-documentation)
 - [Architecture diagram](https://github.com/fenilgmehta/Chess-Force#architecture-diagram)
+
+
+## Papers published
+- Survey paper: [http://ijera.com/papers/vol10no4/Series-5/G1004053135.pdf](http://ijera.com/papers/vol10no4/Series-5/G1004053135.pdf)
+- Research paper: [http://ijera.com/papers/vol10no4/Series-1/B1004010508.pdf](http://ijera.com/papers/vol10no4/Series-1/B1004010508.pdf)
+
 
 ## Usage
 
@@ -159,6 +166,7 @@ pip install -r requirements.txt
         --clear_screen                                     \
         --delay=1.0
         ```
+
 
 ## Usage help and documentation
 * `python step_02_preprocess.py --help`
